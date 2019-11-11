@@ -2,6 +2,7 @@ package com.far.basesales.Adapters;
 
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.Color;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -39,9 +40,11 @@ public class ClientsAdapter extends RecyclerView.Adapter<ClientsAdapter.ClientRo
     public void onBindViewHolder(@NonNull ClientRowHolder holder, final int position) {
 
         if(selected!= null && selected.getCode().equals(objects.get(position).getCode())){
-            holder.itemView.setBackgroundColor(activity.getResources().getColor(R.color.amber_200));
+            holder.itemView.setBackgroundColor(activity.getResources().getColor(R.color.colorPrimary));
+            holder.setTextColor(activity.getResources().getColor(R.color.white));
         }else{
             holder.itemView.setBackgroundColor(activity.getResources().getColor(R.color.white));
+            holder.setTextColor(activity.getResources().getColor(R.color.text_view));
         }
         holder.fillData(objects.get(position));
         holder.itemView.setOnClickListener(new View.OnClickListener() {
@@ -65,18 +68,31 @@ public class ClientsAdapter extends RecyclerView.Adapter<ClientsAdapter.ClientRo
     }
 
     public class ClientRowHolder extends RecyclerView.ViewHolder {
-        TextView tvDocument,  tvName, tvPhone;
+        TextView tvTitle1, tvTitle2, tvTitle3, tvDocument,  tvName, tvPhone;
         public ClientRowHolder(View itemView) {
             super(itemView);
             tvDocument = itemView.findViewById(R.id.tvDocument);
             tvName = itemView.findViewById(R.id.tvName);
             tvPhone = itemView.findViewById(R.id.tvPhone);
+            tvTitle1 = itemView.findViewById(R.id.tvTitle1);
+            tvTitle2 = itemView.findViewById(R.id.tvTitle2);
+            tvTitle3 = itemView.findViewById(R.id.tvTitle3);
+
         }
 
         public void fillData(ClientRowModel crm){
             tvDocument.setText(crm.getDocument());
             tvName.setText(crm.getName());
             tvPhone.setText(crm.getPhone());
+        }
+
+        public void setTextColor(int c){
+            tvTitle1.setTextColor(c);
+            tvTitle2.setTextColor(c);
+            tvTitle3.setTextColor(c);
+            tvDocument.setTextColor(c);
+            tvName.setTextColor(c);
+            tvPhone.setTextColor(c);
         }
 
     }

@@ -54,7 +54,7 @@ public class UsersDialogFragment extends DialogFragment implements OnFailureList
         super.onCreate(savedInstanceState);
 
         // Pick a style based on the num.
-        int style = DialogFragment.STYLE_NORMAL, theme = 0;
+        int style = DialogFragment.STYLE_NO_TITLE, theme = 0;
         setStyle(style, theme);
         usersController = UsersController.getInstance(getActivity());
         userTypesController = UserTypesController.getInstance(getActivity());

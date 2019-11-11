@@ -52,7 +52,7 @@ public class MeasureUnitDialogFragment extends DialogFragment implements OnFailu
         super.onCreate(savedInstanceState);
 
         // Pick a style based on the num.
-        int style = DialogFragment.STYLE_NORMAL, theme = 0;
+        int style = DialogFragment.STYLE_NO_TITLE, theme = 0;
         setStyle(style, theme);
         measureUnitsController = MeasureUnitsController.getInstance(getActivity());
         measureUnitsInvController = MeasureUnitsInvController.getInstance(getActivity());

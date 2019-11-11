@@ -5,11 +5,14 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".MaintenanceProductTypes"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:background="@color/gray_200">
 
     <android.support.v7.widget.CardView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        app:cardBackgroundColor="@color/colorPrimary"
+        android:id="@+id/cvSpinner">
 
         <LinearLayout android:id="@+id/llSpinner"
             android:layout_width="match_parent"
@@ -21,13 +24,20 @@
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:textStyle="bold"
-                android:gravity="center_vertical"
-                android:text="Texto"/>
+                android:gravity="center"
+                android:text="Texto"
+                android:textColor="@color/white"
+                android:textSize="18sp"/>
+<RelativeLayout
+    android:layout_width="0dp"
+    android:layout_height="match_parent"
+    android:layout_weight="3"
+    android:background="@color/white">
+    <Spinner android:id="@+id/spn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+</RelativeLayout>
 
-            <Spinner android:id="@+id/spn"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="3"/>
         </LinearLayout>
 
     </android.support.v7.widget.CardView>

@@ -199,4 +199,6 @@ public class ReceiptResumeFragment extends Fragment {
     public void sendEmail(){
 
     }
+
+
 }

@@ -57,7 +57,6 @@ import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QuerySnapshot;
 
-import java.util.ArrayList;
 
 public class MainOrders extends AppCompatActivity implements ListableActivity/*, ReceiptableActivity*/, NavigationView.OnNavigationItemSelectedListener, OnFailureListener, OnCompleteListener, OnSuccessListener<QuerySnapshot> {
 
@@ -76,11 +75,7 @@ public class MainOrders extends AppCompatActivity implements ListableActivity/*,
     TempOrdersController tempOrdersController;
     String orderCode = null;
     //RelativeLayout rlNotifications;
-    CardView cvNotificacions;
-    TextView tvNotificationsNumber;
-    ImageView imgMenu, imgSeach, imgHideSearch, imgBell;
-    EditText etSearch;
-    LinearLayout llSearch, llMenu;
+
 
 
     /*DrawerLayout drawer;
@@ -106,73 +101,7 @@ public class MainOrders extends AppCompatActivity implements ListableActivity/*,
 
         productsMeasure = productsMeasureController.getReferenceFireStore();
 
-        //rlNotifications = findViewById(R.id.rlNotifications);
-        cvNotificacions = findViewById(R.id.cvNotifications);
-        tvNotificationsNumber = findViewById(R.id.tvNotificationNumber);
-        imgBell = findViewById(R.id.imgBell);
-        imgMenu = findViewById(R.id.imgMenu);
-        imgHideSearch = findViewById(R.id.imgHideSearch);
-        imgSeach = findViewById(R.id.imgSearch);
-        llSearch = findViewById(R.id.llSearch);
-        etSearch = findViewById(R.id.etSearch);
-        llMenu = findViewById(R.id.llMenu);
 
-        imgMenu.setVisibility(View.GONE);
-        imgSeach.setVisibility(View.VISIBLE);
-
-        etSearch.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                if (actionId == EditorInfo.IME_ACTION_SEARCH) {
-                    if(etSearch.getText().toString().trim().equals("")){
-                        return false;
-                    }
-                    newOrderFragment.setLastSearch(etSearch.getText().toString());
-                    imgHideSearch.performClick();
-
-                    newOrderFragment.search();
-
-                    return true;
-
-                }
-                return false;
-            }
-        });
-        imgSeach.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                llMenu.setVisibility(View.GONE);
-                //rlNotifications.setVisibility(View.GONE);
-                imgSeach.setVisibility(View.GONE);
-                llSearch.setVisibility(View.VISIBLE);
-                etSearch.requestFocus();
-                etSearch.setText("");
-                Funciones.showKeyBoard(etSearch, MainOrders.this);
-            }
-        });
-
-        imgHideSearch.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Funciones.hideKeyBoard(etSearch, MainOrders.this);
-
-                llMenu.setVisibility(View.VISIBLE);
-                //rlNotifications.setVisibility(View.VISIBLE);
-                imgSeach.setVisibility(View.VISIBLE);
-                llSearch.setVisibility(View.GONE);
-            }
-        });
-
-       /* rlNotifications.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(isEditingOrder()){
-                    return;
-                }
-
-               // callNotificationsDialog();
-            }
-        });*/
 
 
         newOrderFragment = new NewOrderFragment();
@@ -381,7 +310,7 @@ public class MainOrders extends AppCompatActivity implements ListableActivity/*,
     }
 
     public void prepareResumeForEdition(){
-        setThemeEditing();
+        //setThemeEditing();
         resumenOrderFragment.prepareResumeForEdition();
     }
     public void refreshProductsSearch(int goToPosition){
@@ -463,24 +392,6 @@ public class MainOrders extends AppCompatActivity implements ListableActivity/*,
         newOrderFragment.setUpSpinners();
     }
 
-    public void setThemeEditing(){
-        setTheme(R.style.ThemeEditing);
-        ((LinearLayout)findViewById(R.id.llParent)).setBackgroundColor(getResources().getColor(R.color.yellow_700));
-        ImageViewCompat.setImageTintList(imgMenu, ColorStateList.valueOf(getResources().getColor(android.R.color.black)));
-        ImageViewCompat.setImageTintList(imgSeach, ColorStateList.valueOf(getResources().getColor(android.R.color.black)));
-        ImageViewCompat.setImageTintList(imgHideSearch, ColorStateList.valueOf(getResources().getColor(android.R.color.black)));
-        ImageViewCompat.setImageTintList(imgBell, ColorStateList.valueOf(getResources().getColor(android.R.color.black)));
-
-
-    }
-    public void setThemeNormal(){
-        setTheme(R.style.AppTheme);
-        ((LinearLayout)findViewById(R.id.llParent)).setBackgroundColor(getResources().getColor(R.color.colorPrimary));
-        ImageViewCompat.setImageTintList(imgMenu, ColorStateList.valueOf(getResources().getColor(android.R.color.white)));
-        ImageViewCompat.setImageTintList(imgSeach, ColorStateList.valueOf(getResources().getColor(android.R.color.white)));
-        ImageViewCompat.setImageTintList(imgHideSearch, ColorStateList.valueOf(getResources().getColor(android.R.color.white)));
-        ImageViewCompat.setImageTintList(imgBell, ColorStateList.valueOf(getResources().getColor(android.R.color.white)));
-    }
 
     public void updateTempSalesDetail(){
         TempOrdersController.getInstance(MainOrders.this).updatePrices();
@@ -515,7 +426,7 @@ public class MainOrders extends AppCompatActivity implements ListableActivity/*,
 
     public void showPaymentConfirmation(){
         dialogConfirmPayment = null;
-        dialogConfirmPayment = Funciones.getCustomDialog2Btn(MainOrders.this, "Confirmacion", "Esta seguro que desea concretar el pago?", R.drawable.ic_action_monetization_on, new View.OnClickListener() {
+        dialogConfirmPayment = Funciones.getCustomDialog2Btn(MainOrders.this,getResources().getColor(R.color.colorPrimary), "Confirmacion", "Esta seguro que desea concretar el pago?", R.drawable.money, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
              showLoadingDialog();

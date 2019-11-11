@@ -51,7 +51,7 @@ public class ClientsDialogFragment extends DialogFragment implements OnFailureLi
         super.onCreate(savedInstanceState);
 
         // Pick a style based on the num.
-        int style = DialogFragment.STYLE_NORMAL, theme = 0;
+        int style = DialogFragment.STYLE_NO_TITLE, theme = 0;
         setStyle(style, theme);
         clientsController = ClientsController.getInstance(getActivity());
 

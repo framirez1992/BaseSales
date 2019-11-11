@@ -43,7 +43,7 @@ public class ProductsDialogfragment extends DialogFragment implements OnFailureL
 
     private Products tempObj;
 
-    LinearLayout llSave;
+    LinearLayout llSave, llBack;
     TextInputEditText etCode, etName;
     Spinner spnFamily, spnGroup;
     RecyclerView rvMeasures;
@@ -79,7 +79,7 @@ public class ProductsDialogfragment extends DialogFragment implements OnFailureL
         super.onCreate(savedInstanceState);
 
         // Pick a style based on the num.
-        int style = DialogFragment.STYLE_NORMAL, theme = 0;
+        int style = DialogFragment.STYLE_NO_TITLE, theme = 0;
         setStyle(style, theme);
         productsController = ProductsController.getInstance(getActivity());
         productsInvController = ProductsInvController.getInstance(getActivity());
@@ -123,6 +123,7 @@ public class ProductsDialogfragment extends DialogFragment implements OnFailureL
         llMeasureScreen = view.findViewById(R.id.llMeasureScreen);
         llNext = view.findViewById(R.id.llNext);
         llSave = view.findViewById(R.id.llSave);
+        llBack = view.findViewById(R.id.llBack);
         etCode = view.findViewById(R.id.etCode);
         etName = view.findViewById(R.id.etName);
         spnFamily = view.findViewById(R.id.spnFamilia);
@@ -154,6 +155,14 @@ public class ProductsDialogfragment extends DialogFragment implements OnFailureL
                 }
                 llSave.setEnabled(true);
                 //closeLoadingDialog();
+            }
+        });
+
+        llBack.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                llMainScreen.setVisibility((llMainScreen.getVisibility() == View.GONE)?View.VISIBLE:View.GONE);
+                llMeasureScreen.setVisibility((llMeasureScreen.getVisibility() == View.VISIBLE)?View.GONE:View.VISIBLE);
             }
         });
 

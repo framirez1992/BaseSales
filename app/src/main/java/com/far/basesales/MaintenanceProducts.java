@@ -6,6 +6,7 @@ import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
@@ -14,8 +15,10 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 
@@ -273,7 +276,7 @@ public class MaintenanceProducts extends AppCompatActivity implements ListableAc
         }
         final Dialog d = Funciones.getAlertDeleteAllDependencies(MaintenanceProducts.this,description,
                 (type.equals(CODES.ENTITY_TYPE_EXTRA_PRODUCTSFORSALE)?productsController.getDependencies(products.getCODE()):productsInvController.getDependencies(products.getCODE())));
-        Button btnAceptar = d.findViewById(R.id.btnPositive);
+        CardView btnAceptar = d.findViewById(R.id.btnPositive);
         btnAceptar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -289,7 +292,10 @@ public class MaintenanceProducts extends AppCompatActivity implements ListableAc
             }
         });
 
-       d.show();
+        d.show();
+        Window window = d.getWindow();
+        window.setLayout(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        window.setBackgroundDrawableResource(android.R.color.transparent);
 
     }
 

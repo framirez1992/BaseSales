@@ -6,6 +6,7 @@ import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.ContextMenu;
@@ -13,8 +14,11 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.SearchView;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -28,6 +32,7 @@ import com.far.basesales.Controllers.UserControlController;
 import com.far.basesales.Dialogs.UserControlDialogFragment;
 import com.far.basesales.Generic.KV;
 import com.far.basesales.Interfases.ListableActivity;
+import com.far.basesales.Utils.Funciones;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestoreException;
@@ -184,14 +189,10 @@ public class MaintenanceUsersControl extends AppCompatActivity implements Listab
             description = userControl.getCONTROL();
         }
 
-        final Dialog d = new Dialog(MaintenanceUsersControl.this);
-        d.setTitle("Delete");
-        d.setContentView(R.layout.msg_2_buttons);
-        TextView tvMsg = d.findViewById(R.id.tvMsg);
-        Button btnAceptar = d.findViewById(R.id.btnPositive);
-        Button btnCancelar = d.findViewById(R.id.btnNegative);
-
-        tvMsg.setText("Esta seguro que desea eliminar \'"+description+"\' permanentemente?");
+        String msg = "Esta seguro que desea eliminar \'"+description+"\' permanentemente?";
+        final Dialog d = Funciones.getCustomDialog2Btn(this,getResources().getColor(R.color.red_700),"Delete", msg,R.drawable.delete,null, null);
+        CardView btnAceptar = d.findViewById(R.id.btnPositive);
+        CardView btnCancelar = d.findViewById(R.id.btnNegative);
         btnAceptar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -210,6 +211,9 @@ public class MaintenanceUsersControl extends AppCompatActivity implements Listab
         });
 
         d.show();
+        Window window = d.getWindow();
+        window.setLayout(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        window.setBackgroundDrawableResource(android.R.color.transparent);
 
     }
 

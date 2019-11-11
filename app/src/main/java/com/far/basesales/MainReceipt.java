@@ -86,5 +86,14 @@ public class MainReceipt extends AppCompatActivity implements ListableActivity {
     }
 
 
+    @Override
+    public void onBackPressed() {
+        if(lastFragment instanceof ReceiptResumeFragment){
+            showReceiptList();
+        }else{
+            super.onBackPressed();
+        }
 
+
+    }
 }

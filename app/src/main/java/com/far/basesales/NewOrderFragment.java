@@ -1,18 +1,26 @@
 package com.far.basesales;
 
 
+import android.content.res.ColorStateList;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.ImageViewCompat;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
 import android.widget.AdapterView;
+import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
+import android.widget.TextView;
 
 import com.far.basesales.Adapters.NewOrderProductRowAdapter;
 import com.far.basesales.CloudFireStoreObjects.Sales;
@@ -20,6 +28,7 @@ import com.far.basesales.Controllers.ProductsController;
 import com.far.basesales.Controllers.ProductsSubTypesController;
 import com.far.basesales.Controllers.ProductsTypesController;
 import com.far.basesales.Generic.KV;
+import com.far.basesales.Utils.Funciones;
 
 import java.util.ArrayList;
 
@@ -33,6 +42,12 @@ public class NewOrderFragment extends Fragment {
     Spinner spnFamilia, spnGrupo;
     RecyclerView rvList;
     LinearLayout llGoResumen;
+
+    CardView cvNotificacions;
+    TextView tvNotificationsNumber;
+    ImageView imgMenu, imgSeach, imgHideSearch, imgBell;
+    EditText etSearch;
+    LinearLayout llParent, llSearch, llMenu;
 
     String lastType = null;
     String lastSubType = null;
@@ -70,11 +85,82 @@ public class NewOrderFragment extends Fragment {
 
     public void init(View v){
 
+        llParent = v.findViewById(R.id.llParent);
+        cvNotificacions = v.findViewById(R.id.cvNotifications);
+        tvNotificationsNumber = v.findViewById(R.id.tvNotificationNumber);
+        imgBell = v.findViewById(R.id.imgBell);
+        imgMenu = v.findViewById(R.id.imgMenu);
+        imgHideSearch = v.findViewById(R.id.imgHideSearch);
+        imgSeach = v.findViewById(R.id.imgSearch);
+        llSearch = v.findViewById(R.id.llSearch);
+        etSearch = v.findViewById(R.id.etSearch);
+        llMenu = v.findViewById(R.id.llMenu);
+
+        imgMenu.setVisibility(View.GONE);
+        imgSeach.setVisibility(View.VISIBLE);
+
         llGoResumen = v.findViewById(R.id.llGoResumen);
         spnFamilia = v.findViewById(R.id.spnFamilia);
         spnGrupo = v.findViewById(R.id.spnGrupo);
         rvList = v.findViewById(R.id.rvProductsList);
         rvList.setLayoutManager(new LinearLayoutManager(this.getContext()));
+
+
+        etSearch.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if (actionId == EditorInfo.IME_ACTION_SEARCH) {
+                    if(etSearch.getText().toString().trim().equals("")){
+                        return false;
+                    }
+                    setLastSearch(etSearch.getText().toString());
+                    imgHideSearch.performClick();
+
+                    search();
+
+                    return true;
+
+                }
+                return false;
+            }
+        });
+        imgSeach.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                llMenu.setVisibility(View.GONE);
+                //rlNotifications.setVisibility(View.GONE);
+                imgSeach.setVisibility(View.GONE);
+                llSearch.setVisibility(View.VISIBLE);
+                etSearch.requestFocus();
+                etSearch.setText("");
+                Funciones.showKeyBoard(etSearch, parentActivity);
+            }
+        });
+
+        imgHideSearch.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Funciones.hideKeyBoard(etSearch, parentActivity);
+
+                llMenu.setVisibility(View.VISIBLE);
+                //rlNotifications.setVisibility(View.VISIBLE);
+                imgSeach.setVisibility(View.VISIBLE);
+                llSearch.setVisibility(View.GONE);
+            }
+        });
+
+       /* rlNotifications.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(isEditingOrder()){
+                    return;
+                }
+
+               // callNotificationsDialog();
+            }
+        });*/
+
+
 
 
         if(llGoResumen != null) {
@@ -211,5 +297,27 @@ public class NewOrderFragment extends Fragment {
         spnGrupo.setOnItemSelectedListener(spnGrupoListener);
         ProductsTypesController.getInstance(parentActivity).fillSpinner(spnFamilia, false);
     }
+
+
+
+    public void setThemeEditing(){
+        parentActivity.setTheme(R.style.ThemeEditing);
+        llParent.setBackgroundColor(getResources().getColor(R.color.yellow_700));
+        ImageViewCompat.setImageTintList(imgMenu, ColorStateList.valueOf(getResources().getColor(android.R.color.black)));
+        ImageViewCompat.setImageTintList(imgSeach, ColorStateList.valueOf(getResources().getColor(android.R.color.black)));
+        ImageViewCompat.setImageTintList(imgHideSearch, ColorStateList.valueOf(getResources().getColor(android.R.color.black)));
+        ImageViewCompat.setImageTintList(imgBell, ColorStateList.valueOf(getResources().getColor(android.R.color.black)));
+
+
+    }
+    public void setThemeNormal(){
+        parentActivity.setTheme(R.style.AppTheme);
+        llParent.setBackgroundColor(getResources().getColor(R.color.colorPrimary));
+        ImageViewCompat.setImageTintList(imgMenu, ColorStateList.valueOf(getResources().getColor(android.R.color.white)));
+        ImageViewCompat.setImageTintList(imgSeach, ColorStateList.valueOf(getResources().getColor(android.R.color.white)));
+        ImageViewCompat.setImageTintList(imgHideSearch, ColorStateList.valueOf(getResources().getColor(android.R.color.white)));
+        ImageViewCompat.setImageTintList(imgBell, ColorStateList.valueOf(getResources().getColor(android.R.color.white)));
+    }
+
 
 }

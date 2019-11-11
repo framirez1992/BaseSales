@@ -2,7 +2,9 @@
 <android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="5dp">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_margin="5dp"
+    app:cardBackgroundColor="@color/white">
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -24,12 +26,16 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal">
-                    <TextView android:layout_width="wrap_content"
+
+                    <TextView android:id="@+id/tvTitle1"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Documento: "
                         android:textStyle="bold"
                         android:gravity="center_vertical"
-                        android:textSize="16sp"/>
+                        android:textSize="16sp"
+                        android:textColor="@color/text_view"/>
+
                     <TextView android:id="@+id/tvDocument"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
@@ -37,19 +43,22 @@
                         android:textStyle="bold"
                         android:layout_weight="10"
                         android:gravity="center_vertical"
-                        android:textSize="16sp"/>
+                        android:textSize="16sp"
+                        android:textColor="@color/text_view"/>
                 </LinearLayout>
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal">
-                    <TextView android:layout_width="wrap_content"
+                    <TextView android:id="@+id/tvTitle2"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Nombre: "
                         android:textStyle="bold"
                         android:gravity="center_vertical"
-                        android:textSize="16sp"/>
+                        android:textSize="16sp"
+                        android:textColor="@color/text_view"/>
                     <TextView android:id="@+id/tvName"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
@@ -57,19 +66,23 @@
                         android:textStyle="bold"
                         android:layout_weight="10"
                         android:gravity="center_vertical"
-                        android:textSize="16sp"/>
+                        android:textSize="16sp"
+                        android:textColor="@color/text_view"/>
                 </LinearLayout>
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal">
-                    <TextView android:layout_width="wrap_content"
+
+                    <TextView android:id="@+id/tvTitle3"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Telefono: "
                         android:textStyle="bold"
                         android:gravity="center_vertical"
-                        android:textSize="16sp"/>
+                        android:textSize="16sp"
+                        android:textColor="@color/text_view"/>
                     <TextView android:id="@+id/tvPhone"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
@@ -77,7 +90,8 @@
                         android:textStyle="bold"
                         android:layout_weight="10"
                         android:gravity="center_vertical"
-                        android:textSize="16sp"/>
+                        android:textSize="16sp"
+                        android:textColor="@color/text_view"/>
                 </LinearLayout>
 
             </LinearLayout>

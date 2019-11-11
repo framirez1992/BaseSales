@@ -6,6 +6,7 @@ import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
@@ -14,7 +15,9 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -65,8 +68,7 @@ public class MaintenanceProductTypes extends AppCompatActivity implements Listab
         productsTypesInvController = ProductsTypesInvController.getInstance(MaintenanceProductTypes.this);
         licence = LicenseController.getInstance(MaintenanceProductTypes.this).getLicense();
 
-
-        ((LinearLayout)findViewById(R.id.llSpinner)).setVisibility(View.GONE);
+        findViewById(R.id.cvSpinner).setVisibility(View.GONE);
 
         rvList = findViewById(R.id.rvList);
         objects = new ArrayList<>();
@@ -194,14 +196,11 @@ public class MaintenanceProductTypes extends AppCompatActivity implements Listab
             description = productsType.getDESCRIPTION();
         }
 
-        final Dialog d = new Dialog(MaintenanceProductTypes.this);
-        d.setTitle("Delete");
-        d.setContentView(R.layout.msg_2_buttons);
-        TextView tvMsg = d.findViewById(R.id.tvMsg);
-        Button btnAceptar = d.findViewById(R.id.btnPositive);
-        Button btnCancelar = d.findViewById(R.id.btnNegative);
+        String msg = "Esta seguro que desea eliminar \'"+description+"\' permanentemente?";
+        final Dialog d = Funciones.getCustomDialog2Btn(this,getResources().getColor(R.color.red_700),"Delete", msg,R.drawable.delete,null, null);
+        CardView btnAceptar = d.findViewById(R.id.btnPositive);
+        CardView btnCancelar = d.findViewById(R.id.btnNegative);
 
-        tvMsg.setText("Esta seguro que desea eliminar \'"+description+"\' permanentemente?");
         btnAceptar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -232,6 +231,9 @@ public class MaintenanceProductTypes extends AppCompatActivity implements Listab
         });
 
         d.show();
+        Window window = d.getWindow();
+        window.setLayout(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        window.setBackgroundDrawableResource(android.R.color.transparent);
 
     }
 

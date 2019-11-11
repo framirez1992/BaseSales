@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    tools:context=".NewOrderFragment">
+    tools:context=".NewOrderFragment"
+    android:background="@color/gray_200">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -16,7 +16,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:minHeight="200dp"
-            android:backgroundTint="@color/colorPrimary">
+            app:cardBackgroundColor="@color/colorPrimary">
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
@@ -41,8 +41,8 @@
                         android:gravity="left"
                         android:layout_gravity="center_vertical">
                         <ImageView
-                            android:layout_width="30dp"
-                            android:layout_height="30dp"
+                            android:layout_width="50dp"
+                            android:layout_height="50dp"
                             android:src="@drawable/ic_action_list_alt"
                             android:tint="@color/white"
                             android:layout_marginRight="5dp"/>
@@ -52,7 +52,7 @@
                             android:text="Resumen"
                             android:gravity="center_vertical"
                             android:textStyle="bold"
-                            android:textSize="16dp"
+                            android:textSize="18dp"
                             android:textColor="@color/white"/>
                     </LinearLayout>
 
@@ -88,8 +88,8 @@
                         android:layout_weight="1"
                         android:gravity="right">
                         <ImageView
-                            android:layout_width="30dp"
-                            android:layout_height="30dp"
+                            android:layout_width="40dp"
+                            android:layout_height="40dp"
                             android:src="@drawable/ic_action_check_circle"
                             android:tint="@color/white"/>
                         <TextView
@@ -98,7 +98,8 @@
                             android:text=" Facturar"
                             android:gravity="center_vertical"
                             android:textStyle="bold"
-                            android:textColor="@color/white"/>
+                            android:textColor="@color/white"
+                            android:textSize="18sp"/>
                     </LinearLayout>
 
 

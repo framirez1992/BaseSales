@@ -131,7 +131,7 @@ public class ResumenOrderFragment extends Fragment {
             public void onClick(View v) {
                 llCancel.setVisibility(View.GONE);
                 parentActivity.prepareNewOrder();
-                parentActivity.setThemeNormal();
+                //parentActivity.setThemeNormal();
                 parentActivity.refresh();
             }
         });
@@ -205,7 +205,7 @@ public class ResumenOrderFragment extends Fragment {
             salesController.editDetailToFireBase(s, tempOrdersController.getTempSalesDetails(s));
 
             parentActivity.refresh();
-            parentActivity.setThemeNormal();
+            //parentActivity.setThemeNormal();
         }catch (Exception e){
             e.printStackTrace();
         }

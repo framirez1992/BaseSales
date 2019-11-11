@@ -13,4 +13,6 @@
     <color name="blue_gray50">#ECEFF1</color>
     <color name="red_700">#D32F2F</color>
     <color name="gray_200">#EEEEEE</color>
+    <color name="gray_400">#BDBDBD</color>
+    <color name="text_view">#808080</color>
 </resources>

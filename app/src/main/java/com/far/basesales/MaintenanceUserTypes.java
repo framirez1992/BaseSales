@@ -6,6 +6,7 @@ import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
@@ -14,7 +15,10 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
 import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.far.basesales.Adapters.Models.SimpleRowModel;
@@ -150,14 +154,10 @@ public class MaintenanceUserTypes extends AppCompatActivity implements ListableA
             description = userTypes.getDESCRIPTION();
         }
 
-        final Dialog d = new Dialog(MaintenanceUserTypes.this);
-        d.setTitle("Delete");
-        d.setContentView(R.layout.msg_2_buttons);
-        TextView tvMsg = d.findViewById(R.id.tvMsg);
-        Button btnAceptar = d.findViewById(R.id.btnPositive);
-        Button btnCancelar = d.findViewById(R.id.btnNegative);
-
-        tvMsg.setText("Esta seguro que desea eliminar \'"+description+"\' permanentemente?");
+        String msg = "Esta seguro que desea eliminar \'"+description+"\' permanentemente?";
+        final Dialog d = Funciones.getCustomDialog2Btn(this,getResources().getColor(R.color.red_700),"Delete", msg,R.drawable.delete,null, null);
+        CardView btnAceptar = d.findViewById(R.id.btnPositive);
+        CardView btnCancelar = d.findViewById(R.id.btnNegative);
         btnAceptar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -183,6 +183,9 @@ public class MaintenanceUserTypes extends AppCompatActivity implements ListableA
         });
 
         d.show();
+        Window window = d.getWindow();
+        window.setLayout(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        window.setBackgroundDrawableResource(android.R.color.transparent);
 
     }
 

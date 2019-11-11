@@ -6,6 +6,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.ContextMenu;
@@ -13,7 +14,9 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.SearchView;
 import android.widget.Spinner;
@@ -27,6 +30,7 @@ import com.far.basesales.Controllers.ClientsController;
 import com.far.basesales.Controllers.LicenseController;
 import com.far.basesales.Dialogs.ClientsDialogFragment;
 import com.far.basesales.Interfases.ListableActivity;
+import com.far.basesales.Utils.Funciones;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestoreException;
@@ -52,7 +56,7 @@ public class MaintenanceClients extends AppCompatActivity implements ListableAct
         clientsController = ClientsController.getInstance(MaintenanceClients.this);
         licence = LicenseController.getInstance(MaintenanceClients.this).getLicense();
 
-        ((LinearLayout)findViewById(R.id.llSpinner)).setVisibility(View.GONE);
+        findViewById(R.id.cvSpinner).setVisibility(View.GONE);
 
         rvList = findViewById(R.id.rvList);
 
@@ -152,14 +156,10 @@ public class MaintenanceClients extends AppCompatActivity implements ListableAct
             description = clients.getNAME();
         }
 
-        final Dialog d = new Dialog(MaintenanceClients.this);
-        d.setTitle("Delete");
-        d.setContentView(R.layout.msg_2_buttons);
-        TextView tvMsg = d.findViewById(R.id.tvMsg);
-        Button btnAceptar = d.findViewById(R.id.btnPositive);
-        Button btnCancelar = d.findViewById(R.id.btnNegative);
-
-        tvMsg.setText("Esta seguro que desea eliminar \'"+description+"\' permanentemente?");
+        String msg = "Esta seguro que desea eliminar \'"+description+"\' permanentemente?";
+        final Dialog d = Funciones.getCustomDialog2Btn(this,getResources().getColor(R.color.red_700),"Delete", msg,R.drawable.delete,null, null);
+        CardView btnAceptar = d.findViewById(R.id.btnPositive);
+        CardView btnCancelar = d.findViewById(R.id.btnNegative);
         btnAceptar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -178,6 +178,9 @@ public class MaintenanceClients extends AppCompatActivity implements ListableAct
         });
 
         d.show();
+        Window window = d.getWindow();
+        window.setLayout(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        window.setBackgroundDrawableResource(android.R.color.transparent);
 
     }
 

@@ -9,10 +9,12 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.CardView;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -56,7 +58,8 @@ public class Login extends AppCompatActivity implements OnFailureListener, FireB
     Dialog cargaInicialDialog;
     LinearLayout llProgressBar;
     EditText etUser, etPassword;
-    Button btnLogin, btnAceptar;
+    Button btnLogin;
+    CardView btnAceptar;
     EditText etUserDialog, etKeyDialog;
     TextView tvMessageDialog, tvPhoneID;
 
@@ -198,6 +201,9 @@ public class Login extends AppCompatActivity implements OnFailureListener, FireB
 
     public void showCargaInicialDialog() {
         cargaInicialDialog.show();
+        Window window = cargaInicialDialog.getWindow();
+        window.setLayout(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        window.setBackgroundDrawableResource(android.R.color.transparent);
     }
 
     public void startLoading(){
@@ -428,6 +434,7 @@ public class Login extends AppCompatActivity implements OnFailureListener, FireB
     public void initDialog(){
         try {
             cargaInicialDialog = new Dialog(Login.this);
+            cargaInicialDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
             cargaInicialDialog.setContentView(R.layout.dialog_2edit_button);
             llProgressBar = cargaInicialDialog.findViewById(R.id.llProgress);
             etKeyDialog = cargaInicialDialog.findViewById(R.id.etKey);

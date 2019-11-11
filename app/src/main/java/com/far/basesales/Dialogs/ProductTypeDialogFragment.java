@@ -6,9 +6,11 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.design.widget.TextInputEditText;
 import android.support.v4.app.DialogFragment;
+import android.support.v4.app.FragmentTransaction;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.LinearLayout;
 
 import com.far.basesales.CloudFireStoreObjects.ProductsTypes;
@@ -57,10 +59,11 @@ public  class ProductTypeDialogFragment extends DialogFragment implements OnFail
         super.onCreate(savedInstanceState);
 
         // Pick a style based on the num.
-        int style = DialogFragment.STYLE_NORMAL, theme = 0;
+        int style = DialogFragment.STYLE_NO_TITLE, theme = 0;
         setStyle(style, theme);
         productsTypesController = ProductsTypesController.getInstance(getActivity());
         productsTypesInvController = ProductsTypesInvController.getInstance(getActivity());
+
 
     }
 
@@ -81,6 +84,8 @@ public  class ProductTypeDialogFragment extends DialogFragment implements OnFail
     @Override
     public void onStart() {
         super.onStart();
+        Window window = getDialog().getWindow();
+        window.setBackgroundDrawableResource(android.R.color.transparent);
         Funciones.showKeyBoard(etName);
     }
 
@@ -90,9 +95,9 @@ public  class ProductTypeDialogFragment extends DialogFragment implements OnFail
         ViewGroup.LayoutParams params = getDialog().getWindow().getAttributes();
         params.width = ViewGroup.LayoutParams.MATCH_PARENT;
         params.height = ViewGroup.LayoutParams.MATCH_PARENT;
-        getDialog().getWindow().setAttributes((android.view.WindowManager.LayoutParams) params);
+        Window window = getDialog().getWindow();
+        window.setAttributes((android.view.WindowManager.LayoutParams) params);
     }
-
 
     public void init(View view){
         llSave = view.findViewById(R.id.llSave);

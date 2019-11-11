@@ -8,16 +8,19 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.ColorStateList;
 import android.database.Cursor;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
+import android.support.v4.widget.ImageViewCompat;
 import android.support.v7.widget.CardView;
 import android.telephony.SmsManager;
 import android.util.DisplayMetrics;
 import android.view.View;
+import android.view.Window;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -419,11 +422,8 @@ public class Funciones {
         for(KV2 s: tables){
             msgDependency+= s.getCode()+"\n";
         }
-        final Dialog d = new Dialog(c);
-        d.setContentView(R.layout.msg_2_buttons);
-        d.setTitle("Delete");
-        TextView tvMsg = d.findViewById(R.id.tvMsg);
-        tvMsg.setText("Esta seguro que desea eliminar ["+itemName+"]  permanentemente?\nTambien seran eliminadas todas las dependencias en: \n"+msgDependency);
+        String msg = "Esta seguro que desea eliminar ["+itemName+"]  permanentemente?\nTambien seran eliminadas todas las dependencias en: \n"+msgDependency;
+        final Dialog d = getCustomDialog2Btn(c,c.getResources().getColor(R.color.red_700),"Delete", msg,R.drawable.delete,null, null);
         d.findViewById(R.id.btnNegative).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -508,15 +508,20 @@ public class Funciones {
     }
 
 
-    public static Dialog getCustomDialog2Btn(Context context, String title, String msg, int icon, View.OnClickListener positive, View.OnClickListener negative){
+    public static Dialog getCustomDialog2Btn(Context context,int color,  String title, String msg, int icon, View.OnClickListener positive, View.OnClickListener negative){
          Dialog d = new Dialog(context);
-         d.setContentView(R.layout.custom_dialog_2btn);
+         d.setContentView(R.layout.msg_2_buttons);
          d.setCancelable(false);
+        ((CardView)d.findViewById(R.id.cvCard)).setCardBackgroundColor(color);
         ((TextView)d.findViewById(R.id.tvTitle)).setText(title);
         ((TextView)d.findViewById(R.id.tvMsg)).setText(msg);
-        ((ImageView)d.findViewById(R.id.img)).setImageResource(icon);
-        ((CardView)d.findViewById(R.id.cvOk)).setOnClickListener(positive);
-        ((CardView)d.findViewById(R.id.cvCancel)).setOnClickListener(negative);
+        ImageView img = ((ImageView)d.findViewById(R.id.img));
+        img.setImageResource(icon);
+        ImageViewCompat.setImageTintList(img, ColorStateList.valueOf(color));
+        CardView btnPositive = ((CardView)d.findViewById(R.id.btnPositive));
+        btnPositive.setCardBackgroundColor(color);
+        btnPositive.setOnClickListener(positive);
+        ((CardView)d.findViewById(R.id.btnNegative)).setOnClickListener(negative);
         try{
             d.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
         }catch (Exception e){
