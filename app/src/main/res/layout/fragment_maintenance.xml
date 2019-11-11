@@ -1,0 +1,910 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:context=".MaintenanceFragment">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+
+            <!--/////////////   MAIN     ///////////////////  -->
+            <LinearLayout android:id="@+id/llMainScreen"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:visibility="visible">
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:padding="15dp"
+                    android:layout_gravity="center">
+
+                    <ImageView
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:src="@drawable/dashboard"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:text="Dashboard"
+                        android:textStyle="bold"
+                        android:textSize="20sp"
+                        android:gravity="center_vertical"/>
+
+                </LinearLayout>
+
+                <TableLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical">
+
+
+                    <TableRow android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:padding="20dp">
+
+                        <LinearLayout android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1"
+                            android:gravity="center"
+                            android:orientation="vertical">
+
+                            <android.support.v7.widget.CardView
+                                android:layout_width="120dp"
+                                android:layout_height="120dp"
+                                android:backgroundTint="@color/colorPrimary"
+                                app:cardCornerRadius="60dp">
+
+                                <ImageView android:id="@+id/btnActualizationCenter"
+                                    android:layout_width="80dp"
+                                    android:layout_height="80dp"
+                                    android:src="@drawable/download"
+                                    android:background="?attr/selectableItemBackgroundBorderless"
+                                    android:tint="@color/white"
+                                    android:layout_gravity="center"/>
+
+                            </android.support.v7.widget.CardView>
+
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="Actualization Center"
+                                android:gravity="center"
+                                android:textStyle="bold"/>
+
+                        </LinearLayout>
+
+                    </TableRow>
+
+
+
+                </TableLayout>
+
+            </LinearLayout>
+
+
+
+            <!--/////////////   CLIENTES     ///////////////////  -->
+            <LinearLayout android:id="@+id/llClients"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:padding="15dp"
+                    android:layout_gravity="center">
+
+                    <ImageView
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:src="@drawable/clients"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:text="Clients"
+                        android:textStyle="bold"
+                        android:textSize="20sp"
+                        android:gravity="center_vertical"/>
+
+                </LinearLayout>
+
+                <TableLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical">
+
+
+                    <TableRow android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:padding="20dp">
+
+                        <LinearLayout android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1"
+                            android:gravity="center"
+                            android:orientation="vertical">
+
+                            <android.support.v7.widget.CardView
+                                android:layout_width="120dp"
+                                android:layout_height="120dp"
+                                app:cardCornerRadius="60dp"
+                                android:backgroundTint="@color/colorPrimary">
+                                <ImageView android:id="@+id/btnClients"
+                                    android:layout_width="80dp"
+                                    android:layout_height="80dp"
+                                    android:src="@drawable/clients"
+                                    android:background="?attr/selectableItemBackgroundBorderless"
+                                    android:tint="@color/white"
+                                    android:layout_gravity="center"/>
+
+
+                            </android.support.v7.widget.CardView>
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="Clientes"
+                                android:gravity="center"
+                                android:textStyle="bold"/>
+
+                        </LinearLayout>
+
+                    </TableRow>
+
+
+
+                </TableLayout>
+
+            </LinearLayout>
+
+
+           <!-- //////////////  INVENTARIO    ///////////////// -->
+            <LinearLayout android:id="@+id/llMaintenanceInventory"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:padding="15dp"
+                    android:layout_gravity="center">
+
+                    <ImageView
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:src="@drawable/ic_inventario"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:text="Inventory"
+                        android:textStyle="bold"
+                        android:textSize="20sp"
+                        android:gravity="center_vertical"/>
+
+                </LinearLayout>
+
+
+                <TableLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical">
+
+                    <TableRow android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:padding="20dp">
+
+                        <LinearLayout android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1"
+                            android:gravity="center"
+                            android:orientation="vertical">
+
+                            <android.support.v7.widget.CardView
+                                android:layout_width="100dp"
+                                android:layout_height="100dp"
+                                app:cardCornerRadius="50dp"
+                                android:backgroundTint="@color/colorPrimary">
+
+                                <ImageView android:id="@+id/btnFamilyInv"
+                                    android:layout_width="60dp"
+                                    android:layout_height="60dp"
+                                    android:src="@drawable/family"
+                                    android:background="?attr/selectableItemBackgroundBorderless"
+                                    android:tint="@color/white"
+                                    android:layout_gravity="center"/>
+                            </android.support.v7.widget.CardView>
+
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="Family"
+                                android:gravity="center"
+                                android:textStyle="bold"/>
+
+                        </LinearLayout>
+
+                        <LinearLayout android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1"
+                            android:gravity="center"
+                            android:orientation="vertical">
+
+                            <android.support.v7.widget.CardView
+                                android:layout_width="100dp"
+                                android:layout_height="100dp"
+                                app:cardCornerRadius="50dp"
+                                android:backgroundTint="@color/colorPrimary">
+                            <ImageView android:id="@+id/btnGroupsInv"
+                                android:layout_width="60dp"
+                                android:layout_height="60dp"
+                                android:src="@drawable/group"
+                                android:layout_gravity="center"
+                                android:background="?attr/selectableItemBackgroundBorderless"
+                                android:tint="@color/white"/>
+                            </android.support.v7.widget.CardView>
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="Groups"
+                                android:gravity="center"
+                                android:textStyle="bold"/>
+
+                        </LinearLayout>
+
+                        <LinearLayout android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1"
+                            android:gravity="center"
+                            android:orientation="vertical">
+
+                            <android.support.v7.widget.CardView
+                                android:layout_width="100dp"
+                                android:layout_height="100dp"
+                                app:cardCornerRadius="50dp"
+                                android:backgroundTint="@color/colorPrimary">
+                            <ImageView android:id="@+id/btnMeasuresInv"
+                                android:layout_width="80dp"
+                                android:layout_height="80dp"
+                                android:src="@drawable/measure"
+                                android:background="?attr/selectableItemBackgroundBorderless"
+                                android:rotation="90"
+                                android:tint="@color/white"
+                                android:layout_gravity="center"/>
+                            </android.support.v7.widget.CardView>
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="Measures"
+                                android:gravity="center"
+                                android:textStyle="bold"/>
+
+                        </LinearLayout>
+                    </TableRow>
+
+
+                    <TableRow android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:padding="20dp">
+
+                    <LinearLayout android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:orientation="vertical">
+                        <android.support.v7.widget.CardView
+                            android:layout_width="100dp"
+                            android:layout_height="100dp"
+                            app:cardCornerRadius="50dp"
+                            android:backgroundTint="@color/colorPrimary">
+                        <ImageView android:id="@+id/btnProductsInv"
+                            android:layout_width="80dp"
+                            android:layout_height="80dp"
+                            android:src="@drawable/products"
+                            android:background="?attr/selectableItemBackgroundBorderless"
+                            android:layout_gravity="center"
+                            android:tint="@color/white"/>
+                        </android.support.v7.widget.CardView>
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="Products"
+                            android:gravity="center"
+                            android:textStyle="bold"/>
+
+                    </LinearLayout>
+
+
+
+                        <LinearLayout android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1"
+                            android:gravity="center"
+                            android:orientation="vertical">
+
+                            <android.support.v7.widget.CardView
+                            android:layout_width="100dp"
+                            android:layout_height="100dp"
+                            app:cardCornerRadius="50dp"
+                            android:backgroundTint="@color/colorPrimary">
+                            <ImageView android:id="@+id/btnAlmacenes"
+                                android:layout_width="60dp"
+                                android:layout_height="60dp"
+                                android:src="@drawable/ic_inventario"
+                                android:background="?attr/selectableItemBackgroundBorderless"
+                                android:layout_gravity="center"
+                                android:tint="@color/white"/>
+                            </android.support.v7.widget.CardView>
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="Almacenes"
+                                android:gravity="center"
+                                android:textStyle="bold"/>
+
+                        </LinearLayout>
+
+
+                    </TableRow>
+
+                </TableLayout>
+
+            </LinearLayout>
+
+
+            <!-- ////////////   SALES PRODUCTS  /////////////////  -->
+            <LinearLayout android:id="@+id/llMaintenanceProducts"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:padding="15dp"
+                    android:layout_gravity="center">
+
+                    <ImageView
+                        android:layout_width="50dp"
+                        android:layout_height="50dp"
+                        android:src="@drawable/products"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:text="Products"
+                        android:textStyle="bold"
+                        android:textSize="20sp"
+                        android:gravity="center_vertical"/>
+
+                </LinearLayout>
+
+
+                <TableLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical">
+
+                    <TableRow android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:padding="20dp">
+
+                        <LinearLayout android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1"
+                            android:gravity="center"
+                            android:orientation="vertical">
+
+                            <android.support.v7.widget.CardView
+                                android:layout_width="100dp"
+                                android:layout_height="100dp"
+                                app:cardCornerRadius="50dp"
+                                android:backgroundTint="@color/colorPrimary">
+                            <ImageView android:id="@+id/btnFamily"
+                                android:layout_width="60dp"
+                                android:layout_height="60dp"
+                                android:src="@drawable/family"
+                                android:background="?attr/selectableItemBackgroundBorderless"
+                                android:layout_gravity="center"
+                                android:tint="@color/white"/>
+                            </android.support.v7.widget.CardView>
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="Family"
+                                android:gravity="center"
+                                android:textStyle="bold"/>
+
+                        </LinearLayout>
+
+                        <LinearLayout android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1"
+                            android:gravity="center"
+                            android:orientation="vertical">
+
+                            <android.support.v7.widget.CardView
+                                android:layout_width="100dp"
+                                android:layout_height="100dp"
+                                app:cardCornerRadius="50dp"
+                                android:backgroundTint="@color/colorPrimary">
+                            <ImageView android:id="@+id/btnGroups"
+                                android:layout_width="60dp"
+                                android:layout_height="60dp"
+                                android:src="@drawable/group"
+                                android:background="?attr/selectableItemBackgroundBorderless"
+                                android:layout_gravity="center"
+                                android:tint="@color/white"/>
+                            </android.support.v7.widget.CardView>
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="Groups"
+                                android:gravity="center"
+                                android:textStyle="bold"/>
+
+                        </LinearLayout>
+
+                        <LinearLayout android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1"
+                            android:gravity="center"
+                            android:orientation="vertical">
+
+                            <android.support.v7.widget.CardView
+                                android:layout_width="100dp"
+                                android:layout_height="100dp"
+                                app:cardCornerRadius="50dp"
+                                android:backgroundTint="@color/colorPrimary">
+                            <ImageView android:id="@+id/btnMeasures"
+                                android:layout_width="80dp"
+                                android:layout_height="80dp"
+                                android:src="@drawable/measure"
+                                android:background="?attr/selectableItemBackgroundBorderless"
+                                android:layout_gravity="center"
+                                android:tint="@color/white"
+                                android:rotation="90"/>
+                            </android.support.v7.widget.CardView>
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="Measures"
+                                android:gravity="center"
+                                android:textStyle="bold"/>
+
+                        </LinearLayout>
+                    </TableRow>
+
+
+                    <TableRow android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:padding="20dp">
+
+                        <LinearLayout android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1"
+                            android:gravity="center"
+                            android:orientation="vertical">
+                            <android.support.v7.widget.CardView
+                                android:layout_width="100dp"
+                                android:layout_height="100dp"
+                                app:cardCornerRadius="50dp"
+                                android:backgroundTint="@color/colorPrimary">
+                            <ImageView android:id="@+id/btnProducts"
+                                android:layout_width="80dp"
+                                android:layout_height="80dp"
+                                android:src="@drawable/products"
+                                android:background="?attr/selectableItemBackgroundBorderless"
+                                android:layout_gravity="center"
+                                android:tint="@color/white"/>
+                            </android.support.v7.widget.CardView>
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="Products"
+                                android:gravity="center"
+                                android:textStyle="bold"/>
+
+                        </LinearLayout>
+                    </TableRow>
+
+                </TableLayout>
+
+
+
+            </LinearLayout>
+
+
+
+
+            <!-- ////////////   USERS  /////////////////  -->
+            <LinearLayout android:id="@+id/llMaintenanceUsers"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:padding="15dp"
+                    android:layout_gravity="center">
+
+                    <ImageView
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:src="@drawable/user"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:text="Users"
+                        android:textStyle="bold"
+                        android:textSize="20sp"
+                        android:gravity="center_vertical"/>
+
+                </LinearLayout>
+
+
+                <TableLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical">
+
+                    <TableRow android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:padding="20dp">
+
+                    <LinearLayout android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:orientation="vertical">
+                        <android.support.v7.widget.CardView
+                            android:layout_width="120dp"
+                            android:layout_height="120dp"
+                            android:backgroundTint="@color/colorPrimary"
+                            app:cardCornerRadius="60dp">
+                        <ImageView android:id="@+id/btnUserRol"
+                            android:layout_width="80dp"
+                            android:layout_height="80dp"
+                            android:src="@drawable/user_rol"
+                            android:background="?attr/selectableItemBackgroundBorderless"
+                            android:layout_gravity="center"
+                            android:tint="@color/white"/>
+                        </android.support.v7.widget.CardView>
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="User Rol"
+                            android:gravity="center"
+                            android:textStyle="bold"/>
+
+                    </LinearLayout>
+
+                    <LinearLayout android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:orientation="vertical">
+
+                        <android.support.v7.widget.CardView
+                            android:layout_width="120dp"
+                            android:layout_height="120dp"
+                            android:backgroundTint="@color/colorPrimary"
+                            app:cardCornerRadius="60dp">
+                        <ImageView android:id="@+id/btnUsers"
+                            android:layout_width="60dp"
+                            android:layout_height="60dp"
+                            android:src="@drawable/user"
+                            android:background="?attr/selectableItemBackgroundBorderless"
+                            android:layout_gravity="center"
+                            android:tint="@color/white"/>
+                        </android.support.v7.widget.CardView>
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="Users"
+                            android:gravity="center"
+                            android:textStyle="bold"/>
+
+                    </LinearLayout>
+
+                    </TableRow>
+
+                </TableLayout>
+
+            </LinearLayout>
+
+
+
+
+
+            <!-- /////// CONTROLS    ////////// -->
+            <LinearLayout android:id="@+id/llMaintenanceControls"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:padding="15dp"
+                    android:layout_gravity="center">
+
+                    <ImageView
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:src="@drawable/controls"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:text="Controls"
+                        android:textStyle="bold"
+                        android:textSize="20sp"
+                        android:gravity="center_vertical"/>
+
+                </LinearLayout>
+
+
+                <TableLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical">
+
+                    <TableRow android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:padding="20dp"
+                        android:visibility="gone">
+
+                        <LinearLayout android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1"
+                            android:gravity="center"
+                            android:orientation="vertical">
+
+                            <ImageView android:id="@+id/btnControls"
+                                android:layout_width="120dp"
+                                android:layout_height="120dp"
+                                android:src="@drawable/user_type"
+                                android:background="?attr/selectableItemBackgroundBorderless"/>
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="Controles"
+                                android:gravity="center"
+                                android:textStyle="bold"/>
+
+                        </LinearLayout>
+
+
+                    </TableRow>
+
+
+
+                    <TableRow android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:padding="20dp">
+
+
+                        <LinearLayout android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1"
+                            android:gravity="center"
+                            android:orientation="vertical"
+                            android:visibility="visible">
+
+                            <android.support.v7.widget.CardView
+                                android:layout_width="120dp"
+                                android:layout_height="120dp"
+                                android:backgroundTint="@color/colorPrimary"
+                                app:cardCornerRadius="60dp">
+                            <ImageView android:id="@+id/btnRolesControl"
+                                android:layout_width="80dp"
+                                android:layout_height="80dp"
+                                android:src="@drawable/user_rol"
+                                android:background="?attr/selectableItemBackgroundBorderless"
+                                android:layout_gravity="center"
+                                android:tint="@color/white"/>
+                            </android.support.v7.widget.CardView>
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="Roles Control"
+                                android:gravity="center"
+                                android:textStyle="bold"/>
+
+                        </LinearLayout>
+
+
+                        <LinearLayout android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1"
+                            android:gravity="center"
+                            android:orientation="vertical">
+
+                            <android.support.v7.widget.CardView
+                                android:layout_width="120dp"
+                                android:layout_height="120dp"
+                                android:backgroundTint="@color/colorPrimary"
+                                app:cardCornerRadius="60dp">
+                            <ImageView android:id="@+id/btnUsersControl"
+                                android:layout_width="60dp"
+                                android:layout_height="60dp"
+                                android:src="@drawable/user"
+                                android:background="?attr/selectableItemBackgroundBorderless"
+                                android:layout_gravity="center"
+                                android:tint="@color/white"/>
+                            </android.support.v7.widget.CardView>
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="Users Control"
+                                android:gravity="center"
+                                android:textStyle="bold"/>
+
+                        </LinearLayout>
+
+
+                    </TableRow>
+
+
+                    <TableRow android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:padding="20dp">
+
+
+                    </TableRow>
+
+
+                </TableLayout>
+
+            </LinearLayout>
+
+
+
+
+
+
+
+
+            <!--/////////////   CONFIGURATION     ///////////////////  -->
+            <LinearLayout android:id="@+id/llConfiguration"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:padding="15dp"
+                    android:layout_gravity="center">
+
+                    <ImageView
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:src="@drawable/settings"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:text="Configuracion"
+                        android:textStyle="bold"
+                        android:textSize="20sp"
+                        android:gravity="center_vertical"/>
+
+                </LinearLayout>
+
+                <TableLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical">
+
+
+                    <TableRow android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:padding="20dp">
+
+                        <LinearLayout android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1"
+                            android:gravity="center"
+                            android:orientation="vertical">
+
+                            <android.support.v7.widget.CardView
+                                android:layout_width="120dp"
+                                android:layout_height="120dp"
+                                app:cardCornerRadius="60dp"
+                                android:backgroundTint="@color/colorPrimary">
+                                <ImageView android:id="@+id/btnPrinter"
+                                    android:layout_width="80dp"
+                                    android:layout_height="80dp"
+                                    android:src="@drawable/printer"
+                                    android:background="?attr/selectableItemBackgroundBorderless"
+                                    android:tint="@color/white"
+                                    android:layout_gravity="center"/>
+
+
+                            </android.support.v7.widget.CardView>
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="Impresora"
+                                android:gravity="center"
+                                android:textStyle="bold"/>
+
+                        </LinearLayout>
+
+                    </TableRow>
+
+
+
+                </TableLayout>
+
+            </LinearLayout>
+
+
+
+
+        </LinearLayout>
+
+    </ScrollView>
+
+
+</FrameLayout>

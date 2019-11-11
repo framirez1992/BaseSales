@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:showIn="navigation_view">
+
+    <item android:id="@+id/goMainScreen"
+        android:title="Dashboard"
+        android:icon="@drawable/dashboard"/>
+
+    <item android:title="Mantenimientos">
+        <menu>
+
+            <item
+                android:id="@+id/goMantInventario"
+                android:icon="@drawable/ic_inventario"
+                android:title="Inventario" />
+
+            <item
+                android:id="@+id/goMantProductos"
+                android:icon="@drawable/products"
+                android:title="Productos" />
+
+            <item
+                android:id="@+id/goMantUsuarios"
+                android:icon="@drawable/user"
+                android:title="Usuarios" />
+
+            <item
+                android:id="@+id/goMantClientes"
+                android:icon="@drawable/clients"
+                android:title="Clientes"/>
+
+            <item
+                android:id="@+id/goMantControls"
+                android:icon="@drawable/controls"
+                android:title="Controles" />
+        </menu>
+    </item>
+
+
+
+    <item android:title="Venta">
+        <menu>
+            <item
+                android:id="@+id/goMenu"
+                android:icon="@drawable/ic_action_monetization_on"
+                android:title="Ventas" />
+
+
+        </menu>
+    </item>
+
+    <item android:title="Recibos">
+        <menu>
+
+            <item
+                android:id="@+id/goReceip"
+                android:icon="@drawable/ic_receipt"
+                android:title="Facturas" />
+        </menu>
+    </item>
+
+    <item android:title="Reportes">
+        <menu>
+            <item
+                android:id="@+id/goReports"
+                android:icon="@drawable/pie_chart"
+                android:title="Reportes"
+                android:visible="true"/>
+        </menu>
+    </item>
+
+    <item android:title="Configuracion">
+        <menu>
+            <item
+                android:id="@+id/goConfiguration"
+                android:icon="@drawable/settings"
+                android:title="Configuration"
+                android:visible="true"/>
+        </menu>
+    </item>
+
+
+</menu>

@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    package="com.far.basesales">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/AppTheme"
+        tools:node="replace">
+        <activity android:name=".MainReceipt"
+            android:theme="@style/AppTheme.NoActionBar"/>
+        <activity
+            android:name=".MainActualizationCenter"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".MainOrders"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity android:name=".MaintenanceClients" />
+        <activity android:name=".AdminConfiguration" />
+
+        <meta-data
+            android:name="com.google.android.gms.version"
+            android:value="@integer/google_play_services_version" />
+
+        <activity android:name=".Login">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".MainActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity android:name=".MaintenanceProductTypes" />
+        <activity android:name=".MaintenanceUnitMeasure" />
+        <activity android:name=".MaintenanceUsers" />
+        <activity android:name=".MaintenanceUserTypes" />
+        <activity android:name=".MaintenanceProductSubTypes" />
+        <activity android:name=".MaintenanceProducts" />
+        <activity android:name=".MaintenanceUsersControl" />
+        <activity android:name=".MainAssignation" />
+        <activity android:name="com.example.bluetoothlibrary.BluetoothScan"/>
+    </application>
+
+</manifest>

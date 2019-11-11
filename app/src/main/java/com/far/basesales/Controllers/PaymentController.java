@@ -1,0 +1,229 @@
+package com.far.basesales.Controllers;
+
+import android.content.ContentValues;
+import android.content.Context;
+import android.database.Cursor;
+import android.support.annotation.NonNull;
+import android.widget.ArrayAdapter;
+import android.widget.Spinner;
+
+import com.far.basesales.CloudFireStoreObjects.Licenses;
+import com.far.basesales.CloudFireStoreObjects.Payment;
+import com.far.basesales.DataBase.DB;
+import com.far.basesales.Generic.KV;
+import com.far.basesales.Globales.CODES;
+import com.far.basesales.Globales.Tablas;
+import com.far.basesales.Utils.Funciones;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentChange;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.firestore.WriteBatch;
+
+import java.util.ArrayList;
+import java.util.Date;
+
+public class PaymentController {
+    public static final String TABLE_NAME ="PAYMENTS";
+    public static  String CODE = "code",CODERECEIPT = "codereceipt",CODEUSER="codeuser", CODECLIENT="codeclient",  TYPE = "type" ,
+            SUBTOTAL = "subtotal",TAX="tax", DISCOUNT = "discount", TOTAL = "total", DATE = "date", MDATE = "mdate";
+    String[] columns = new String[]{CODE,CODERECEIPT,CODEUSER, CODECLIENT, TYPE, SUBTOTAL,TAX, DISCOUNT,TOTAL ,DATE, MDATE};
+    public static String QUERY_CREATE = "CREATE TABLE "+TABLE_NAME+"("
+            +CODE+" TEXT,"+CODERECEIPT+" TEXT,"+CODEUSER+" TEXT, "+CODECLIENT+" TEXT, "+TYPE+" TEXT, "+SUBTOTAL+" NUMERIC,"+TAX+" NUMERIC,"+DISCOUNT+" NUMERIC, "+TOTAL+" NUMERIC, "+DATE+" TEXT, "+MDATE+" TEXT)";
+    Context context;
+    FirebaseFirestore db;
+
+    private static PaymentController instance;
+    private PaymentController(Context c){
+        this.context = c;
+        db = FirebaseFirestore.getInstance();
+    }
+
+    public static PaymentController getInstance(Context context){
+        if(instance == null){
+            instance = new PaymentController(context);
+        }
+        return instance;
+    }
+    public CollectionReference getReferenceFireStore(){
+        Licenses l = LicenseController.getInstance(context).getLicense();
+        if(l == null){
+            return null;
+        }
+        CollectionReference reference = db.collection(Tablas.generalUsers).document(l.getCODE()).collection(Tablas.generalUsersPayments);
+        return reference;
+    }
+
+
+    public void sendToFireBase(Payment payment){
+        try {
+            WriteBatch lote = db.batch();
+            lote.set(getReferenceFireStore().document(payment.getCODE()), payment.toMap());
+            lote.commit();
+
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+
+    }
+
+    public void deleteFromFireBase(Payment payment){
+        try {
+            WriteBatch lote = db.batch();
+            lote.delete(getReferenceFireStore().document(payment.getCODE()));
+
+
+            lote.commit().addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    e.printStackTrace();
+                }
+            });
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    public long insert(Payment p){
+        ContentValues cv = new ContentValues();
+        cv.put(CODE,p.getCODE() );
+        cv.put(CODERECEIPT,p.getCODERECEIPT() );
+        cv.put(CODEUSER,p.getCODEUSER() );
+        cv.put(CODECLIENT,p.getCODECLIENT() );
+        cv.put(TYPE,p.getTYPE());
+        cv.put(SUBTOTAL,p.getSUBTOTAL() );
+        cv.put(TAX,p.getTAX());
+        cv.put(DISCOUNT,p.getDISCOUNT() );
+        cv.put(TOTAL,p.getTOTAL() );
+        cv.put(DATE, Funciones.getFormatedDate((Date) p.getDATE()));
+        cv.put(MDATE, Funciones.getFormatedDate((Date) p.getMDATE()));
+
+        long result = DB.getInstance(context).getWritableDatabase().insert(TABLE_NAME,null,cv);
+        return result;
+    }
+
+    public long update(Payment p, String where, String[] args){
+        ContentValues cv = new ContentValues();
+        cv.put(CODE,p.getCODE() );
+        cv.put(CODERECEIPT,p.getCODERECEIPT() );
+        cv.put(CODEUSER,p.getCODEUSER() );
+        cv.put(CODECLIENT,p.getCODECLIENT() );
+        cv.put(TYPE,p.getTYPE());
+        cv.put(SUBTOTAL,p.getSUBTOTAL() );
+        cv.put(TAX,p.getTAX());
+        cv.put(DISCOUNT,p.getDISCOUNT() );
+        cv.put(TOTAL,p.getTOTAL() );
+        cv.put(MDATE, Funciones.getFormatedDate((Date)p.getMDATE()));
+
+        long result = DB.getInstance(context).getWritableDatabase().update(TABLE_NAME,cv,where, args);
+        return result;
+    }
+
+    public long delete(String where, String[] args){
+        long result = DB.getInstance(context).getWritableDatabase().delete(TABLE_NAME,where, args);
+        return result;
+    }
+
+    public void getDataFromFireBase(String key, OnSuccessListener<QuerySnapshot> onSuccessListener,
+                                    OnFailureListener onFailureListener){
+        try {
+            Task<QuerySnapshot> combos = db.collection(Tablas.generalUsers).document(key).collection(Tablas.generalUsersPayments).get();
+            combos.addOnSuccessListener(onSuccessListener);
+            combos.addOnFailureListener(onFailureListener);
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    public void getAllDataFromFireBase(OnFailureListener onFailureListener){
+        try {
+            Task<QuerySnapshot> company =getReferenceFireStore().get();
+            company.addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                @Override
+                public void onSuccess(QuerySnapshot querySnapshot) {
+                    if(querySnapshot != null && querySnapshot.getDocumentChanges()!= null && !querySnapshot.getDocumentChanges().isEmpty()){
+                        for(DocumentChange dc : querySnapshot.getDocumentChanges()) {
+                            Payment object = dc.getDocument().toObject(Payment.class);
+                            delete(null, null);
+                            insert(object);
+                        }
+                    }
+                }
+            }).addOnFailureListener(onFailureListener);
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    public ArrayList<Payment> getPayments(String where, String[]args, String orderBy){
+        ArrayList<Payment> result = new ArrayList<>();
+        try{
+            Cursor c = DB.getInstance(context).getReadableDatabase().query(TABLE_NAME,columns,where,args,null,null,orderBy);
+            while(c.moveToNext()){
+                result.add(new Payment(c));
+            }c.close();
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+        return result;
+    }
+    public Payment getPaymentByCode(String code){
+        String where = CODE+" = ?";
+        ArrayList<Payment> pts = getPayments(where, new String[]{code}, null);
+        if(pts.size()>0){
+            return  pts.get(0);
+        }
+        return null;
+    }
+
+
+
+    public void searchChanges(OnSuccessListener<QuerySnapshot> success, OnCompleteListener<QuerySnapshot> complete, OnFailureListener failure){
+
+        Date mdate = DB.getLastMDateSaved(context, TABLE_NAME);
+        if(mdate != null){
+            getReferenceFireStore().
+                    whereGreaterThan(MDATE, mdate).//mayor que, ya que las fechas (la que buscamos de la DB) tienen hora, minuto y segundos.
+                    get().
+                    addOnSuccessListener(success).addOnCompleteListener(complete).
+                    addOnFailureListener(failure);
+        }else{//TODOS
+            getReferenceFireStore().
+                    get().
+                    addOnSuccessListener(success).addOnCompleteListener(complete).
+                    addOnFailureListener(failure);
+        }
+
+    }
+
+    public void consumeQuerySnapshot(QuerySnapshot querySnapshot){
+
+            if (querySnapshot != null && querySnapshot.getDocuments()!= null && querySnapshot.getDocuments().size() > 0) {
+                for(DocumentSnapshot doc: querySnapshot){
+                    Payment obj = doc.toObject(Payment.class);
+                    if(update(obj, CODE+"=?", new String[]{obj.getCODE()}) <=0){
+                        insert(obj);
+                    }
+                }
+            }
+
+
+
+    }
+
+
+    public void fillSpinnerPaymentType(Spinner spn){
+        ArrayList<KV> data = new ArrayList<>();
+        data.add(new KV(CODES.PAYMENTTYPE_CASH, "EFECTIVO"));
+        data.add(new KV(CODES.PAYMENTTYPE_CREDIT, "CREDITO"));
+
+        ArrayAdapter<KV> adapter = new ArrayAdapter<KV>(context,android.R.layout.simple_list_item_1, data);
+        spn.setAdapter(adapter);
+    }
+
+}
