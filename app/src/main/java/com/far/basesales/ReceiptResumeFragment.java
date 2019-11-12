@@ -120,7 +120,9 @@ public class ReceiptResumeFragment extends Fragment {
         super.onCreateContextMenu(menu, v, menuInfo);
         MenuInflater inflater = parentActivity.getMenuInflater();
         inflater.inflate(R.menu.receipt_context_menu, menu);
-        //menu.setHeaderTitle("Select The Action");
+       if(model.getStatus().equals(CODES.CODE_RECEIPT_STATUS_CLOSED)){
+           menu.findItem(R.id.payments).setVisible(false);
+       }
     }
     @Override
     public boolean onContextItemSelected(MenuItem item) {
