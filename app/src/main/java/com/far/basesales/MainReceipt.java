@@ -1,6 +1,7 @@
 package com.far.basesales;
 
 import android.app.Dialog;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
@@ -8,10 +9,18 @@ import android.os.Bundle;
 import android.view.View;
 
 import com.far.basesales.Adapters.Models.ReceiptRowModel;
+import com.far.basesales.CloudFireStoreObjects.Payment;
+import com.far.basesales.CloudFireStoreObjects.Receipts;
+import com.far.basesales.Controllers.Transaction;
 import com.far.basesales.Interfases.ListableActivity;
 import com.far.basesales.Utils.Funciones;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.QuerySnapshot;
 
-public class MainReceipt extends AppCompatActivity implements ListableActivity {
+public class MainReceipt extends AppCompatActivity implements ListableActivity, OnFailureListener, OnCompleteListener, OnSuccessListener<QuerySnapshot> {
 
     Fragment lastFragment;
     ReceiptSearchFragment receiptSearchFragment;
@@ -74,7 +83,7 @@ public class MainReceipt extends AppCompatActivity implements ListableActivity {
 
     public void showErrorDialog(String msg){
         errorDialog=null;
-        errorDialog = Funciones.getCustomDialog(MainReceipt.this, "Error", msg, R.drawable.ic_error_white, new View.OnClickListener() {
+        errorDialog = Funciones.getCustomDialog(MainReceipt.this,getResources().getColor(R.color.red_700), "Error", msg, R.drawable.ic_error_white, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 errorDialog.dismiss();
@@ -83,6 +92,10 @@ public class MainReceipt extends AppCompatActivity implements ListableActivity {
         });
         errorDialog.setCancelable(false);
         errorDialog.show();
+    }
+
+    public void addPayment(Receipts receipt, Payment payment){
+        Transaction.getInstance(MainReceipt.this).sendToFireBase(receipt, payment,this, this, this);
     }
 
 
@@ -95,5 +108,27 @@ public class MainReceipt extends AppCompatActivity implements ListableActivity {
         }
 
 
+    }
+
+    @Override
+    public void onComplete(@NonNull Task task) {
+        closeLoadingDialog();
+        if(task.getException()!= null){
+            showErrorDialog(task.getException().getMessage()+"\n"+task.getException().getLocalizedMessage());
+        }
+
+    }
+
+    @Override
+    public void onFailure(@NonNull Exception e) {
+        closeLoadingDialog();
+        if(errorDialog!= null && !errorDialog.isShowing()){
+            showErrorDialog(e.getMessage()+"\n"+e.getLocalizedMessage());
+        }
+    }
+
+    @Override
+    public void onSuccess(QuerySnapshot querySnapshot) {
+        showReceiptList();
     }
 }

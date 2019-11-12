@@ -16,9 +16,11 @@ import com.far.basesales.Adapters.Models.NewOrderProductModel;
 import com.far.basesales.Adapters.Models.OrderDetailModel;
 import com.far.basesales.Adapters.NewOrderProductRowAdapter;
 import com.far.basesales.Adapters.OrderResumeAdapter;
+import com.far.basesales.Adapters.SalesRowAdapter;
 import com.far.basesales.Controllers.MeasureUnitsController;
 import com.far.basesales.Controllers.TempOrdersController;
 import com.far.basesales.Generic.KV;
+import com.far.basesales.Generic.KV2;
 import com.far.basesales.R;
 import com.far.basesales.Utils.Funciones;
 
@@ -128,6 +130,9 @@ public class AddProductDialog extends DialogFragment {
         }else if(adapter instanceof OrderResumeAdapter){
             ((OrderDetailModel)tempOrderModel).setQuantity(String.valueOf((int)quantity));
             ((OrderResumeAdapter)adapter).EditLineFromExternal((OrderDetailModel)tempOrderModel, (OrderResumeAdapter.OrderResumeHolder)holder);
+        }else if(adapter instanceof SalesRowAdapter){
+            ((NewOrderProductModel)tempOrderModel).setQuantity(String.valueOf((int)quantity));
+            ((SalesRowAdapter)adapter).EditLineFromExternal((NewOrderProductModel)tempOrderModel, (SalesRowAdapter.SalesRowHolder)holder);
         }
         dismiss();
     }
@@ -142,7 +147,7 @@ public class AddProductDialog extends DialogFragment {
             NewOrderProductModel obj = (NewOrderProductModel)tempOrderModel;
             name = obj.getName();
             quantity = (obj.getQuantity().equals("0"))?"":obj.getQuantity();
-            for(KV m: obj.getMeasures()){
+            for(KV2 m: obj.getMeasures()){
                 if(m.getKey().equals(obj.getMeasure())){
                    measure = m.getValue();
                     break;

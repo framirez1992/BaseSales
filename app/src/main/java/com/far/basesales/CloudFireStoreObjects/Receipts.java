@@ -44,6 +44,7 @@ public class Receipts {
         this.subTotal = c.getDouble(c.getColumnIndex(ReceiptController.SUBTOTAL));
         this.taxes = c.getDouble(c.getColumnIndex(ReceiptController.TAXES));
         this.discount = c.getDouble(c.getColumnIndex(ReceiptController.DISCOUNT));
+        this.total = c.getDouble(c.getColumnIndex(ReceiptController.TOTAL));
         this.paidamount = c.getDouble(c.getColumnIndex(ReceiptController.PAIDAMOUNT));
         this.date = Funciones.parseStringToDate(c.getString(c.getColumnIndex(ReceiptController.DATE)));
         this.mdate = Funciones.parseStringToDate(c.getString(c.getColumnIndex(ReceiptController.MDATE)));

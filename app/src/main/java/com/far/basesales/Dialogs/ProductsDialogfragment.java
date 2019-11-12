@@ -386,7 +386,7 @@ public class ProductsDialogfragment extends DialogFragment implements OnFailureL
 
     public void showErrorDialog(String msg){
         errorDialog = null;
-        errorDialog = Funciones.getCustomDialog(getActivity(), "Error", msg, R.drawable.ic_error_white, new View.OnClickListener() {
+        errorDialog = Funciones.getCustomDialog(getActivity(),getResources().getColor(R.color.red_700), "Error", msg, R.drawable.ic_error_white, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 errorDialog.dismiss();

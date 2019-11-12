@@ -8,9 +8,26 @@ import com.far.basesales.CloudFireStoreObjects.Licenses;
 import com.far.basesales.CloudFireStoreObjects.Roles;
 import com.far.basesales.CloudFireStoreObjects.Users;
 import com.far.basesales.CloudFireStoreObjects.UsersDevices;
+import com.far.basesales.Controllers.CompanyController;
 import com.far.basesales.Controllers.DevicesController;
 import com.far.basesales.Controllers.LicenseController;
+import com.far.basesales.Controllers.MeasureUnitsController;
+import com.far.basesales.Controllers.MeasureUnitsInvController;
+import com.far.basesales.Controllers.ProductsControlController;
+import com.far.basesales.Controllers.ProductsController;
+import com.far.basesales.Controllers.ProductsInvController;
+import com.far.basesales.Controllers.ProductsMeasureController;
+import com.far.basesales.Controllers.ProductsMeasureInvController;
+import com.far.basesales.Controllers.ProductsSubTypesController;
+import com.far.basesales.Controllers.ProductsSubTypesInvController;
+import com.far.basesales.Controllers.ProductsTypesController;
+import com.far.basesales.Controllers.ProductsTypesInvController;
+import com.far.basesales.Controllers.RolesController;
+import com.far.basesales.Controllers.SalesController;
+import com.far.basesales.Controllers.UserControlController;
+import com.far.basesales.Controllers.UserTypesController;
 import com.far.basesales.Controllers.UsersController;
+import com.far.basesales.Controllers.UsersDevicesController;
 import com.far.basesales.Generic.KV;
 import com.far.basesales.Generic.KV2;
 import com.far.basesales.Globales.Tablas;
@@ -51,10 +68,10 @@ public class CloudFireStoreDB {
     PriceListController priceListController;
     ProductsController productsController;
     ProductsInvController productsInvController;
-    ProductsControlController productsControlController;
+    ProductsControlController productsControlController;*/
     ProductsMeasureController productsMeasureController;
     ProductsMeasureInvController productsMeasureInvController;
-    ProductsTypesController productsTypesController;
+    /*ProductsTypesController productsTypesController;
     ProductsTypesInvController productsTypesInvController;
     ProductsSubTypesController productsSubTypesController;
     ProductsSubTypesInvController productsSubTypesInvController;
@@ -89,10 +106,10 @@ public class CloudFireStoreDB {
         measureUnitsInvController = MeasureUnitsInvController.getInstance(context);
         priceListController = new PriceListController(context);
         productsController =  ProductsController.getInstance(context);
-        productsInvController = ProductsInvController.getInstance(context);
+        productsInvController = ProductsInvController.getInstance(context);*/
         productsMeasureController = ProductsMeasureController.getInstance(context);
         productsMeasureInvController = ProductsMeasureInvController.getInstance(context);
-        productsTypesController = ProductsTypesController.getInstance(context);
+       /* productsTypesController = ProductsTypesController.getInstance(context);
         productsTypesInvController = ProductsTypesInvController.getInstance(context);
         productsSubTypesController = ProductsSubTypesController.getInstance(context);
         productsSubTypesInvController = ProductsSubTypesInvController.getInstance(context);
@@ -576,35 +593,35 @@ public class CloudFireStoreDB {
     }*/
 
     public ArrayList<DocumentReference> getDocumentsReferencesByTableName(KV2 data){
-        switch (data.getCode()){
+        switch (data.getKey()){
         //case AreasController.TABLE_NAME: break;
         //case AreasDetailController.TABLE_NAME: break;
         //case CombosController.TABLE_NAME: return combosController.getReferences(data.getDescription(), data.getDescription2());
-        //case CompanyController.TABLE_NAME: break;
+        case CompanyController.TABLE_NAME: break;
         case DevicesController.TABLE_NAME: break;
         case LicenseController.TABLE_NAME: break;
-        //case MeasureUnitsController.TABLE_NAME: break;
-        //case MeasureUnitsInvController.TABLE_NAME: break;
+        case MeasureUnitsController.TABLE_NAME: break;
+        case MeasureUnitsInvController.TABLE_NAME: break;
         //case PriceListController.TABLE_NAME: break;
-        //case ProductsControlController.TABLE_NAME: break;
-        //case ProductsController.TABLE_NAME: break;
-        //case ProductsInvController.TABLE_NAME: break;
-        //case ProductsMeasureController.TABLE_NAME: return productsMeasureController.getReferences(data.getDescription(), data.getDescription2());
-        //case ProductsMeasureInvController.TABLE_NAME: return productsMeasureInvController.getReferences(data.getDescription(), data.getDescription2());
-        //case ProductsSubTypesController.TABLE_NAME: break;
-        //case ProductsSubTypesInvController.TABLE_NAME: break;
-        //case ProductsTypesController.TABLE_NAME: break;
-       // case ProductsTypesInvController.TABLE_NAME: break;
-        //case RolesController.TABLE_NAME: break;
-        //case SalesController.TABLE_NAME: break;
-        //case SalesController.TABLE_NAME_DETAIL: break;
+        case ProductsControlController.TABLE_NAME: break;
+        case ProductsController.TABLE_NAME: break;
+        case ProductsInvController.TABLE_NAME: break;
+        case ProductsMeasureController.TABLE_NAME: return productsMeasureController.getReferences(data.getValue(), data.getValue2());
+        case ProductsMeasureInvController.TABLE_NAME: return productsMeasureInvController.getReferences(data.getValue(), data.getValue2());
+        case ProductsSubTypesController.TABLE_NAME: break;
+        case ProductsSubTypesInvController.TABLE_NAME: break;
+        case ProductsTypesController.TABLE_NAME: break;
+        case ProductsTypesInvController.TABLE_NAME: break;
+        case RolesController.TABLE_NAME: break;
+        case SalesController.TABLE_NAME: break;
+        case SalesController.TABLE_NAME_DETAIL: break;
        // case StoreHouseController.TABLE_NAME: break;
         //case StoreHouseDetailController.TABLE_NAME: break;
         //case TableCodeController.TABLE_NAME: break;
        // case TableFilterController.TABLE_NAME: break;
-       // case UserControlController.TABLE_NAME: break;
+        case UserControlController.TABLE_NAME: break;
         //case UsersDevicesController.TABLE_NAME: break;
-       // case UserTypesController.TABLE_NAME: break;
+        case UserTypesController.TABLE_NAME: break;
         }
         return null;
     }

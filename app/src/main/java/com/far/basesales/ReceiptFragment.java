@@ -32,6 +32,7 @@ import com.far.basesales.Controllers.PaymentController;
 import com.far.basesales.Controllers.ReceiptController;
 import com.far.basesales.Controllers.SalesController;
 import com.far.basesales.Controllers.TempOrdersController;
+import com.far.basesales.Controllers.UserControlController;
 import com.far.basesales.Dialogs.ClientSearchDialog;
 import com.far.basesales.Dialogs.ClientsDialogFragment;
 import com.far.basesales.Generic.KV;
@@ -106,13 +107,14 @@ public class ReceiptFragment extends Fragment {
             }
         });
 
+        setUpControls();
+
     }
 
     @Override
     public void onResume() {
         super.onResume();
         etAmount.setText(Funciones.formatDecimal(TempOrdersController.getInstance(parentActivity).getSumPrice()));
-
     }
 
     public void setParent(Activity activity){
@@ -147,11 +149,12 @@ public class ReceiptFragment extends Fragment {
         Sales s = TempOrdersController.getInstance(parentActivity).getTempSale();
         s.setSTATUS(CODES.CODE_ORDER_STATUS_CLOSED);
 
+        String receiptStatus = (s.getTOTAL()> getEditedAmount())?CODES.CODE_RECEIPT_STATUS_OPEN:CODES.CODE_RECEIPT_STATUS_CLOSED;
         //String code, String codeUser,String codesale, String codeclient,  String status, String ncf, double subTotal, double taxes, double discount, double total, double paidAmount
-        Receipts r = new Receipts(Funciones.generateCode(), Funciones.getCodeuserLogged(parentActivity),s.getCODE(),client.getCode(),CODES.CODE_RECEIPT_STATUS_CLOSED,"",0,0,0,s.getTOTAL(),s.getTOTAL());
+        Receipts r = new Receipts(Funciones.generateCode(), Funciones.getCodeuserLogged(parentActivity),s.getCODE(),client.getCode(),receiptStatus,"",0,0,0,s.getTOTAL(),getEditedAmount());
 
         //String code, String codeReceipt,String codeUser, String codeClient, String type, double subTotal, double tax, double discount, double total
-        Payment p = new Payment(Funciones.generateCode(), r.getCode(), Funciones.getCodeuserLogged(parentActivity),client.getCode(), ((KV)spnPaymentType.getSelectedItem()).getKey(),0,0,0,s.getTOTAL());
+        Payment p = new Payment(Funciones.generateCode(), r.getCode(), Funciones.getCodeuserLogged(parentActivity),client.getCode(), ((KV)spnPaymentType.getSelectedItem()).getKey(),0,0,0,getEditedAmount());
 
         s.setCODERECEIPT(r.getCode());
 
@@ -175,14 +178,48 @@ public class ReceiptFragment extends Fragment {
     }
 
     public boolean validate(){
+        boolean abono = UserControlController.getInstance(parentActivity).multiPayment();
         if(TempOrdersController.getInstance(parentActivity).getOrderDetailModels(TempOrdersController.getInstance(parentActivity).getTempSale().getCODE()).size()==0){
             Snackbar.make(getView(), "No hay productos para facturar", Snackbar.LENGTH_LONG).show();
+            return false;
+        }else if( abono && !validateEditedAmount()){
             return false;
         }else if(client == null){
             Snackbar.make(getView(), "Seleccione un cliente", Snackbar.LENGTH_LONG).show();
             return false;
         }
 
+        return true;
+    }
+
+
+    public void setUpControls(){
+        if(UserControlController.getInstance(parentActivity).multiPayment()) {
+            etAmount.setFocusableInTouchMode(true);
+        }
+    }
+
+    public double getEditedAmount(){
+        return Double.parseDouble(etAmount.getText().toString().replace(",", "").replace("$", ""));
+    }
+
+    public boolean validateEditedAmount(){
+        String editAmount = etAmount.getText().toString();
+        double editAmountD=0.0;
+        if(editAmount.isEmpty()){
+            ((MainOrders)parentActivity).showErrorDialog("Introduzca un monto valido");
+            return false;
+        }
+        try{
+          editAmountD=  Double.parseDouble(editAmount.replace(",", "").replace("$", ""));
+        }catch (Exception e){
+            ((MainOrders)parentActivity).showErrorDialog("Introduzca un monto valido");
+            return false;
+        }
+        if (editAmountD > TempOrdersController.getInstance(parentActivity).getSumPrice()){
+            ((MainOrders)parentActivity).showErrorDialog("El importe no puede ser superior a la deuda.");
+            return false;
+        }
         return true;
     }
 }

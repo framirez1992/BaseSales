@@ -1,33 +1,38 @@
 package com.far.basesales.Generic;
 
 public class KV2 {
-    public String code, description, description2;
+    public String key, value, value2;
 
-    public KV2(String code, String description, String description2){
-        this.code = code; this.description = description; this.description2 = description2;
+    public KV2(String key, String value, String value2){
+        this.key = key; this.value = value; this.value2 = value2;
     }
 
-    public String getCode() {
-        return code;
+    public String getKey() {
+        return key;
     }
 
-    public void setCode(String code) {
-        this.code = code;
+    public void setKey(String key) {
+        this.key = key;
     }
 
-    public String getDescription() {
-        return description;
+    public String getValue() {
+        return value;
     }
 
-    public void setDescription(String description) {
-        this.description = description;
+    public void setValue(String value) {
+        this.value = value;
     }
 
-    public String getDescription2() {
-        return description2;
+    public String getValue2() {
+        return value2;
     }
 
-    public void setDescription2(String description2) {
-        this.description2 = description2;
+    public void setValue2(String value2) {
+        this.value2 = value2;
+    }
+
+    @Override
+    public String toString() {
+        return getValue();
     }
 }

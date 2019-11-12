@@ -10,6 +10,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
 import android.database.Cursor;
+import android.graphics.Color;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
@@ -25,6 +26,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 
@@ -420,7 +422,7 @@ public class Funciones {
     public static Dialog getAlertDeleteAllDependencies(Context c, String itemName, ArrayList<KV2> tables){
         String msgDependency = "";
         for(KV2 s: tables){
-            msgDependency+= s.getCode()+"\n";
+            msgDependency+= s.getKey()+"\n";
         }
         String msg = "Esta seguro que desea eliminar ["+itemName+"]  permanentemente?\nTambien seran eliminadas todas las dependencias en: \n"+msgDependency;
         final Dialog d = getCustomDialog2Btn(c,c.getResources().getColor(R.color.red_700),"Delete", msg,R.drawable.delete,null, null);
@@ -491,13 +493,16 @@ public class Funciones {
         return String.format("%.2f", decimal);
     }
 
-    public static Dialog getCustomDialog(Context context, String title, String msg, int icon, View.OnClickListener listener){
+    public static Dialog getCustomDialog(Context context, int color, String title, String msg, int icon, View.OnClickListener listener){
         Dialog d = new Dialog(context);
         d.setContentView(R.layout.custom_dialog_1btn);
+        ((RelativeLayout)d.findViewById(R.id.rlBackground)).setBackgroundColor(color);
         ((TextView)d.findViewById(R.id.tvTitle)).setText(title);
         ((TextView)d.findViewById(R.id.tvMsg)).setText(msg);
         ((ImageView)d.findViewById(R.id.img)).setImageResource(icon);
-        ((CardView)d.findViewById(R.id.cvOk)).setOnClickListener(listener);
+        CardView cvOk = ((CardView)d.findViewById(R.id.cvOk));
+        cvOk.setCardBackgroundColor(color);
+        cvOk.setOnClickListener(listener);
         try{
             d.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
         }catch (Exception e){

@@ -124,6 +124,11 @@ public class ReceiptController {
         return result;
     }
 
+    public Receipts getReceiptByCode(String code){
+       ArrayList<Receipts> array = getReceipts(new String[]{CODE}, new String[]{code}, null);
+       return array.size()>0?array.get(0):null;
+    }
+
 
     public void getDataFromFireBase(OnSuccessListener<QuerySnapshot> onSuccessListener,
                                     OnFailureListener onFailureListener){
@@ -213,7 +218,7 @@ public class ReceiptController {
         try {
             String sql = "SELECT r." + CODE + " as CODE,r."+STATUS+" as STATUS, r." + DATE + " as DATE, c." + ClientsController.CODE + " as CODECLIENT, c." + ClientsController.NAME + " as CLIENTNAME, " +
                     "c." + ClientsController.DOCUMENT + " as DOCUMENT, c." + ClientsController.PHONE + " as PHONE,"+
-                    "r." + TOTAL + " as TOTAL " +
+                    "r." + TOTAL + " as TOTAL, r."+PAIDAMOUNT+" as PAID " +
                     "FROM " + TABLE_NAME + " r " +
                     "INNER JOIN " + ClientsController.TABLE_NAME + " c ON r." + CODECLIENT + " = c." + ClientsController.CODE + " " +
                     "ORDER BY r." + DATE + " DESC";
@@ -228,9 +233,10 @@ public class ReceiptController {
                 String document = c.getString(c.getColumnIndex("DOCUMENT"));
                 String phone = c.getString(c.getColumnIndex("PHONE"));
                 double total = c.getDouble(c.getColumnIndex("TOTAL"));
+                double paid = c.getDouble(c.getColumnIndex("PAID"));
 
                //String code, String status, String codeClient, String clientName, String clientDocument, String clientPhone, String date, double total
-                result.add(new ReceiptRowModel(code,status,codeClient,clientName,document,phone,date,total));
+                result.add(new ReceiptRowModel(code,status,codeClient,clientName,document,phone,date,total, paid));
             }
             c.close();
         }catch (Exception e){

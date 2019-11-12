@@ -23,6 +23,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.far.basesales.Adapters.NewOrderProductRowAdapter;
+import com.far.basesales.Adapters.SalesRowAdapter;
 import com.far.basesales.CloudFireStoreObjects.Sales;
 import com.far.basesales.Controllers.ProductsController;
 import com.far.basesales.Controllers.ProductsSubTypesController;
@@ -231,7 +232,8 @@ public class NewOrderFragment extends Fragment {
         if(x.size() >0)
         args = x.toArray(new String[x.size()]);
 
-        NewOrderProductRowAdapter adapter = new NewOrderProductRowAdapter(parentActivity, parentActivity,ProductsController.getInstance(parentActivity).getNewProductRowModels(where, args, null) );
+        //NewOrderProductRowAdapter adapter = new NewOrderProductRowAdapter(parentActivity, parentActivity,ProductsController.getInstance(parentActivity).getNewProductRowModels(where, args, null) );
+        SalesRowAdapter adapter = new SalesRowAdapter(parentActivity, parentActivity,ProductsController.getInstance(parentActivity).getNewProductRowModels(where, args, null));
         rvList.setAdapter(adapter);
         rvList.getAdapter().notifyDataSetChanged();
         rvList.invalidate();

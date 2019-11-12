@@ -68,7 +68,7 @@ public class ReceiptAdapter extends RecyclerView.Adapter<ReceiptAdapter.ReceiptR
     }
 
     public class ReceiptRowHolder extends RecyclerView.ViewHolder {
-        TextView tvCode,  tvDate, tvClientName, tvClientDocument, tvClientPhone, tvStatus,tvTotal;
+        TextView tvCode,  tvDate, tvClientName, tvClientDocument, tvClientPhone, tvStatus,tvTotal, tvPaid;
         public ReceiptRowHolder(View itemView) {
             super(itemView);
             tvCode = itemView.findViewById(R.id.tvCode);
@@ -78,6 +78,7 @@ public class ReceiptAdapter extends RecyclerView.Adapter<ReceiptAdapter.ReceiptR
             tvStatus = itemView.findViewById(R.id.tvStatus);
             tvClientPhone = itemView.findViewById(R.id.tvPhone);
             tvTotal = itemView.findViewById(R.id.tvTotal);
+            tvPaid = itemView.findViewById(R.id.tvPaid);
         }
 
         public void fillData(ReceiptRowModel obj){
@@ -87,6 +88,7 @@ public class ReceiptAdapter extends RecyclerView.Adapter<ReceiptAdapter.ReceiptR
            tvClientDocument.setText(obj.getClientDocument());
            tvClientPhone.setText(obj.getClientPhone());
            tvTotal.setText("$"+Funciones.formatDecimal(obj.getTotal()));
+           tvPaid.setText("$"+Funciones.formatDecimal(obj.getPaid()));
            String status ="UNKNOWN";
            if(obj.getStatus().equals(CODES.CODE_RECEIPT_STATUS_CLOSED)){
               status = "Pagado";

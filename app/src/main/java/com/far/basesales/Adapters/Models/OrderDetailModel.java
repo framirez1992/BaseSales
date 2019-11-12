@@ -1,6 +1,7 @@
 package com.far.basesales.Adapters.Models;
 
 import com.far.basesales.Generic.KV;
+import com.far.basesales.Generic.KV2;
 
 import java.util.ArrayList;
 
@@ -14,9 +15,9 @@ public class OrderDetailModel {
     String code;
     String code_sales;
     boolean blocked;
-    ArrayList<KV> measures;
+    ArrayList<KV2> measures;
 
-    public OrderDetailModel(String codeProduct, String code, String code_sales, String name, String qty, String codemeasure, String measure, String blocked, ArrayList<KV> measures){
+    public OrderDetailModel(String codeProduct, String code, String code_sales, String name, String qty, String codemeasure, String measure, String blocked, ArrayList<KV2> measures){
         this.code = code;
         this.code_sales = code_sales;
         this.codeProduct = codeProduct;
@@ -76,11 +77,11 @@ public class OrderDetailModel {
         this.code_sales = code_sales;
     }
 
-    public ArrayList<KV> getMeasures() {
+    public ArrayList<KV2> getMeasures() {
         return measures;
     }
 
-    public void setMeasures(ArrayList<KV> measures) {
+    public void setMeasures(ArrayList<KV2> measures) {
         this.measures = measures;
     }
 

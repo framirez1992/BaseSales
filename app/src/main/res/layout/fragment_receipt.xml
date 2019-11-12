@@ -164,7 +164,8 @@
                         android:id="@+id/etAmount"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:focusableInTouchMode="false"/>
+                        android:focusableInTouchMode="false"
+                        android:inputType="numberDecimal"/>
                 </android.support.design.widget.TextInputLayout>
 
 

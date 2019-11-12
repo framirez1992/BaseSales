@@ -151,17 +151,11 @@ public class MainAssignation extends AppCompatActivity {
     public void refreshList(String lastSearch){
         selected.clear();
         ArrayList<SimpleSeleccionRowModel> data = new ArrayList<>();
-       /* if(codeTarget.equals(CODES.USERCONTROL_TABLEASSIGN)){
-           data = userControlController.getUserTableSSRM(((KV)spn1.getSelectedItem()).getKey(), ((KV)spn2.getSelectedItem()).getKey());
-        }else*/ if(codeTarget.equals(CODES.EXTRA_MAINASSIGNATION_TARGET_ROLESCONTROL)){
+      if(codeTarget.equals(CODES.EXTRA_MAINASSIGNATION_TARGET_ROLESCONTROL)){
            data = userControlController.getRolesControlSSRM(((KV)spn1.getSelectedItem()).getKey());
         }else if(codeTarget.equals(CODES.EXTRA_MAINASSIGNATION_TARGET_USERSCONTROL)){
            data = userControlController.getUsersControlSSRM(((KV)spn2.getSelectedItem()).getKey());
-        }/*else if(codeTarget.equals(CODES.USERCONTROL_ORDERSPLIT)){
-           data = userControlController.getOrderSplitSSRM(((KV)spn1.getSelectedItem()).getKey());
-        }else if(codeTarget.equals(CODES.USERCONTROL_ORDERSPLITDESTINY)){
-           data = userControlController.getOrderSplitDestinySSRM(((KV)spn2.getSelectedItem()).getKey());
-        }*/
+        }
 
         for(SimpleSeleccionRowModel s: data){
             if(s.isChecked()){
@@ -336,18 +330,10 @@ public class MainAssignation extends AppCompatActivity {
     }
 
     public void save(){
-        if(codeTable.equals(UserControlController.TABLE_NAME) && codeTarget.equals(CODES.USERCONTROL_TABLEASSIGN)){
-            //selected.clear();
-            //selected.addAll(((SimpleSelectionRowAdapter)rvList.getAdapter()).getSelectedObjects());
-            //saveUserControlTableAssign();
-        }else if(codeTable.equals(UserControlController.TABLE_NAME) && codeTarget.equals(CODES.EXTRA_MAINASSIGNATION_TARGET_ROLESCONTROL)){
+         if(codeTable.equals(UserControlController.TABLE_NAME) && codeTarget.equals(CODES.EXTRA_MAINASSIGNATION_TARGET_ROLESCONTROL)){
             saveUserControlRolesControl();
         }else if(codeTable.equals(UserControlController.TABLE_NAME) && codeTarget.equals(CODES.EXTRA_MAINASSIGNATION_TARGET_USERSCONTROL)){
             saveUsersControl();
-        }else if(codeTable.equals(UserControlController.TABLE_NAME) && codeTarget.equals(CODES.USERCONTROL_ORDERSPLIT)){
-            //saveUserControlOrderSplit();
-        }else if(codeTable.equals(UserControlController.TABLE_NAME) && codeTarget.equals(CODES.USERCONTROL_ORDERSPLITDESTINY)){
-            //saveUserControlOrderSplitDestiny();
         }
 
     }

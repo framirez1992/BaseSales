@@ -2,9 +2,12 @@ package com.far.basesales;
 
 
 import android.app.Activity;
+import android.app.Dialog;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.design.widget.TextInputEditText;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.ContextMenu;
@@ -13,16 +16,24 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.far.basesales.Adapters.Models.ReceiptRowModel;
 import com.far.basesales.Adapters.Models.SalesDetailModel;
 import com.far.basesales.Adapters.SalesDetailAdapter;
+import com.far.basesales.CloudFireStoreObjects.Payment;
+import com.far.basesales.CloudFireStoreObjects.Receipts;
+import com.far.basesales.Controllers.PaymentController;
 import com.far.basesales.Controllers.ReceiptController;
 import com.far.basesales.Controllers.SalesController;
+import com.far.basesales.Controllers.Transaction;
+import com.far.basesales.Controllers.UserControlController;
+import com.far.basesales.Generic.KV;
 import com.far.basesales.Globales.CODES;
 import com.far.basesales.Interfases.ListableActivity;
 import com.far.basesales.Utils.Funciones;
@@ -42,6 +53,7 @@ public class ReceiptResumeFragment extends Fragment {
     RecyclerView rvList;
     ProgressBar pb;
     LinearLayout llGoReceipts, llMenu;
+    Dialog paymentDialog;
 
     public ReceiptResumeFragment() {
         // Required empty public constructor
@@ -113,7 +125,9 @@ public class ReceiptResumeFragment extends Fragment {
     @Override
     public boolean onContextItemSelected(MenuItem item) {
         //Toast.makeText(this, "Selected Item: " +item.getTitle(), Toast.LENGTH_SHORT).show();
-        if(item.getItemId() == R.id.print){
+        if(item.getItemId() == R.id.payments){
+            showPaymentDialog();
+        }else if(item.getItemId() == R.id.print){
             printReceipt();
         }else if(item.getItemId() == R.id.email){
             sendEmail();
@@ -200,5 +214,80 @@ public class ReceiptResumeFragment extends Fragment {
 
     }
 
+    public void showPaymentDialog(){
+        paymentDialog = null;
+        paymentDialog = new Dialog(parentActivity);
+        paymentDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        paymentDialog.setContentView(R.layout.payment_dialog);
+        final Spinner spnPaymentType = paymentDialog.findViewById(R.id.spnPaymentType);
+        final TextInputEditText etAmount = paymentDialog.findViewById(R.id.etAmount);
+        final CardView cvPay = paymentDialog.findViewById(R.id.cvPay);
+        TextView tvPendingAmount = paymentDialog.findViewById(R.id.tvPendingAmount);
+
+        PaymentController.getInstance(parentActivity).fillSpinnerPaymentType(spnPaymentType);
+        etAmount.setText(Funciones.formatDecimal(model.getTotal()-model.getPaid()));
+        tvPendingAmount.setText("$"+Funciones.formatDecimal(model.getTotal()-model.getPaid()));
+        if(UserControlController.getInstance(parentActivity).multiPayment()) {
+            etAmount.setFocusableInTouchMode(true);
+        }
+        cvPay.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(validateEditedAmount(etAmount)){
+                    paymentDialog.setCancelable(false);
+                    cvPay.setEnabled(false);
+                    savePayment(((KV)spnPaymentType.getSelectedItem()).getKey(), etAmount.getText().toString());
+                }
+            }
+        });
+
+        paymentDialog.show();
+        Window window = paymentDialog.getWindow();
+        window.setLayout(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        window.setBackgroundDrawableResource(android.R.color.transparent);
+
+    }
+
+    public boolean validateEditedAmount(TextInputEditText etAmount){
+        String editAmount = etAmount.getText().toString();
+        double editAmountD=0.0;
+        if(editAmount.isEmpty()){
+            ((MainReceipt)parentActivity).showErrorDialog("Introduzca un monto valido");
+            return false;
+        }
+        try{
+            editAmountD=  Double.parseDouble(editAmount.replace(",", "").replace("$", ""));
+        }catch (Exception e){
+            ((MainReceipt)parentActivity).showErrorDialog("Introduzca un monto valido");
+            return false;
+        }
+        if (editAmountD > (model.getTotal()-model.getPaid())){
+            ((MainReceipt)parentActivity).showErrorDialog("El importe no puede ser superior a la deuda.");
+            return false;
+        }
+        return true;
+    }
+
+    public void savePayment(String paymentType, String editAmount){
+        paymentDialog.dismiss();
+        paymentDialog=null;
+        ((MainReceipt)parentActivity).showLoadingDialog();
+
+        double paymentAmount = Double.parseDouble(editAmount.replace(",", "").replace("$", ""));
+
+        String receiptStatus = (model.getTotal()> (model.getPaid()+paymentAmount))?CODES.CODE_RECEIPT_STATUS_OPEN:CODES.CODE_RECEIPT_STATUS_CLOSED;
+        //String code, String codeUser,String codesale, String codeclient,  String status, String ncf, double subTotal, double taxes, double discount, double total, double paidAmount
+        Receipts r =ReceiptController.getInstance(parentActivity).getReceiptByCode(model.getCode());
+        r.setStatus(receiptStatus);
+        r.setPaidamount(r.getPaidamount()+paymentAmount);
+        r.setMdate(null);//para que lo envi con TIMESTAMP
+        //String code, String codeReceipt,String codeUser, String codeClient, String type, double subTotal, double tax, double discount, double total
+        Payment p = new Payment(Funciones.generateCode(), r.getCode(), Funciones.getCodeuserLogged(parentActivity),model.getCodeClient(), paymentType,0,0,0,paymentAmount);
+
+        ReceiptController.getInstance(parentActivity).update(r);
+        PaymentController.getInstance(parentActivity).insert(p);
+        ((MainReceipt)parentActivity).addPayment(r, p);
+
+    }
 
 }

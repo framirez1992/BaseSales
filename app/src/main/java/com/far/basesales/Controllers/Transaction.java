@@ -79,4 +79,31 @@ public class Transaction {
 
     }
 
+//ABONAR RECIBO
+    public void sendToFireBase(Receipts receipt, Payment payment, OnFailureListener failureListener, OnCompleteListener onCompleteListener, OnSuccessListener onSuccessListener){
+        try {
+            WriteBatch lote = db.batch();
+
+            if (receipt.getMdate() == null) {
+                lote.set(ReceiptController.getInstance(context).getReferenceFireStore().document(receipt.getCode()), receipt.toMap());
+            } else {
+                lote.update(ReceiptController.getInstance(context).getReferenceFireStore().document(receipt.getCode()), receipt.toMap());
+            }
+
+            if(payment.getMDATE()== null){
+                lote.set(PaymentController.getInstance(context).getReferenceFireStore().document(payment.getCODE()), payment.toMap());
+            }else{
+                lote.update(PaymentController.getInstance(context).getReferenceFireStore().document(payment.getCODE()), payment.toMap());
+            }
+
+            lote.commit()
+                    .addOnFailureListener(failureListener)
+                    .addOnCompleteListener(onCompleteListener)
+                    .addOnSuccessListener(onSuccessListener);
+
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+
+    }
 }

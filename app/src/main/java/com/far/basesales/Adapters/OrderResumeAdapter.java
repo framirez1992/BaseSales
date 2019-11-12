@@ -23,6 +23,7 @@ import com.far.basesales.CloudFireStoreObjects.SalesDetails;
 import com.far.basesales.Controllers.TempOrdersController;
 import com.far.basesales.Dialogs.AddProductDialog;
 import com.far.basesales.Generic.KV;
+import com.far.basesales.Generic.KV2;
 import com.far.basesales.Interfases.ListableActivity;
 import com.far.basesales.MainOrders;
 import com.far.basesales.R;
@@ -53,7 +54,7 @@ public class OrderResumeAdapter extends RecyclerView.Adapter<OrderResumeAdapter.
 
         ArrayAdapter adapter = null;
         if( objects.get(position).getMeasures() != null &&  objects.get(position).getMeasures().size() >0){
-            adapter = new ArrayAdapter<KV>(activity, android.R.layout.simple_list_item_1,objects.get(position).getMeasures());
+            adapter = new ArrayAdapter<KV2>(activity, android.R.layout.simple_list_item_1,objects.get(position).getMeasures());
         }
 
         holder.fillData(objects.get(position), adapter);

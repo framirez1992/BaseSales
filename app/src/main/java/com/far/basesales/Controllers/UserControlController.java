@@ -319,6 +319,11 @@ public class UserControlController {
         return (c != null);
     }
 
+    public boolean multiPayment(){
+        String c = searchControl(CODES.USER_CONTROL_MULTIPAYMENT);
+        return (c != null);
+    }
+
 
 
     /**
@@ -444,14 +449,6 @@ public class UserControlController {
         }
     }
 
-    public void fillSpinnerOrderSplitType(Spinner spn){
-        ArrayList<KV> list = new ArrayList<>();
-
-        list.add(new KV("-1", "NONE"));
-        list.add(new KV(CODES.VAL_USERCONTROL_ORDERSPLITTYPE_FAMILY, "Family"));
-        list.add(new KV(CODES.VAL_USERCONTROL_ORDERSPLITTYPE_GROUP, "Group"));
-        spn.setAdapter(new ArrayAdapter<KV>(context,android.R.layout.simple_list_item_1,list));
-    }
 
     /**
      * obtiene todas las mesas asignadas a un usuario, rol o empresa
@@ -592,9 +589,11 @@ public class UserControlController {
 
     public static String getControlsQueryRol(){
         String controls = "(SELECT CODE, DESCRIPTION, TARGET FROM  ( " +
-                "SELECT '"+CODES.USER_CONTROL_CREATEORDER+"' as CODE, 'Create orders' as DESCRIPTION, '"+CODES.USERSCONTROL_TARGET_USER_ROL +"' as TARGET "+
+                /*"SELECT '"+CODES.USER_CONTROL_CREATEORDER+"' as CODE, 'Create orders' as DESCRIPTION, '"+CODES.USERSCONTROL_TARGET_USER_ROL +"' as TARGET "+
                 "UNION " +
                 "SELECT '"+CODES.USER_CONTROL_CHARGE_ORDERS+"' as CODE, 'Charge orders' as DESCRIPTION,  '"+CODES.USERSCONTROL_TARGET_USER_ROL +"' as TARGET " +
+                "UNION " +*/
+                "SELECT '"+CODES.USER_CONTROL_MULTIPAYMENT+"' as CODE, 'Abono a facturas' as DESCRIPTION,  '"+CODES.USERSCONTROL_TARGET_USER_ROL +"' as TARGET " +
                 " ) )";
         return controls;
     }

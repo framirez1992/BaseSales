@@ -249,7 +249,7 @@ public class ResumenOrderFragment extends Fragment {
 
 
     public void showErrorDialog(String title, String msg){
-      errorDialog = Funciones.getCustomDialog(parentActivity, title, msg, R.drawable.ic_error_white, new View.OnClickListener() {
+      errorDialog = Funciones.getCustomDialog(parentActivity,getResources().getColor(R.color.red_700), title, msg, R.drawable.ic_error_white, new View.OnClickListener() {
            @Override
            public void onClick(View v) {
                errorDialog.dismiss();

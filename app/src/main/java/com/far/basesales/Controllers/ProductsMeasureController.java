@@ -10,6 +10,7 @@ import com.far.basesales.CloudFireStoreObjects.Licenses;
 import com.far.basesales.CloudFireStoreObjects.ProductsMeasure;
 import com.far.basesales.DataBase.DB;
 import com.far.basesales.Generic.KV;
+import com.far.basesales.Generic.KV2;
 import com.far.basesales.Globales.Tablas;
 import com.far.basesales.Utils.Funciones;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -87,10 +88,10 @@ public class ProductsMeasureController {
         return result;
     }
 
-    public ArrayList<KV>getProductsMeasureKVByCodeProduct(String codeProduct){
-        ArrayList<KV> result = new ArrayList<>();
+    public ArrayList<KV2>getProductsMeasureKVByCodeProduct(String codeProduct){
+        ArrayList<KV2> result = new ArrayList<>();
         try {
-            String sql = "select um."+MeasureUnitsController.CODE+" as CODE, um."+MeasureUnitsController.DESCRIPTION+" as DESCRIPTION " +
+            String sql = "select um."+MeasureUnitsController.CODE+" as CODE, um."+MeasureUnitsController.DESCRIPTION+" as DESCRIPTION, "+PRICE+" as PRICE " +
                     "FROM "+MeasureUnitsController.TABLE_NAME+" um " +
                     "INNER JOIN "+TABLE_NAME+" pm on pm."+CODEMEASURE+" = um."+MeasureUnitsController.CODE+" "+
                     "WHERE "+CODEPRODUCT+" = ? AND "+ENABLED+" = ?";
@@ -98,8 +99,9 @@ public class ProductsMeasureController {
 
             Cursor c = DB.getInstance(context).getReadableDatabase().rawQuery(sql,args );
             while(c.moveToNext()){
-                result.add(new KV(c.getString(c.getColumnIndex("CODE")),
-                        c.getString(c.getColumnIndex("DESCRIPTION"))));
+                result.add(new KV2(c.getString(c.getColumnIndex("CODE")),
+                        c.getString(c.getColumnIndex("DESCRIPTION")),
+                        c.getString(c.getColumnIndex("PRICE"))));
 
             }c.close();
         }catch (Exception e){

@@ -469,7 +469,7 @@ public class MainOrders extends AppCompatActivity implements ListableActivity/*,
 
     public void showErrorDialog(String msg){
         errorDialog = null;
-        errorDialog = Funciones.getCustomDialog(MainOrders.this, "Error", msg, R.drawable.ic_error_white, new View.OnClickListener() {
+        errorDialog = Funciones.getCustomDialog(MainOrders.this,getResources().getColor(R.color.red_700), "Error", msg, R.drawable.ic_error_white, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 errorDialog.dismiss();

@@ -90,18 +90,8 @@ public class CODES {
     public static final String USER_CONTROL_MODIFYORDER = "MODIFYORDER";//editar ordenes desde el modulo de menu
     public static final String USER_CONTROL_ANULATEORDER = "ANULATEORDER";//anular ordenes desde el modulo de menu
     public static final String USER_CONTROL_PRINTORDERS = "PRINTORDERS";//imprimir ordenes
-
-    public static final String USERCONTROL_ORDERSPLIT ="ORDERSPLIT";//Indica si una orden se va a seccionar en 2 o mas ordenes. depende de ORDERSPLIT
-    /*
-    Indica el criterio del split para la orden: 1= Familia de productos, 2= Grupo de productos. depende de ORDERSPLIT
-     */
-    public static final String USERCONTROL_ORDERSPLITTYPE = "ORDERSPLITTYPE";
-    public static final String VAL_USERCONTROL_ORDERSPLITTYPE_FAMILY = "1";
-    public static final String VAL_USERCONTROL_ORDERSPLITTYPE_GROUP = "2";
-
-    public static final String USERCONTROL_ORDERSPLITDESTINY="ORDERSPLITDESTINY";//establece el tipo de ordenes que podra trabajar un usuario en especifico desde el modulo de de DISPACHORDERS (para cheff, bartendes)
-
-    public static final String USERCONTROL_TABLEASSIGN = "TABLEASSIGN";//establece la asignacion de mesas (AreaDetail) a un usuario, rol, empresa
+    //RECIBOS
+    public static final String USER_CONTROL_MULTIPAYMENT="MULTIPAYMENT";//Permite hacerle multiples pagos (abonar) un recibo.
 
 
 
