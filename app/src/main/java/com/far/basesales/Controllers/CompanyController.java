@@ -140,6 +140,19 @@ public class CompanyController {
         return result;
     }
 
+    public Company getCompany(){
+        Company result=null;
+        try{
+            Cursor c = DB.getInstance(context).getReadableDatabase().query(TABLE_NAME,columns,null,null,null,null,null);
+            if(c.moveToFirst()){
+                result=new Company(c);
+            }c.close();
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+        return result;
+    }
+
     public void fillSpnCompany(Spinner spn, boolean addTodos){
         ArrayList<Company> result = getCompanys(null, null, NAME);
         ArrayList<KV> spnList = new ArrayList<>();

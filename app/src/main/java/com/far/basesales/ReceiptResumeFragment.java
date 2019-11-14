@@ -21,17 +21,16 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.far.basesales.Adapters.Models.ReceiptRowModel;
 import com.far.basesales.Adapters.Models.SalesDetailModel;
+import com.far.basesales.Adapters.PaymentAdapter;
 import com.far.basesales.Adapters.SalesDetailAdapter;
 import com.far.basesales.CloudFireStoreObjects.Payment;
 import com.far.basesales.CloudFireStoreObjects.Receipts;
 import com.far.basesales.Controllers.PaymentController;
 import com.far.basesales.Controllers.ReceiptController;
 import com.far.basesales.Controllers.SalesController;
-import com.far.basesales.Controllers.Transaction;
 import com.far.basesales.Controllers.UserControlController;
 import com.far.basesales.Generic.KV;
 import com.far.basesales.Globales.CODES;
@@ -48,12 +47,14 @@ import java.util.ArrayList;
 public class ReceiptResumeFragment extends Fragment {
 
     Activity parentActivity;
-    TextView tvCode, tvDate, tvClientName, tvDocument, tvPhone, tvStatus, tvTotal;
+    TextView tvCode, tvDate, tvClientName, tvDocument, tvPhone, tvStatus, tvTotal, tvTotalPayment;
     ReceiptRowModel model;
-    RecyclerView rvList;
+    RecyclerView rvList, rvListPayment;
     ProgressBar pb;
     LinearLayout llGoReceipts, llMenu;
     Dialog paymentDialog;
+    CardView cvDetails, cvPayments;
+    LinearLayout llTotal, llTotalPayment;
 
     public ReceiptResumeFragment() {
         // Required empty public constructor
@@ -78,10 +79,31 @@ public class ReceiptResumeFragment extends Fragment {
         tvStatus= view.findViewById(R.id.tvStatus);
         rvList = view.findViewById(R.id.rvList);
         rvList.setLayoutManager(new LinearLayoutManager(parentActivity));
+        rvListPayment = view.findViewById(R.id.rvListPayment);
+        rvListPayment.setLayoutManager(new LinearLayoutManager(parentActivity));
         pb = view.findViewById(R.id.pb);
         tvTotal = view.findViewById(R.id.tvTotal);
+        tvTotalPayment = view.findViewById(R.id.tvTotalPayment);
         llGoReceipts = view.findViewById(R.id.llGoReceipts);
         llMenu = view.findViewById(R.id.llMenu);
+        cvDetails = view.findViewById(R.id.cvDetails);
+        cvPayments = view.findViewById(R.id.cvPayments);
+        llTotal = view.findViewById(R.id.llTotal);
+        llTotalPayment = view.findViewById(R.id.llTotalPayment);
+
+        cvDetails.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                changeList(v);
+            }
+        });
+        cvPayments.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                changeList(v);
+                searchPayments();
+            }
+        });
 
 
 
@@ -145,6 +167,7 @@ public class ReceiptResumeFragment extends Fragment {
             tvDocument.setText(model.getClientDocument());
             tvPhone.setText(model.getClientPhone());
             tvTotal.setText("$"+Funciones.formatDecimal(model.getTotal()));
+            tvTotalPayment.setText("$"+Funciones.formatDecimal(model.getPaid()));
 
             String status ="UNKNOWN";
             if(model.getStatus().equals(CODES.CODE_RECEIPT_STATUS_CLOSED)){
@@ -180,6 +203,27 @@ public class ReceiptResumeFragment extends Fragment {
 
     }
 
+    public void searchPayments(){
+        pb.setVisibility(View.VISIBLE);
+        AsyncTask<String, Void, ArrayList<Payment>> a = new AsyncTask<String, Void, ArrayList<Payment>>() {
+            @Override
+            protected ArrayList<Payment> doInBackground(String... strings) {
+                return PaymentController.getInstance(parentActivity).getPayments(PaymentController.CODERECEIPT+"=?", new String[]{model.getCode()}, null);
+            }
+
+            @Override
+            protected void onPostExecute(ArrayList<Payment> payments) {
+                super.onPostExecute(payments);
+                pb.setVisibility(View.GONE);
+                PaymentAdapter adapter = new PaymentAdapter(parentActivity, (ListableActivity) parentActivity, payments);
+                rvListPayment.setAdapter(adapter);
+                rvListPayment.getAdapter().notifyDataSetChanged();
+                rvListPayment.invalidate();
+            }
+        };
+        a.execute();
+    }
+
 
 
     public void printReceipt(){
@@ -213,7 +257,7 @@ public class ReceiptResumeFragment extends Fragment {
     }
 
     public void sendEmail(){
-
+       ReceiptController.getInstance(parentActivity).createPDF(model.getCode());
     }
 
     public void showPaymentDialog(){
@@ -289,6 +333,26 @@ public class ReceiptResumeFragment extends Fragment {
         ReceiptController.getInstance(parentActivity).update(r);
         PaymentController.getInstance(parentActivity).insert(p);
         ((MainReceipt)parentActivity).addPayment(r, p);
+
+    }
+
+    public void changeList(View v){
+
+         cvPayments.setCardBackgroundColor(getResources().getColor(R.color.gray_200));
+        ((TextView)cvPayments.getChildAt(0)).setTextColor(getResources().getColor(R.color.text_view));
+
+        cvDetails.setCardBackgroundColor(getResources().getColor(R.color.gray_200));
+        ((TextView)cvDetails.getChildAt(0)).setTextColor(getResources().getColor(R.color.text_view));
+
+        ((CardView)v).setCardBackgroundColor(getResources().getColor(R.color.white));
+        ((TextView)((CardView) v).getChildAt(0)).setTextColor(getResources().getColor(R.color.colorPrimaryDark));
+
+
+        rvList.setVisibility(v.getId()== R.id.cvDetails?View.VISIBLE:View.INVISIBLE);
+        llTotal.setVisibility(v.getId()== R.id.cvDetails?View.VISIBLE:View.GONE);
+
+        rvListPayment.setVisibility(v.getId()== R.id.cvPayments?View.VISIBLE:View.INVISIBLE);
+        llTotalPayment.setVisibility(v.getId()== R.id.cvPayments?View.VISIBLE:View.GONE);
 
     }
 

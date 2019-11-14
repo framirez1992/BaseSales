@@ -3,17 +3,31 @@ package com.far.basesales.Controllers;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.graphics.BitmapFactory;
 import android.support.annotation.NonNull;
 
 import com.example.bluetoothlibrary.Printer.Print;
 import com.far.basesales.Adapters.Models.ReceiptRowModel;
 import com.far.basesales.Adapters.Models.SalesDetailModel;
+import com.far.basesales.CloudFireStoreObjects.Clients;
+import com.far.basesales.CloudFireStoreObjects.Company;
 import com.far.basesales.CloudFireStoreObjects.Licenses;
 import com.far.basesales.CloudFireStoreObjects.Receipts;
+import com.far.basesales.CloudFireStoreObjects.SalesDetails;
 import com.far.basesales.DataBase.DB;
+import com.far.basesales.Globales.CODES;
 import com.far.basesales.Globales.Tablas;
 import com.far.basesales.R;
 import com.far.basesales.Utils.Funciones;
+import com.far.farpdf.Entities.AmountsResume;
+import com.far.farpdf.Entities.Client;
+import com.far.farpdf.Entities.Header;
+import com.far.farpdf.Entities.Invoice;
+import com.far.farpdf.Entities.Order;
+import com.far.farpdf.Entities.OrderDetail;
+import com.far.farpdf.Entities.Payment;
+import com.far.farpdf.Objects.Image;
+import com.far.farpdf.PDF.Writer;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -306,6 +320,40 @@ public class ReceiptController {
 
         p.printText("02:3D:D3:DB:D5:06");
         return null;
+    }
+
+    public void createPDF(String codeReceipt){
+        Receipts receipts = getReceiptByCode(codeReceipt);
+        Company company = CompanyController.getInstance(context).getCompany();
+        Header header=null;
+        if(company!= null){
+            Image i = new Image(BitmapFactory.decodeResource(context.getResources(),R.drawable.optica));
+            header = new Header(company.getNAME(), company.getADDRESS(), company.getPHONE(), company.getPHONE(), i);
+        }else{
+            Image i = new Image(BitmapFactory.decodeResource(context.getResources(),R.drawable.optica));
+            header = new Header("NONE", "NONE", "NONE", "NONE", i);
+        }
+        Writer writer = new Writer(context);
+
+        Clients clients = ClientsController.getInstance(context).getClientByCode(receipts.getCodeclient());
+        Client c = new Client(clients.getNAME(), clients.getDOCUMENT(), clients.getPHONE(), "address");
+
+        ArrayList<OrderDetail> detail = new ArrayList<>();
+        for(SalesDetailModel sd : SalesController.getInstance(context).getSaleDetailModels(receipts.getCode())){
+            detail.add(new OrderDetail(sd.getQuantity(), sd.getProductDescription(),sd.getTotal(), sd.getTotal()));
+        }
+        ArrayList<AmountsResume> amountsResumes = new ArrayList<>();
+        amountsResumes.add(new AmountsResume("Total:", "???"));
+        Order o = new Order(detail,amountsResumes);
+
+        ArrayList<Payment> payments = new ArrayList<>();
+        for(com.far.basesales.CloudFireStoreObjects.Payment payment: PaymentController.getInstance(context).getPayments(PaymentController.CODERECEIPT+"=?", new String[]{receipts.getCode()}, null)){
+            String name = payment.getTYPE().equals(CODES.PAYMENTTYPE_CREDIT)?"CREDITO":"EFECTIVO";
+            payments.add(new Payment(name, payment.getTOTAL()+""));
+        }
+
+        Invoice invoice = new Invoice(header,"Recibo", "footer", receipts.getCode(),Funciones.getFormatedDateRepDom(new Date()),c, o, payments);
+        writer.createPDF("BaseSales", "R_"+receipts.getCode()+Funciones.generateCode(),invoice);
     }
 
 }
