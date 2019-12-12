@@ -18,6 +18,7 @@ import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.Date;
@@ -102,8 +103,8 @@ public class DevicesController {
         }
     }
 
-    public int validateDevice(){
-        Devices d = getDeviceByCode();
+    public int validateDevice(Devices d){
+        //Devices d = getDeviceByCode();
         if(d == null){
             return CODES.CODE_DEVICES_UNREGISTERED;
         }
@@ -180,5 +181,13 @@ public class DevicesController {
                     addOnFailureListener(failure);
         }
 
+    }
+
+
+    public Task<QuerySnapshot> getFindThisDeviceFromFireBase(Licenses license, OnSuccessListener onSuccessListener, OnFailureListener failureListener){
+        // Create a query against the collection.
+        Query query = getReferenceFireStore(license).whereEqualTo("code", Funciones.getPhoneID(context));
+        // retrieve  query results asynchronously using query.get()
+        return query.get().addOnSuccessListener(onSuccessListener).addOnFailureListener(failureListener);
     }
 }

@@ -286,6 +286,22 @@ public class Funciones {
         return -1;
     }
 
+    public static int calcularDias(Date dateEnd, Date dateIni){
+        try {
+            Calendar c1 = Calendar.getInstance();c1.setTime(dateEnd);
+            Calendar c2 = Calendar.getInstance();c2.setTime(dateIni);
+
+            double d = c1.getTimeInMillis() - c2.getTimeInMillis();
+
+            long dias = Math.round(d / ( 24 * 60 * 60 * 1000));
+            return ((int) dias);
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return -1;
+    }
+
     public static int calcularMinutos(Date fechaProtagonista, Date fecha){
         try {
             if(fechaProtagonista == null){
@@ -361,6 +377,10 @@ public class Funciones {
         edit.commit();
     }
 
+    public static String getCodeLicense(Context context){
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+        return preferences.getString(CODES.PREFERENCE_LICENSE_CODE, "");
+    }
     public static String getCodeuserLogged(Context context){
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
         return preferences.getString(CODES.PREFERENCE_USERSKEY_CODE, "");

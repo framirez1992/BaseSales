@@ -290,9 +290,9 @@ public class ProductsSubTypesInvController {
 
 
 
-    public void searchChanges(OnSuccessListener<QuerySnapshot> success, OnCompleteListener<QuerySnapshot> complete, OnFailureListener failure){
+    public void searchChanges(boolean all, OnSuccessListener<QuerySnapshot> success, OnCompleteListener<QuerySnapshot> complete, OnFailureListener failure){
 
-        Date mdate = DB.getLastMDateSaved(context, TABLE_NAME);
+        Date mdate = all?null: DB.getLastMDateSaved(context, TABLE_NAME);
         if(mdate != null){
             getReferenceFireStore().
                     whereGreaterThan(MDATE, mdate).//mayor que, ya que las fechas (la que buscamos de la DB) tienen hora, minuto y segundos.
@@ -308,7 +308,10 @@ public class ProductsSubTypesInvController {
 
     }
 
-    public void consumeQuerySnapshot(QuerySnapshot querySnapshot){
+    public void consumeQuerySnapshot(boolean clear, QuerySnapshot querySnapshot){
+        if(clear){
+            delete(null, null);
+        }
         if (querySnapshot != null && querySnapshot.getDocuments()!= null && querySnapshot.getDocuments().size() > 0) {
             for(DocumentSnapshot doc: querySnapshot){
                 ProductsSubTypes obj = doc.toObject(ProductsSubTypes.class);

@@ -7,8 +7,10 @@ import com.far.basesales.Globales.Tablas;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 
 
@@ -45,6 +47,13 @@ public class UsersDevicesController {
                 addOnCompleteListener(complete).
                 addOnFailureListener(failute);
 
+    }
+
+    public Task<QuerySnapshot> getUserDeviceFromFireBase(Licenses license, String codeUser, String codeDevice, OnSuccessListener onSuccessListener, OnFailureListener failureListener){
+        // Create a query against the collection.
+        Query query = getReferenceFireStore(license).whereEqualTo(CODEUSER, codeUser).whereEqualTo(CODEDEVICE, codeDevice);
+        // retrieve  query results asynchronously using query.get()
+        return query.get().addOnSuccessListener(onSuccessListener).addOnFailureListener(failureListener);
     }
 
 

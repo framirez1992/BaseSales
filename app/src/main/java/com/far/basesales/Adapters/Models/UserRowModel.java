@@ -1,7 +1,9 @@
 package com.far.basesales.Adapters.Models;
 
+import com.far.basesales.Globales.CODES;
+
 public class UserRowModel {
-    String code,systemCode, userName, userRole;
+    String code,systemCode, userName,userPassword,  userRole;
     boolean active, inserver;
 
     public UserRowModel(String code, String systemCode, String userName, String userRole, boolean active, boolean inServer){
@@ -13,6 +15,16 @@ public class UserRowModel {
        this.inserver = inServer;
     }
 
+    /*admin*/
+    public UserRowModel(String code, String systemCode, String userName,String password, String userRole, boolean active, boolean inServer){
+        this.code = code;
+        this.systemCode = systemCode;
+        this.userName = userName;
+        this.userPassword = password;
+        this.userRole = userRole;
+        this.active = active;
+        this.inserver = inServer;
+    }
     public String getCode() {
         return code;
     }
@@ -59,5 +71,23 @@ public class UserRowModel {
 
     public void setSystemCode(String systemCode) {
         this.systemCode = systemCode;
+    }
+
+    public String getUserPassword() {
+        return userPassword;
+    }
+
+    public void setUserPassword(String userPassword) {
+        this.userPassword = userPassword;
+    }
+
+    public String getSystemCodeDescription(){
+        if(systemCode.equals(CODES.USER_SYSTEM_CODE_SU)){
+            return "Super User";
+        }else if(systemCode.equals(CODES.USER_SYSTEM_CODE_ADMIN)){
+            return "Adminitrator";
+        }else{
+            return "User";
+        }
     }
 }

@@ -30,6 +30,7 @@ import com.far.basesales.Controllers.UsersController;
 import com.far.basesales.Controllers.UsersDevicesController;
 import com.far.basesales.Generic.KV;
 import com.far.basesales.Generic.KV2;
+import com.far.basesales.Globales.CODES;
 import com.far.basesales.Globales.Tablas;
 import com.far.basesales.Interfases.FireBaseOK;
 import com.far.basesales.Utils.Funciones;
@@ -137,7 +138,7 @@ public class CloudFireStoreDB {
         ////////////////////////////////////////////////////////////////////////
         ////////  JERARQUIA DE LICENCIAS         //////////////////////////////
         String licCode = Funciones.generateCode();
-        Licenses licencia = new Licenses(licCode,licCode ,new Date(),Funciones.sumaDiasFecha(370), 0, 370, 5, true,true,new Date(),1);
+        Licenses licencia = new Licenses(licCode,licCode ,"",new Date(),Funciones.sumaDiasFecha(370), 0, 370, 5, true,true,new Date(),1);
 
         //creando documento con el key del nuevo cliente en la coleccion GENERAL_LICENSES
         CollectionReference GeneralLicensesCollection = fs.collection(Tablas.generalLicencias);
@@ -175,7 +176,7 @@ public class CloudFireStoreDB {
 
     }
 
-    public void CargaInicial(Licenses lic, boolean registerDevice){
+    public void CargaInicial(Licenses lic/*, boolean registerDevice*/){
 
         this.license = lic;
         //////       BEGIN TRANSACTION      ////////
@@ -183,9 +184,9 @@ public class CloudFireStoreDB {
         ////////////////////////////////////////////
 
         try {
-            if (registerDevice) {
+           /* if (registerDevice) {
                 devicesController.RegisterDevice(license);
-            }
+            }*/
             //////////////////////////////////////////////////
             //////////        LICENSES        ////////////////
             licenseController.delete("", null);
@@ -242,6 +243,7 @@ public class CloudFireStoreDB {
             }
             okListener.sendMessage("FINALIZADO CORRECTAMENTE ");
             okListener.OnFireBaseEndContact(1);
+            Funciones.savePreferences(context, CODES.PREFERENCE_LICENSE_CODE, license.getCODE());
             //okListener.sendMessage("CARGANDO MEASURE UNITS ");
             //measureUnitsController.getDataFromFireBase(license.getCODE(), onSuccessListenerMeasureUnits, failureListener);
         }

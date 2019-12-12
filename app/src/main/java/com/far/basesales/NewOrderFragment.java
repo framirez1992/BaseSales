@@ -215,15 +215,15 @@ public class NewOrderFragment extends Fragment {
 
 
             if (lastSeach != null && !searchBlocked()) {
-                where += "AND p." + ProductsController.DESCRIPTION + " like ?";
+                where += " AND p." + ProductsController.DESCRIPTION + " like ? ";
                 x.add("%"+lastSeach+"%");
             }else {
                 if (lastType != null && lastType != "0") {
-                    where += "AND p." + ProductsController.TYPE + " = ?";
+                    where += " AND p." + ProductsController.TYPE + " = ? ";
                     x.add(lastType);
                 }
                 if (lastSubType != null && lastSubType != "0") {
-                    where += "AND p." + ProductsController.SUBTYPE + " = ?";
+                    where += " AND p." + ProductsController.SUBTYPE + " = ? ";
                     x.add(lastSubType);
                 }
             }

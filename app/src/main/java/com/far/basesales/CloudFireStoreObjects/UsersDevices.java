@@ -1,9 +1,12 @@
 package com.far.basesales.CloudFireStoreObjects;
 
+import com.far.basesales.Controllers.UsersDevicesController;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.IgnoreExtraProperties;
 import com.google.firebase.firestore.ServerTimestamp;
 
 import java.util.Date;
+import java.util.HashMap;
 
 @IgnoreExtraProperties
 public class UsersDevices {
@@ -14,6 +17,20 @@ public class UsersDevices {
         public UsersDevices(){
 
         }
+        public UsersDevices(String code, String codeUser, String codeDevice){
+            this.CODE = code;this.CODEUSER = codeUser; this.CODEDEVICE = codeDevice;
+        }
+
+    public HashMap<String, Object> toMap(){
+        HashMap<String, Object> map = new HashMap<>();
+        map.put(UsersDevicesController.CODE, CODE);
+        map.put(UsersDevicesController.CODEUSER, CODEUSER);
+        map.put(UsersDevicesController.CODEDEVICE, CODEDEVICE);
+        map.put(UsersDevicesController.DATE, (DATE == null)? FieldValue.serverTimestamp():DATE);
+        map.put(UsersDevicesController.MDATE, (MDATE == null)? FieldValue.serverTimestamp():MDATE);
+
+        return map;
+    }
 
     public String getCODE() {
         return CODE;

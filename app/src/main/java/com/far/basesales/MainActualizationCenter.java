@@ -27,6 +27,7 @@ import com.far.basesales.Controllers.ProductsTypesInvController;
 import com.far.basesales.Controllers.ReceiptController;
 import com.far.basesales.Controllers.RolesController;
 import com.far.basesales.Controllers.SalesController;
+import com.far.basesales.Controllers.UserTypesController;
 import com.far.basesales.Controllers.UsersController;
 import com.far.basesales.Globales.Tablas;
 import com.google.android.gms.tasks.OnCanceledListener;
@@ -88,24 +89,24 @@ public class MainActualizationCenter extends AppCompatActivity implements OnSucc
 
     public void loadData(){
        switch (currentindex){
-           case 0:RolesController.getInstance(MainActualizationCenter.this).searchChanges(this, this, this); break;
-           case 1:CompanyController.getInstance(MainActualizationCenter.this).searchChanges(this, this, this); break;
-           case 2:ClientsController.getInstance(MainActualizationCenter.this).searchChanges(this, this, this); break;
-           case 3:ProductsTypesController.getInstance(MainActualizationCenter.this).searchChanges(this, this, this); break;
-           case 4:ProductsSubTypesController.getInstance(MainActualizationCenter.this).searchChanges(this, this, this); break;
-           case 5:ProductsController.getInstance(MainActualizationCenter.this).searchChanges(this, this, this); break;
-           case 6:ProductsMeasureController.getInstance(MainActualizationCenter.this).searchChanges(this, this, this); break;
-           case 7:ProductsControlController.getInstance(MainActualizationCenter.this).searchChanges(this, this, this); break;
-           case 8:ProductsTypesInvController.getInstance(MainActualizationCenter.this).searchChanges(this, this, this); break;
-           case 9:ProductsSubTypesInvController.getInstance(MainActualizationCenter.this).searchChanges(this, this, this); break;
-           case 10:ProductsInvController.getInstance(MainActualizationCenter.this).searchChanges(this, this, this); break;
-           case 11:ProductsMeasureInvController.getInstance(MainActualizationCenter.this).searchChanges(this, this, this); break;
-           case 12:SalesController.getInstance(MainActualizationCenter.this).searchChanges(this, this, this); break;
-           case 13:SalesController.getInstance(MainActualizationCenter.this).searchDetailChanges(this, this, this); break;
-           case 14:ReceiptController.getInstance(MainActualizationCenter.this).searchChanges(this, this, this); break;
-           case 15:PaymentController.getInstance(MainActualizationCenter.this).searchChanges(this, this, this); break;
-           case 16:MeasureUnitsController.getInstance(MainActualizationCenter.this).searchChanges(this, this, this); break;
-           case 17:MeasureUnitsInvController.getInstance(MainActualizationCenter.this).searchChanges(this, this, this); break;
+           case 0:UserTypesController.getInstance(MainActualizationCenter.this).searchChanges(true,this, this, this); break;//ALL
+           case 1:CompanyController.getInstance(MainActualizationCenter.this).searchChanges(true, this, this, this); break;//ALL
+           case 2:ClientsController.getInstance(MainActualizationCenter.this).searchChanges(true, this, this, this); break;//ALL
+           case 3:ProductsTypesController.getInstance(MainActualizationCenter.this).searchChanges(true, this, this, this); break;//ALL
+           case 4:ProductsSubTypesController.getInstance(MainActualizationCenter.this).searchChanges(true, this, this, this); break;//ALL
+           case 5:ProductsController.getInstance(MainActualizationCenter.this).searchChanges(true, this, this, this); break;//ALL
+           case 6:ProductsMeasureController.getInstance(MainActualizationCenter.this).searchChanges(true, this, this, this); break;//ALL
+           case 7:ProductsControlController.getInstance(MainActualizationCenter.this).searchChanges(true, this, this, this); break;//ALL
+           case 8:ProductsTypesInvController.getInstance(MainActualizationCenter.this).searchChanges(true, this, this, this); break;//ALL
+           case 9:ProductsSubTypesInvController.getInstance(MainActualizationCenter.this).searchChanges(true, this, this, this); break;//ALL
+           case 10:ProductsInvController.getInstance(MainActualizationCenter.this).searchChanges(true, this, this, this); break;//ALL
+           case 11:ProductsMeasureInvController.getInstance(MainActualizationCenter.this).searchChanges(true, this, this, this); break;//ALL
+          // case 12:SalesController.getInstance(MainActualizationCenter.this).searchChanges(this, this, this); break;//PETICION
+          // case 13:SalesController.getInstance(MainActualizationCenter.this).searchDetailChanges(this, this, this); break;//PETICION
+          // case 14:ReceiptController.getInstance(MainActualizationCenter.this).searchChanges(this, this, this); break;//PETICION
+          // case 15:PaymentController.getInstance(MainActualizationCenter.this).searchChanges(this, this, this); break;//PETICION
+           case 12:MeasureUnitsController.getInstance(MainActualizationCenter.this).searchChanges(true, this, this, this); break;//ALL
+           case 13:MeasureUnitsInvController.getInstance(MainActualizationCenter.this).searchChanges(true, this, this, this); break;//ALL
           default:
               currentindex=0;
               tvMessage.setText("Finalizado Correctamente");
@@ -146,24 +147,24 @@ public class MainActualizationCenter extends AppCompatActivity implements OnSucc
     @Override
     public void onSuccess(QuerySnapshot querySnapshot) {
         switch (currentindex){
-            case 0:RolesController.getInstance(MainActualizationCenter.this).consumeQuerySnapshot(querySnapshot); break;
-            case 1:CompanyController.getInstance(MainActualizationCenter.this).consumeQuerySnapshot(querySnapshot); break;
-            case 2:ClientsController.getInstance(MainActualizationCenter.this).consumeQuerySnapshot(querySnapshot); break;
-            case 3:ProductsTypesController.getInstance(MainActualizationCenter.this).consumeQuerySnapshot(querySnapshot); break;
-            case 4:ProductsSubTypesController.getInstance(MainActualizationCenter.this).consumeQuerySnapshot(querySnapshot); break;
-            case 5:ProductsController.getInstance(MainActualizationCenter.this).consumeQuerySnapshot(querySnapshot); break;
-            case 6:ProductsMeasureController.getInstance(MainActualizationCenter.this).consumeQuerySnapshot(querySnapshot); break;
-            case 7:ProductsControlController.getInstance(MainActualizationCenter.this).consumeQuerySnapshot(querySnapshot); break;
-            case 8:ProductsTypesInvController.getInstance(MainActualizationCenter.this).consumeQuerySnapshot(querySnapshot); break;
-            case 9:ProductsSubTypesInvController.getInstance(MainActualizationCenter.this).consumeQuerySnapshot(querySnapshot); break;
-            case 10:ProductsInvController.getInstance(MainActualizationCenter.this).consumeQuerySnapshot(querySnapshot); break;
-            case 11:ProductsMeasureInvController.getInstance(MainActualizationCenter.this).consumeQuerySnapshot(querySnapshot); break;
-            case 12:SalesController.getInstance(MainActualizationCenter.this).consumeQuerySnapshot(querySnapshot); break;
-            case 13:SalesController.getInstance(MainActualizationCenter.this).consumeQuerySnapshotDetail(querySnapshot); break;
-            case 14:ReceiptController.getInstance(MainActualizationCenter.this).consumeQuerySnapshot(querySnapshot); break;
-            case 15:PaymentController.getInstance(MainActualizationCenter.this).consumeQuerySnapshot(querySnapshot); break;
-            case 16:MeasureUnitsController.getInstance(MainActualizationCenter.this).consumeQuerySnapshot(querySnapshot); break;
-            case 17:MeasureUnitsInvController.getInstance(MainActualizationCenter.this).consumeQuerySnapshot(querySnapshot); break;
+            case 0: UserTypesController.getInstance(MainActualizationCenter.this).consumeQuerySnapshot(true, querySnapshot); break;
+            case 1:CompanyController.getInstance(MainActualizationCenter.this).consumeQuerySnapshot(true, querySnapshot); break;
+            case 2:ClientsController.getInstance(MainActualizationCenter.this).consumeQuerySnapshot(true, querySnapshot); break;
+            case 3:ProductsTypesController.getInstance(MainActualizationCenter.this).consumeQuerySnapshot(true, querySnapshot); break;
+            case 4:ProductsSubTypesController.getInstance(MainActualizationCenter.this).consumeQuerySnapshot(true, querySnapshot); break;
+            case 5:ProductsController.getInstance(MainActualizationCenter.this).consumeQuerySnapshot(true, querySnapshot); break;
+            case 6:ProductsMeasureController.getInstance(MainActualizationCenter.this).consumeQuerySnapshot(true, querySnapshot); break;
+            case 7:ProductsControlController.getInstance(MainActualizationCenter.this).consumeQuerySnapshot(true, querySnapshot); break;
+            case 8:ProductsTypesInvController.getInstance(MainActualizationCenter.this).consumeQuerySnapshot(true, querySnapshot); break;
+            case 9:ProductsSubTypesInvController.getInstance(MainActualizationCenter.this).consumeQuerySnapshot(true, querySnapshot); break;
+            case 10:ProductsInvController.getInstance(MainActualizationCenter.this).consumeQuerySnapshot(true, querySnapshot); break;
+            case 11:ProductsMeasureInvController.getInstance(MainActualizationCenter.this).consumeQuerySnapshot(true, querySnapshot); break;
+            //case 12:SalesController.getInstance(MainActualizationCenter.this).consumeQuerySnapshot(querySnapshot); break;
+            //case 13:SalesController.getInstance(MainActualizationCenter.this).consumeQuerySnapshotDetail(querySnapshot); break;
+            //case 14:ReceiptController.getInstance(MainActualizationCenter.this).consumeQuerySnapshot(querySnapshot); break;
+            ///case 15:PaymentController.getInstance(MainActualizationCenter.this).consumeQuerySnapshot(querySnapshot); break;
+            case 12:MeasureUnitsController.getInstance(MainActualizationCenter.this).consumeQuerySnapshot(true, querySnapshot); break;
+            case 13:MeasureUnitsInvController.getInstance(MainActualizationCenter.this).consumeQuerySnapshot(true, querySnapshot); break;
             default:break;
         }
         currentindex++;

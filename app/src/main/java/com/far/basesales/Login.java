@@ -58,7 +58,7 @@ public class Login extends AppCompatActivity implements OnFailureListener, FireB
     Dialog cargaInicialDialog;
     LinearLayout llProgressBar;
     EditText etUser, etPassword;
-    Button btnLogin;
+    TextView btnLogin;
     CardView btnAceptar;
     EditText etUserDialog, etKeyDialog;
     TextView tvMessageDialog, tvPhoneID;
@@ -66,17 +66,21 @@ public class Login extends AppCompatActivity implements OnFailureListener, FireB
 
     TextView tvMsgToken;
     EditText etToken;
-    Button btnOKToken;
+    CardView btnOKToken;
     LinearLayout llProgressBarToken;
     Dialog tokenDialog;
+
+    Users lastUser;
+    Devices lastDevice;
+    UsersDevices usersDevice;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
         init();
         initDialog();
-        if(getIntent().getExtras()!= null && getIntent().getExtras().containsKey(CODES.EXTRA_SECURITY_ERROR_CODE)){
-            int code = getIntent().getExtras().getInt(CODES.EXTRA_SECURITY_ERROR_CODE);
+        if(Funciones.getPreferencesInt(Login.this, CODES.EXTRA_SECURITY_ERROR_CODE)>-1){
+            int code = Funciones.getPreferencesInt(Login.this, CODES.EXTRA_SECURITY_ERROR_CODE);
             ((TextView)findViewById(R.id.tvErrorMsg)).setText(Funciones.gerErrorMessage(code));
         }
     }
@@ -86,10 +90,6 @@ public class Login extends AppCompatActivity implements OnFailureListener, FireB
         super.onResume();
         if(licenseController.getLicense() == null) {
            Snackbar.make(findViewById(R.id.root), "Realize una carga inicial", Snackbar.LENGTH_LONG).show();
-        }
-
-        if(Funciones.getPreferencesInt(Login.this, CODES.PREFERENCE_SCREEN_HEIGHT) <=0){
-            Funciones.saveScreenMetrics(Login.this);
         }
     }
 
@@ -144,7 +144,7 @@ public class Login extends AppCompatActivity implements OnFailureListener, FireB
             etPassword = findViewById(R.id.etPass);
 
         } catch (Exception e) {
-            e.printStackTrace();
+            Snackbar.make(findViewById(R.id.root), e.getMessage(), Snackbar.LENGTH_LONG).show();
         }
 
 
@@ -192,7 +192,7 @@ public class Login extends AppCompatActivity implements OnFailureListener, FireB
             }
 
         } catch (Exception e) {
-            e.printStackTrace();
+            Snackbar.make(findViewById(R.id.root), e.getMessage(), Snackbar.LENGTH_LONG).show();
         }
 
     }
@@ -263,7 +263,6 @@ public class Login extends AppCompatActivity implements OnFailureListener, FireB
             endLoading();
             tvMessageDialog.setText("Finalizado");
             cargaInicialDialog.dismiss();
-            //Funciones.getDateOnline(Login.this);
             recreate();
 
         }
@@ -285,7 +284,7 @@ public class Login extends AppCompatActivity implements OnFailureListener, FireB
         @Override
         public void onSuccess(QuerySnapshot querySnapshot) {
 
-            if(querySnapshot == null ){
+            if(querySnapshot == null || (querySnapshot!= null && querySnapshot.isEmpty())){
                 btnLogin.setEnabled(true);
                 findViewById(R.id.llProgress).setVisibility(View.INVISIBLE);
                 Snackbar.make(findViewById(R.id.root), "Error de autenticacion", Snackbar.LENGTH_LONG).show();
@@ -294,24 +293,25 @@ public class Login extends AppCompatActivity implements OnFailureListener, FireB
             for (DocumentSnapshot document : querySnapshot.getDocuments()) {
 
                 if(document != null){
-                    Users u = document.toObject(Users.class);
+                    lastUser = document.toObject(Users.class);
                     usersController.delete(null, null);
-                    usersController.insert(u);
 
-                    if(!isValidUser(u)){
+                    if(!isValidUser(lastUser)){
                         btnLogin.setEnabled(true);
                         findViewById(R.id.llProgress).setVisibility(View.INVISIBLE);
                         return;
                     }
 
-                    String codeUser = u.getCODE();
-                    Funciones.clearPreference(Login.this);
-                    Funciones.savePreferences(Login.this, CODES.PREFERENCE_USERSKEY_CODE, codeUser);
-                    Funciones.savePreferences(Login.this, CODES.PREFERENCE_USERSKEY_USERTYPE, UsersController.getInstance(Login.this).getUserByCode(codeUser).getROLE());
-                    ((TextView)findViewById(R.id.tvErrorMsg)).setText("");
-
-                    Intent i = new Intent(Login.this, MainActivity.class);
-                    startActivity(i);
+                    DevicesController.getInstance(Login.this).getFindThisDeviceFromFireBase(licenseController.getLicense(), onSuccessDevice, new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            findViewById(R.id.llProgress).setVisibility(View.INVISIBLE);
+                            btnLogin.setEnabled(true);
+                            Snackbar.make(findViewById(R.id.root), e.getMessage(), Snackbar.LENGTH_LONG).show();
+                            return;
+                        }
+                    });
+                    break;
 
                 }else{
                     Snackbar.make(findViewById(R.id.root), "ERROR obteniendo Usuario", Snackbar.LENGTH_LONG).show();
@@ -326,25 +326,26 @@ public class Login extends AppCompatActivity implements OnFailureListener, FireB
     };
 
 
-    public boolean validateDevice(){
+    public boolean validateDevice(Devices d){
 
-        int code = devicesController.validateDevice();
+        int code = devicesController.validateDevice(d);
 
         if(code == CODES.CODE_DEVICES_UNREGISTERED){
-            Toast.makeText(Login.this, "Dispositivo no registrado. Contacte con el administrador", Toast.LENGTH_LONG).show();
-            startActivityLoginFromBegining();
+            Snackbar.make(findViewById(R.id.root), "Dispositivo no registrado. Contacte con el administrador", Snackbar.LENGTH_LONG).show();
+            //Toast.makeText(Login.this, "Dispositivo no registrado. Contacte con el administrador", Toast.LENGTH_LONG).show();
+            //startActivityLoginFromBegining();
             return false;
         }
 
         if(code == CODES.CODE_DEVICES_DISABLED){
-            Toast.makeText(Login.this, "Dispositivo inactivo. Contacte con el administrador", Toast.LENGTH_LONG).show();
-            startActivityLoginFromBegining();
+            Snackbar.make(findViewById(R.id.root), "Dispositivo inactivo. Contacte con el administrador", Snackbar.LENGTH_LONG).show();
+            //Toast.makeText(Login.this, "Dispositivo inactivo. Contacte con el administrador", Toast.LENGTH_LONG).show();
+            //startActivityLoginFromBegining();
             return false;
         }
 
         return true;
     }
-
     public boolean isValidUser(Users u){
         int code = usersController.validateUser(u);
         if(code != CODES.CODE_USERS_ENABLED){
@@ -464,6 +465,7 @@ public class Login extends AppCompatActivity implements OnFailureListener, FireB
     public void showTokenDialog(){
         try {
             tokenDialog = new Dialog(Login.this);
+            tokenDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
             tokenDialog.setContentView(R.layout.dialog_edit_button);
             tvMsgToken = tokenDialog.findViewById(R.id.tvMessage);
             etToken = tokenDialog.findViewById(R.id.etValue);
@@ -498,6 +500,9 @@ public class Login extends AppCompatActivity implements OnFailureListener, FireB
             });
 
             tokenDialog.show();
+            Window window = tokenDialog.getWindow();
+            window.setLayout(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+            window.setBackgroundDrawableResource(android.R.color.transparent);
         }catch (Exception e){
             e.printStackTrace();
         }
@@ -527,7 +532,8 @@ public class Login extends AppCompatActivity implements OnFailureListener, FireB
                         case  CODES.CODE_LICENSE_DISABLED: msg = Funciones.gerErrorMessage(CODES.CODE_LICENSE_DISABLED);  endLoading(); break;
                         case  CODES.CODE_LICENSE_VALID:
                             color = android.R.color.black;
-                            UsersController.getInstance(Login.this).getQueryUsersByCode(license,etUserDialog.getText().toString(),onSuccessUsers, onComplete,Login.this);
+                            //UsersController.getInstance(Login.this).getQueryUsersByCode(license,etUserDialog.getText().toString(),onSuccessUsers, onComplete,Login.this);
+                            DevicesController.getInstance(Login.this).getFindThisDeviceFromFireBase(license, onSuccessDeviceCargaInicial,Login.this);
                             break;
                         default:msg = Funciones.gerErrorMessage(CODES.CODE_LICENSE_INVALID);  endLoading(); break;
                     }
@@ -542,7 +548,7 @@ public class Login extends AppCompatActivity implements OnFailureListener, FireB
             }
         }
     };
-    public OnSuccessListener<QuerySnapshot> onSuccessUsers = new OnSuccessListener<QuerySnapshot>() {
+    public OnSuccessListener<QuerySnapshot> onSuccessUsersCargaInicial = new OnSuccessListener<QuerySnapshot>() {
         @Override
         public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
             Users u = null;
@@ -555,18 +561,142 @@ public class Login extends AppCompatActivity implements OnFailureListener, FireB
             }
 
             if (validateUserCargaInicial(u)) {
-                UsersDevicesController.getInstance(Login.this).getQueryusersDevices(license,u.getCODE(),Funciones.getPhoneID(Login.this),onSuccessUsersDevices,onComplete,Login.this);
+                UsersDevicesController.getInstance(Login.this).getQueryusersDevices(license,u.getCODE(),Funciones.getPhoneID(Login.this),onSuccessUsersDevicesCargaInicial,onComplete,Login.this);
             }
         }
     };
 
-    public OnSuccessListener<QuerySnapshot> onSuccessUsersDevices = new OnSuccessListener<QuerySnapshot>() {
+    public OnSuccessListener<QuerySnapshot> onSuccessDeviceCargaInicial = new OnSuccessListener<QuerySnapshot>() {
+        @Override
+        public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+            Devices d = null;
+            if(queryDocumentSnapshots != null && queryDocumentSnapshots.size() >0 ){
+                DocumentSnapshot doc = queryDocumentSnapshots.getDocuments().get(0);
+                d = doc.toObject(Devices.class);
+                if(!d.isENABLED()){
+                    setMessageCargaInicial(Funciones.gerErrorMessage(CODES.CODE_DEVICES_DISABLED), R.color.red_700);
+                    endLoading();
+                }else{
+                    UsersController.getInstance(Login.this).getQueryUsersByCode(license,etUserDialog.getText().toString(),onSuccessUsersCargaInicial, onComplete,Login.this);
+                }
+            }else{
+                    setMessageCargaInicial(Funciones.gerErrorMessage(CODES.CODE_DEVICES_UNREGISTERED), R.color.red_700);
+                    endLoading();
+            }
+        }
+    };
+
+
+
+    OnSuccessListener<QuerySnapshot> onSuccessDevice = new OnSuccessListener<QuerySnapshot>() {
+
+        @Override
+        public void onSuccess(QuerySnapshot querySnapshot) {
+
+            if(querySnapshot == null || (querySnapshot != null && querySnapshot.isEmpty()) ){
+                btnLogin.setEnabled(true);
+                findViewById(R.id.llProgress).setVisibility(View.INVISIBLE);
+                Snackbar.make(findViewById(R.id.root), "Dispositivo no autorizado", Snackbar.LENGTH_LONG).show();
+                return;
+            }
+
+            for (DocumentSnapshot document : querySnapshot.getDocuments()) {
+
+                if(document != null ){
+                    lastDevice = document.toObject(Devices.class);
+                    devicesController.delete(null, null);
+
+                    if(!validateDevice(lastDevice)){
+                        lastUser = null;
+                        btnLogin.setEnabled(true);
+                        findViewById(R.id.llProgress).setVisibility(View.INVISIBLE);
+                        return;
+                    }
+
+                    UsersDevicesController.getInstance(Login.this).getUserDeviceFromFireBase(licenseController.getLicense(), lastUser.getCODE(), lastDevice.getCODE(), onSuccessUserDevice, new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            findViewById(R.id.llProgress).setVisibility(View.INVISIBLE);
+                            btnLogin.setEnabled(true);
+                            Snackbar.make(findViewById(R.id.root), e.getMessage(), Snackbar.LENGTH_LONG).show();
+                            return;
+                        }
+                    });
+
+
+
+                }else{
+                    Snackbar.make(findViewById(R.id.root), "ERROR obteniendo Device", Snackbar.LENGTH_LONG).show();
+                }
+            }
+
+            //btnLogin.setEnabled(true);
+            // findViewById(R.id.llProgress).setVisibility(View.INVISIBLE);
+
+        }
+
+    };
+
+
+
+    OnSuccessListener<QuerySnapshot> onSuccessUserDevice = new OnSuccessListener<QuerySnapshot>() {
+
+        @Override
+        public void onSuccess(QuerySnapshot querySnapshot) {
+
+            if(querySnapshot == null || (querySnapshot != null && querySnapshot.isEmpty()) ){
+                btnLogin.setEnabled(true);
+                findViewById(R.id.llProgress).setVisibility(View.INVISIBLE);
+                Snackbar.make(findViewById(R.id.root), "El dispositivo no esta asignado al usuario", Snackbar.LENGTH_LONG).show();
+                return;
+            }
+
+            for (DocumentSnapshot document : querySnapshot.getDocuments()) {
+
+                if(document != null){
+                    UsersDevices ud = document.toObject(UsersDevices.class);
+
+                    String lastLicenseCodeSaved = Funciones.getCodeLicense(Login.this);
+                    if(lastLicenseCodeSaved.isEmpty()){
+                        Snackbar.make(findViewById(R.id.root), "Realize una carga inicial. No se encontro licencia", Snackbar.LENGTH_LONG).show();
+                    }else{
+                        Funciones.clearPreference(Login.this);
+                        Funciones.savePreferences(Login.this, CODES.PREFERENCE_LICENSE_CODE, lastLicenseCodeSaved);
+                        Funciones.savePreferences(Login.this, CODES.PREFERENCE_USERSKEY_CODE, lastUser.getCODE());
+                        Funciones.savePreferences(Login.this, CODES.PREFERENCE_USERSKEY_USERTYPE, lastUser.getROLE());
+                        ((TextView)findViewById(R.id.tvErrorMsg)).setText("");
+
+                        UsersController.getInstance(Login.this).insert(lastUser);
+                        DevicesController.getInstance(Login.this).insert(lastDevice);
+
+
+                        Intent i = new Intent(Login.this, MainActivity.class);
+                        startActivity(i);
+                    }
+
+
+                }else{
+                    Snackbar.make(findViewById(R.id.root), "ERROR obteniendo UserDevice", Snackbar.LENGTH_LONG).show();
+                }
+            }
+
+            btnLogin.setEnabled(true);
+            findViewById(R.id.llProgress).setVisibility(View.INVISIBLE);
+
+        }
+
+    };
+
+
+    public OnSuccessListener<QuerySnapshot> onSuccessUsersDevicesCargaInicial = new OnSuccessListener<QuerySnapshot>() {
         @Override
         public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
             if(queryDocumentSnapshots != null && queryDocumentSnapshots.size() >0 ){
                 DocumentSnapshot doc = queryDocumentSnapshots.getDocuments().get(0);
                 UsersDevices ud = doc.toObject(UsersDevices.class);
-                devicesController.getDevices(license, DevicesListener);
+                //devicesController.getDevices(license, DevicesValidationListener);
+                CloudFireStoreDB.getInstance(Login.this, Login.this, Login.this).CargaInicial(license/*,  registerDevice*/);
+                setMessageCargaInicial("Cargando datos...", android.R.color.black);
                 return;
             }
             setMessageCargaInicial("Este dispositivo no esta asociado al usuario", R.color.red_700);
@@ -574,37 +704,35 @@ public class Login extends AppCompatActivity implements OnFailureListener, FireB
         }
     };
 
-    public OnSuccessListener<QuerySnapshot> DevicesListener = new OnSuccessListener<QuerySnapshot>() {
+    public OnSuccessListener<QuerySnapshot> DevicesValidationListener = new OnSuccessListener<QuerySnapshot>() {
         @Override
         public void onSuccess(QuerySnapshot querySnapshot) {
-            boolean registrado = false;
             boolean enabled = true;
-            int devicesCount = querySnapshot.getDocuments().size();//registrados
-            String phoneID = Funciones.getPhoneID(Login.this);
+            //int devicesCount = querySnapshot.getDocuments().size();//registrados
+            /*String phoneID = Funciones.getPhoneID(Login.this);
             for(DocumentSnapshot doc : querySnapshot){
                 Devices dev = doc.toObject(Devices.class);
                 if(dev.getCODE().equals(phoneID)){
                     enabled = dev.isENABLED();
-                    registrado = true;
                     break;
                 }
-            }
+            }*/
 
-            if(registrado && !enabled){//Dispositivo registrado e inactivo
+            /*if(!enabled){//Dispositivo registrado e inactivo
                 setMessageCargaInicial("Dispositivo inactivo. contacte con el administrador.", R.color.red_700);
                 endLoading();
                 return;
-            }
+            }*/
 
-            if (!registrado && (devicesCount >= license.getDEVICES())) {
+            /*if ((devicesCount >= license.getDEVICES())) {
                 setMessageCargaInicial(Funciones.gerErrorMessage(CODES.CODE_LICENSE_DEVICES_LIMIT_REACHED),  R.color.red_700);
                 endLoading();
                 return;
-            } else if (registrado || (!registrado && (devicesCount < license.getDEVICES()))) {
-                boolean registerDevice =  (!registrado && (devicesCount < license.getDEVICES()));
-                CloudFireStoreDB.getInstance(Login.this, Login.this, Login.this).CargaInicial(license,  registerDevice);
+            } else if (registrado || (!registrado && (devicesCount < license.getDEVICES()))) {*/
+                //boolean registerDevice =  (!registrado && (devicesCount < license.getDEVICES()));
+                CloudFireStoreDB.getInstance(Login.this, Login.this, Login.this).CargaInicial(license/*,  registerDevice*/);
                 setMessageCargaInicial("Cargando datos...", android.R.color.black);
-            }
+            //}
         }
     };
 
@@ -615,13 +743,17 @@ public class Login extends AppCompatActivity implements OnFailureListener, FireB
             if(queryDocumentSnapshots != null && queryDocumentSnapshots.size() >0 ){
                 DocumentSnapshot doc = queryDocumentSnapshots.getDocuments().get(0);
                 Token t = doc.toObject(Token.class);
+                if(t.isAutodelete()){
+                    TokenController.getInstance(Login.this).deleteFromFireBase(t);
+                }
+
                 Funciones.savePreferences(Login.this, CODES.PREFERENCE_LOGIN_BLOQUED, "");
+                Funciones.savePreferences(Login.this, CODES.EXTRA_SECURITY_ERROR_CODE, -1);
                 Funciones.savePreferences(Login.this, CODES.PREFERENCE_LOGIN_BLOQUED_TOKEN_ATTEMPS, "");
                 Funciones.savePreferences(Login.this, CODES.PREFERENCE_LOGIN_BLOQUED_REASON, "");
-
-                Licenses actualLicence = LicenseController.getInstance(Login.this).getLicense();
-                LicenseController.getInstance(Login.this).getQueryLicenceByCode(actualLicence.getCODE(), onSuccessLicence, onCompleteToken, onFailureToken);
-                //TokenController.getInstance(Login.this).deleteFromFireBase(t);
+                ((TextView)findViewById(R.id.tvErrorMsg)).setText("");
+                tokenDialog.dismiss();
+                recreate();
                 return;
             }
             String intentos = getTokenAttemps();
@@ -629,24 +761,10 @@ public class Login extends AppCompatActivity implements OnFailureListener, FireB
             Funciones.savePreferences(Login.this, CODES.PREFERENCE_LOGIN_BLOQUED_TOKEN_ATTEMPS, intentos);
 
             endLoadingToken();
-            //setMessageCargaInicial("Invalid User", R.color.red_700);
-            //endLoading();
         }
     };
 
-    public OnSuccessListener<QuerySnapshot> onSuccessLicence = new OnSuccessListener<QuerySnapshot>() {
-        @Override
-        public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-            if(queryDocumentSnapshots != null && queryDocumentSnapshots.size() >0 ){
-                DocumentSnapshot doc = queryDocumentSnapshots.getDocuments().get(0);
-                Licenses l = doc.toObject(Licenses.class);
-                LicenseController.getInstance(Login.this).delete(null, null);
-                LicenseController.getInstance(Login.this).insert(l);
-                recreate();
-                return;
-            }
-        }
-    };
+
 
     public OnCompleteListener onComplete = new OnCompleteListener() {
         @Override

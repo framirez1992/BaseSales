@@ -10,7 +10,7 @@ import java.util.HashMap;
 
 @IgnoreExtraProperties
 public class Licenses {
-    private String CODE,PASSWORD ;
+    private String CODE,PASSWORD, CLIENTNAME ;
     private int COUNTER,DAYS,DEVICES, STATUS;
     private boolean ENABLED, UPDATED;
     private @ServerTimestamp
@@ -19,8 +19,8 @@ public class Licenses {
     public Licenses(){
 
     }
-    public Licenses(String code, String password, Date dateIni, Date dateEnd, int counter, int days, int devices, boolean enabled, boolean updated, Date lastUpdate, int status){
-        this.CODE = code; this.DATEINI = dateIni; this.DATEEND = dateEnd;
+    public Licenses(String code, String password,String clientName, Date dateIni, Date dateEnd, int counter, int days, int devices, boolean enabled, boolean updated, Date lastUpdate, int status){
+        this.CODE = code; this.CLIENTNAME = clientName;this.DATEINI = dateIni; this.DATEEND = dateEnd;
         this.COUNTER = counter; this.DAYS = days; this.DEVICES = devices;
         this.ENABLED = enabled;this.PASSWORD = password;this.STATUS = status;
         this.UPDATED = updated; this.LASTUPDATE =lastUpdate;
@@ -29,6 +29,7 @@ public class Licenses {
     public HashMap<String, Object> toMap(){
         HashMap<String, Object> map = new HashMap<>();
         map.put(LicenseController.CODE, CODE);
+        map.put(LicenseController.CLIENTNAME, CLIENTNAME);
         map.put(LicenseController.PASSWORD, PASSWORD);
         map.put(LicenseController.COUNTER, COUNTER);
         map.put(LicenseController.DAYS, DAYS);
@@ -44,6 +45,14 @@ public class Licenses {
     }
     public String getCODE() {
         return CODE;
+    }
+
+    public String getCLIENTNAME() {
+        return CLIENTNAME;
+    }
+
+    public void setCLIENTNAME(String CLIENTNAME) {
+        this.CLIENTNAME = CLIENTNAME;
     }
 
     public int getCOUNTER() {

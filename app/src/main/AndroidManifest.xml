@@ -14,8 +14,13 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:node="replace">
-        <activity android:name=".MainReceipt"
-            android:theme="@style/AppTheme.NoActionBar"/>
+        <activity android:name=".AdminLicenseUserDevice"></activity>
+        <activity android:name=".AdminLicenseUsers" />
+        <activity android:name=".AdminLicenseDevices" />
+        <activity android:name=".AdminLicenseTokens" />
+        <activity
+            android:name=".MainReceipt"
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".MainActualizationCenter"
             android:theme="@style/AppTheme.NoActionBar" />
@@ -47,7 +52,7 @@
         <activity android:name=".MaintenanceProducts" />
         <activity android:name=".MaintenanceUsersControl" />
         <activity android:name=".MainAssignation" />
-        <activity android:name="com.example.bluetoothlibrary.BluetoothScan"/>
+        <activity android:name="com.example.bluetoothlibrary.BluetoothScan" />
     </application>
 
 </manifest>

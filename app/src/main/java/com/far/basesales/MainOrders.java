@@ -151,7 +151,7 @@ public class MainOrders extends AppCompatActivity implements ListableActivity/*,
     @Override
     protected void onStart() {
         super.onStart();
-        productsMeasure.addSnapshotListener(new EventListener<QuerySnapshot>() {
+       /* productsMeasure.addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(@Nullable QuerySnapshot querySnapshot, @Nullable FirebaseFirestoreException e) {
                 if(querySnapshot == null ){
@@ -165,7 +165,7 @@ public class MainOrders extends AppCompatActivity implements ListableActivity/*,
 
                 updateTempSalesDetail();
             }
-        });
+        });*/
     }
 
     @Override

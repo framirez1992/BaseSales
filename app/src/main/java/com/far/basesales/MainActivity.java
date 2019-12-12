@@ -54,6 +54,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     DrawerLayout drawer;
     NavigationView nav;
+
+    boolean exit;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -109,7 +111,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     protected void onStart() {
         super.onStart();
 
-        productsControlController.getReferenceFireStore().addSnapshotListener(new EventListener<QuerySnapshot>() {
+       /* productsControlController.getReferenceFireStore().addSnapshotListener(MainActivity.this, new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(@Nullable QuerySnapshot querySnapshot, @Nullable FirebaseFirestoreException e) {
                 try {
@@ -122,20 +124,20 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     e1.printStackTrace();
                 }
             }
-        });
+        });*/
 
-        licenseController.getReferenceFireStore().addSnapshotListener(licenceListener);
-        usersController.getReferenceFireStore().addSnapshotListener(usersListener);
-        devicesController.getReferenceFireStore(licenseController.getLicense()).addSnapshotListener(deviceListener);
-        usersDevicesController.getReferenceFireStore(licenseController.getLicense()).addSnapshotListener(userDevicesListener);
-        userControlController.getReferenceFireStore().addSnapshotListener(userControlListener);
+        licenseController.getReferenceFireStore().addSnapshotListener(MainActivity.this, licenceListener);
+        usersController.getReferenceFireStore().addSnapshotListener(MainActivity.this,usersListener);
+        devicesController.getReferenceFireStore(licenseController.getLicense()).addSnapshotListener(MainActivity.this,deviceListener);
+        usersDevicesController.getReferenceFireStore(licenseController.getLicense()).addSnapshotListener(MainActivity.this,userDevicesListener);
+        userControlController.getReferenceFireStore().addSnapshotListener(MainActivity.this,userControlListener);
 
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        licenseController.setLastUpdateToFireBase();//Actualiza la licencia
+        //licenseController.setLastUpdateToFireBase();//Actualiza la licencia
     }
 
     @Override
@@ -200,27 +202,45 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         @Override
         public void onEvent(@Nullable QuerySnapshot querySnapshot, @Nullable FirebaseFirestoreException e) {
 
-            if (querySnapshot != null && querySnapshot.getDocuments()!= null && querySnapshot.getDocuments().size() > 0) {
-                Licenses lic = querySnapshot.getDocuments().get(0).toObject(Licenses.class);
-                licenseController.delete(null, null);
-                licenseController.insert(lic);
+            if(e != null){
+                Toast.makeText(MainActivity.this, e.getMessage()+" - "+e.getLocalizedMessage(), Toast.LENGTH_LONG).show();
+                return;
             }
-            validateLicence(licenseController.getLicense());
+            Licenses lic = null;
+            licenseController.delete(null, null);
+            if (querySnapshot != null && querySnapshot.getDocuments()!= null && querySnapshot.getDocuments().size() > 0) {
+                for(DocumentSnapshot ds: querySnapshot){
+                    lic = ds.toObject(Licenses.class);
+                    if(lic.getCODE().equals(Funciones.getCodeLicense(MainActivity.this))){
+                        licenseController.insert(lic);
+                    }
+                }
+            }
+            validateLicence(lic);
         }
     };
 
     public EventListener<QuerySnapshot> usersListener =  new EventListener<QuerySnapshot>() {
         @Override
         public void onEvent(@Nullable QuerySnapshot querySnapshot, @Nullable FirebaseFirestoreException e) {
+            if(e != null){
+                Toast.makeText(MainActivity.this, e.getMessage()+" - "+e.getLocalizedMessage(), Toast.LENGTH_LONG).show();
+                return;
+            }
 
+            usersController.delete(null, null);
+            Users u = null;
             if (querySnapshot != null && querySnapshot.getDocuments()!= null && querySnapshot.getDocuments().size() > 0) {
-                usersController.delete(null, null);
                 for(DocumentSnapshot doc: querySnapshot){
-                    Users u = doc.toObject(Users.class);
-                    usersController.insert(u);
+                    u = doc.toObject(Users.class);
+                    if(u.getCODE().equals(Funciones.getCodeuserLogged(MainActivity.this))){
+                        usersController.insert(u);
+                        break;
+                    }u = null;
+
                 }
             }
-            validateUser();
+            validateUser(u);
         }
     };
 
@@ -228,22 +248,33 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         @Override
         public void onEvent(@Nullable QuerySnapshot querySnapshot, @Nullable FirebaseFirestoreException e) {
 
+            if(e != null){
+                Toast.makeText(MainActivity.this, e.getMessage()+" - "+e.getLocalizedMessage(), Toast.LENGTH_LONG).show();
+                return;
+            }
+            Devices devices =null;
+            devicesController.delete(null, null);
             if (querySnapshot != null && querySnapshot.getDocuments()!= null && querySnapshot.getDocuments().size() > 0) {
-                devicesController.delete(null, null);
                 for(DocumentSnapshot doc: querySnapshot){
-                    Devices d = doc.toObject(Devices.class);
-                    if(d.getCODE().equals(Funciones.getPhoneID(MainActivity.this))) {
-                        devicesController.insert(d);
-                    }
+                    devices = doc.toObject(Devices.class);
+                    if(devices.getCODE().equals(Funciones.getPhoneID(MainActivity.this))) {
+                        devicesController.insert(devices);
+                        break;
+                    }devices = null;
                 }
             }
-            validateDevices();
+            validateDevices(devices);
         }
     };
 
     public EventListener<QuerySnapshot> userDevicesListener =  new EventListener<QuerySnapshot>() {
         @Override
         public void onEvent(@Nullable QuerySnapshot querySnapshot, @Nullable FirebaseFirestoreException e) {
+
+            if(e != null){
+                Toast.makeText(MainActivity.this, e.getMessage()+" - "+e.getLocalizedMessage(), Toast.LENGTH_LONG).show();
+                return;
+            }
 
             boolean valid = false;
             if (querySnapshot != null && querySnapshot.getDocuments()!= null && querySnapshot.getDocuments().size() > 0) {
@@ -253,11 +284,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                             && ud.getCODEUSER().equals(Funciones.getCodeuserLogged(MainActivity.this))){
                         valid = true;
                         break;
-                    }
+                    }ud = null;
                 }
 
                 if(!valid){
-                    startActivityLoginFromBegining(CODES.CODE_DEVICES_NOT_ASSIGNED_TO_USER);
+                    exitWithNoLoginCode(CODES.CODE_DEVICES_NOT_ASSIGNED_TO_USER);
                 }
             }
         }
@@ -266,8 +297,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public EventListener<QuerySnapshot> userControlListener = new EventListener<QuerySnapshot>() {
         @Override
         public void onEvent(@Nullable QuerySnapshot querySnapshot, @Nullable FirebaseFirestoreException e) {
+
+            if(e != null){
+                Toast.makeText(MainActivity.this, e.getMessage()+" - "+e.getLocalizedMessage(), Toast.LENGTH_LONG).show();
+                return;
+            }
+
+            userControlController.delete(null, null);
             if (querySnapshot != null && querySnapshot.getDocuments()!= null && querySnapshot.getDocuments().size() > 0) {
-                userControlController.delete(null, null);
                 for(DocumentSnapshot doc: querySnapshot){
                     UserControl uc = doc.toObject(UserControl.class);
                     userControlController.insert(uc);
@@ -277,9 +314,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
     };
 
-    public boolean validateUser(){
+    public boolean validateUser(Users u){
 
-        int code = usersController.validateUser(usersController.getUserByCode(Funciones.getCodeuserLogged(MainActivity.this)));
+        int code = usersController.validateUser(u);
 
         if(code == CODES.CODE_USERS_INVALID || code == CODES.CODE_USERS_DISBLED) {
             exitWithNoLoginCode(code);
@@ -289,9 +326,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         return true;
     }
 
-    public boolean validateDevices(){
+    public boolean validateDevices(Devices d){
 
-        int code = DevicesController.getInstance(MainActivity.this).validateDevice();
+        int code = DevicesController.getInstance(MainActivity.this).validateDevice(d);
 
         if(code == CODES.CODE_DEVICES_UNREGISTERED || code == CODES.CODE_DEVICES_DISABLED) {
             exitWithNoLoginCode(code);
@@ -302,8 +339,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     public void startActivityLoginFromBegining(int code){
+        Funciones.savePreferences(MainActivity.this, CODES.EXTRA_SECURITY_ERROR_CODE, code);
         Intent intent = new Intent(getApplicationContext(), Login.class);
-        intent.putExtra(CODES.EXTRA_SECURITY_ERROR_CODE, code);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(intent);
 
@@ -329,7 +366,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         reportes.setVisible(false);
 
         if(usersController.isSuperUser() || usersController.isAdmin()){//SU o Administrador
-            //mantenimientoInventario.setVisible(usersController.isSuperUser());
             mantenimientoProductos.setVisible(usersController.isSuperUser());
             mantenimientoUsuarios.setVisible(usersController.isSuperUser());
             mantenimientoClientes.setVisible(usersController.isSuperUser());
@@ -375,7 +411,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             fragmentMaintenance.llMaintenanceInventory.setVisibility((id == R.id.goMantInventario) ? View.VISIBLE : View.GONE);
             fragmentMaintenance.llMaintenanceProducts.setVisibility((id == R.id.goMantProductos) ? View.VISIBLE : View.GONE);
             fragmentMaintenance.llMaintenanceUsers.setVisibility((id == R.id.goMantUsuarios) ? View.VISIBLE : View.GONE);
-            //fragmentMaintenance.llMaintenanceAreas.setVisibility((id == R.id.goMantAreas) ? View.VISIBLE : View.GONE);
             fragmentMaintenance.llMaintenanceControls.setVisibility((id == R.id.goMantControls) ? View.VISIBLE : View.GONE);
             fragmentMaintenance.llMainScreen.setVisibility((id == R.id.goMainScreen) ? View.VISIBLE : View.GONE);
             fragmentMaintenance.llClients.setVisibility((id == R.id.goMantClientes) ? View.VISIBLE : View.GONE);
@@ -404,10 +439,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     public void exitWithNoLoginCode(int code){
-        Toast.makeText(MainActivity.this, Funciones.gerErrorMessage(code), Toast.LENGTH_LONG).show();
-        Funciones.savePreferences(MainActivity.this, CODES.PREFERENCE_LOGIN_BLOQUED, "1");
-        Funciones.savePreferences(MainActivity.this, CODES.PREFERENCE_LOGIN_BLOQUED_REASON, code+"");
-        startActivityLoginFromBegining(code);
+        if(!exit){
+            exit = true;
+            Toast.makeText(MainActivity.this, Funciones.gerErrorMessage(code), Toast.LENGTH_LONG).show();
+            Funciones.savePreferences(MainActivity.this, CODES.PREFERENCE_LOGIN_BLOQUED, "1");
+            Funciones.savePreferences(MainActivity.this, CODES.PREFERENCE_LOGIN_BLOQUED_REASON, code+"");
+            startActivityLoginFromBegining(code);
+        }
+
     }
 
     public void goToOrders(){
