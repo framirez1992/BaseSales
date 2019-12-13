@@ -23,7 +23,7 @@ public class AdminLicenseSetupFragment extends Fragment {
 
     AdminConfiguration adminConfiguration;
     Licenses licenses;
-    ImageView btnDevices, btnTokens, btnUserDevices, btnUsers;
+    ImageView btnDevices, btnTokens, btnUserDevices, btnUsers, btnControls;
 
     public AdminLicenseSetupFragment() {
         // Required empty public constructor
@@ -44,12 +44,13 @@ public class AdminLicenseSetupFragment extends Fragment {
         btnTokens = view.findViewById(R.id.btnTokens);
         btnUserDevices = view.findViewById(R.id.btnUserDevices);
         btnUsers = view.findViewById(R.id.btnUsers);
+        //btnControls = view.findViewById(R.id.btnControls);
 
         btnTokens.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent i = new Intent(getContext(), AdminLicenseTokens.class);
-                i.putExtra(CODES.EXTRA_CODE_LICENSE, licenses.getCODE());
+                i.putExtra(CODES.EXTRA_ADMIN_LICENSE, licenses);
                 startActivity(i);
             }
         });
@@ -57,7 +58,7 @@ public class AdminLicenseSetupFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 Intent i  = new Intent(getContext(), AdminLicenseDevices.class);
-                i.putExtra(CODES.EXTRA_CODE_LICENSE, licenses.getCODE());
+                i.putExtra(CODES.EXTRA_ADMIN_LICENSE, licenses);
                 startActivity(i);
             }
         });
@@ -66,7 +67,7 @@ public class AdminLicenseSetupFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 Intent i = new Intent(getContext(), AdminLicenseUsers.class);
-                i.putExtra(CODES.EXTRA_CODE_LICENSE, licenses.getCODE());
+                i.putExtra(CODES.EXTRA_ADMIN_LICENSE, licenses);
                 startActivity(i);
             }
         });
@@ -75,8 +76,17 @@ public class AdminLicenseSetupFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 Intent i = new Intent(getContext(), AdminLicenseUserDevice.class);
-                i.putExtra(CODES.EXTRA_CODE_LICENSE, licenses.getCODE());
+                i.putExtra(CODES.EXTRA_ADMIN_LICENSE, licenses);
                 startActivity(i);
+            }
+        });
+
+        btnControls.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+               /* Intent i = new Intent(getContext(), MaintenanceUsersControl.class);
+                i.putExtra(CODES.EXTRA_ADMIN_LICENSE, licenses);
+                startActivity(i);*/
             }
         });
 

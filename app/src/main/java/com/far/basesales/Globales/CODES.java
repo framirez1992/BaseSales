@@ -21,6 +21,8 @@ public class CODES {
 
     public static final String USER_SYSTEM_CODE_SU = "0";
     public static final String USER_SYSTEM_CODE_ADMIN = "1";
+    public static final String USER_SYSTEM_CODE_USER = "2";
+
 
     //USERS DEVICES
     public static final int CODE_DEVICES_NOT_ASSIGNED_TO_USER = 3100;
@@ -130,7 +132,7 @@ public class CODES {
     public static final String EXTRA_MAINASSIGNATION_TARGET_USERSCONTROL = "MAINASSIGNATION_TARGET_USERSCONTROL";//configurar controles de USUARIO
     public static final String EXTRA_MAINASSIGNATION_TARGET_ORDERMOVE = "MAINASSIGNATION_TARGET_ORDERMOVE";//reasigna las ordenes abiertas de un usuario hacia otro.
 
-    public static final String EXTRA_CODE_LICENSE = "EXTRA_CODE_LICENSE";
+    public static final String EXTRA_ADMIN_LICENSE = "EXTRA_ADMIN_LICENSE";
 
     //////////////////////////////////
     ///  REPORTS KEYS            ////
@@ -151,5 +153,12 @@ public class CODES {
     /////////////////////////////////
     public static final String PAYMENTTYPE_CASH = "1";
     public static final String PAYMENTTYPE_CREDIT = "2";
+
+    /////////////////////////////////
+    // CONTROLS               //////
+    /////////////////////////////////
+    public static final String CONTROL_SALES="CONTROL_SALES";
+    public static final String CONTROL_RECEIPTS = "CONTROL_RECEIPTS";
+    public static final String CONTROL_REPORTS ="CONTROL_REPORTS";
 
 }

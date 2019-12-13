@@ -24,6 +24,7 @@ import android.widget.Toast;
 import com.far.basesales.Adapters.Models.SimpleRowModel;
 import com.far.basesales.Adapters.SimpleRowEditionAdapter;
 import com.far.basesales.CloudFireStoreObjects.Devices;
+import com.far.basesales.CloudFireStoreObjects.Licenses;
 import com.far.basesales.CloudFireStoreObjects.UsersDevices;
 import com.far.basesales.Controllers.UsersDevicesController;
 import com.far.basesales.Dialogs.DeviceDialogFragment;
@@ -49,7 +50,7 @@ public class AdminLicenseDevices extends AppCompatActivity implements ListableAc
     SimpleRowEditionAdapter adapter;
 
     Devices device = null;
-    String codeLicense;
+    Licenses license;
     String lastSearch = null;
     FirebaseFirestore fs;
     ArrayList<Devices> devices;
@@ -58,12 +59,12 @@ public class AdminLicenseDevices extends AppCompatActivity implements ListableAc
         super.onCreate(savedInstanceState);
         setContentView(R.layout.maintenance_w_spinner);
 
-        if(getIntent().getExtras()== null || !getIntent().getExtras().containsKey(CODES.EXTRA_CODE_LICENSE) ){
+        if(getIntent().getExtras()== null || !getIntent().getExtras().containsKey(CODES.EXTRA_ADMIN_LICENSE) ){
             finish();
             return;
         }
         fs = FirebaseFirestore.getInstance();
-        codeLicense = getIntent().getStringExtra(CODES.EXTRA_CODE_LICENSE);
+        license = (Licenses) getIntent().getSerializableExtra(CODES.EXTRA_ADMIN_LICENSE);
 
         findViewById(R.id.cvSpinner).setVisibility(View.GONE);
 
@@ -136,7 +137,7 @@ public class AdminLicenseDevices extends AppCompatActivity implements ListableAc
 
     public void setUpListeners(){
 
-        fs.collection(Tablas.generalLicencias).document(codeLicense)
+        fs.collection(Tablas.generalLicencias).document(license.getCODE())
                 .collection(Tablas.generalLicenciasDevices)
                 .addSnapshotListener(AdminLicenseDevices.this, new EventListener<QuerySnapshot>() {
                     @Override
@@ -153,6 +154,10 @@ public class AdminLicenseDevices extends AppCompatActivity implements ListableAc
                 });
     }
     public void callAddDialog(boolean isNew){
+        if(isNew && devices.size() >= license.getDEVICES()){
+            Toast.makeText(AdminLicenseDevices.this,  Funciones.gerErrorMessage(CODES.CODE_LICENSE_DEVICES_LIMIT_REACHED),Toast.LENGTH_LONG).show();
+            return;
+        }
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
         Fragment prev = getSupportFragmentManager().findFragmentByTag("dialog");
         if (prev != null) {
@@ -161,9 +166,9 @@ public class AdminLicenseDevices extends AppCompatActivity implements ListableAc
         ft.addToBackStack(null);
         DialogFragment newFragment = null;
         if(isNew){
-            newFragment = DeviceDialogFragment.newInstance(this,null,codeLicense);
+            newFragment = DeviceDialogFragment.newInstance(this,null,license.getCODE());
         }else {
-            newFragment = DeviceDialogFragment.newInstance(this,device,codeLicense);
+            newFragment = DeviceDialogFragment.newInstance(this,device,license.getCODE());
         }
 
         // Create and show the dialog.
@@ -180,7 +185,7 @@ public class AdminLicenseDevices extends AppCompatActivity implements ListableAc
         btnAceptar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                fs.collection(Tablas.generalUsers).document(codeLicense).collection(Tablas.generalUsersUsersDevices)
+                fs.collection(Tablas.generalUsers).document(license.getCODE()).collection(Tablas.generalUsersUsersDevices)
                         .whereEqualTo(UsersDevicesController.CODEDEVICE, device.getCODE()).get()
                         .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
                     @Override
@@ -188,7 +193,6 @@ public class AdminLicenseDevices extends AppCompatActivity implements ListableAc
                         WriteBatch lote = fs.batch();
                         if(querySnapshot!=null && !querySnapshot.isEmpty()){
                             for(DocumentSnapshot ds : querySnapshot){
-                                //UsersDevices ud = ds.toObject(UsersDevices.class);
                                 lote.delete(ds.getReference());
                             }
                         }

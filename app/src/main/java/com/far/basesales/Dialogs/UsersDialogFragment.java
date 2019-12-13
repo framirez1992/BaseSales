@@ -18,6 +18,7 @@ import com.far.basesales.Controllers.RolesController;
 import com.far.basesales.Controllers.UserTypesController;
 import com.far.basesales.Controllers.UsersController;
 import com.far.basesales.Generic.KV;
+import com.far.basesales.Globales.CODES;
 import com.far.basesales.R;
 import com.far.basesales.Utils.Funciones;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -29,7 +30,7 @@ public class UsersDialogFragment extends DialogFragment implements OnFailureList
 
     LinearLayout llSave;
     TextInputEditText etName, etPassword, etPassword2, etCode;
-    Spinner spnLevel, spnRol;
+    Spinner /*spnLevel,*/ spnRol;
     CheckBox cbEnabled;
 
     UsersController usersController;
@@ -100,11 +101,11 @@ public class UsersDialogFragment extends DialogFragment implements OnFailureList
         etPassword = view.findViewById(R.id.etPassword);
         etPassword2 = view.findViewById(R.id.etPassword2);
         spnRol = view.findViewById(R.id.spnRole);
-        spnLevel = view.findViewById(R.id.spnLevel);
+        //spnLevel = view.findViewById(R.id.spnLevel);
         cbEnabled = view.findViewById(R.id.cbEnabled);
 
         userTypesController.fillSpnUserTypes(spnRol,false);
-        RolesController.getInstance(getActivity()).fillGeneralRoles(spnLevel);
+        //RolesController.getInstance(getActivity()).fillGeneralRoles(spnLevel);
 
         //etCode.setEnabled(false);
         //etCode.setText(UUID.randomUUID().toString());
@@ -116,7 +117,7 @@ public class UsersDialogFragment extends DialogFragment implements OnFailureList
                 if(tempObj == null){
                     Save();
                 }else{
-                    EditUser();
+                    Edit();
                 }
             }
         });
@@ -163,7 +164,7 @@ public class UsersDialogFragment extends DialogFragment implements OnFailureList
     public void SaveUser(){
         try {
             String code = etCode.getText().toString();
-            String systemCode = ((KV)spnLevel.getSelectedItem()).getKey();
+            String systemCode = CODES.USER_SYSTEM_CODE_USER;/*((KV)spnLevel.getSelectedItem()).getKey();*/
             String userName = etName.getText().toString();
             String password = etPassword.getText().toString().trim();
             boolean enabled = cbEnabled.isChecked();
@@ -179,13 +180,21 @@ public class UsersDialogFragment extends DialogFragment implements OnFailureList
 
     }
 
+    public void Edit(){
+        if(validate()) {
+            EditUser();
+        }else{
+            llSave.setEnabled(true);
+        }
+    }
+
     public void EditUser(){
         try {
             Users user = ((Users)tempObj);
             user.setUSERNAME(etName.getText().toString());
             user.setPASSWORD(etPassword.getText().toString().trim());
             user.setCOMPANY("01");
-            user.setENABLED(cbEnabled.isChecked());
+            user.setENABLED(user.getCODE().equals(Funciones.getCodeuserLogged(getActivity()))?true:cbEnabled.isChecked());//Para que es mismo usuario no se deshabilite
             user.setROLE(((KV)spnRol.getSelectedItem()).getKey());
             user.setMDATE(null);
 

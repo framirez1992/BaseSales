@@ -20,6 +20,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.FrameLayout;
@@ -441,6 +442,9 @@ public class MainOrders extends AppCompatActivity implements ListableActivity/*,
             }
         });
         dialogConfirmPayment.show();
+        Window window = dialogConfirmPayment.getWindow();
+        window.setLayout(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        window.setBackgroundDrawableResource(android.R.color.transparent);
     }
 
     public void closePaymentConfirmation(){

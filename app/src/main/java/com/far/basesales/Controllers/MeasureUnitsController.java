@@ -3,6 +3,7 @@ package com.far.basesales.Controllers;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.support.annotation.NonNull;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 
@@ -10,8 +11,10 @@ import com.far.basesales.Adapters.Models.EditSelectionRowModel;
 import com.far.basesales.Adapters.Models.SimpleRowModel;
 import com.far.basesales.CloudFireStoreObjects.Licenses;
 import com.far.basesales.CloudFireStoreObjects.MeasureUnits;
+import com.far.basesales.DataBase.CloudFireStoreDB;
 import com.far.basesales.DataBase.DB;
 import com.far.basesales.Generic.KV;
+import com.far.basesales.Generic.KV2;
 import com.far.basesales.Globales.Tablas;
 import com.far.basesales.Utils.Funciones;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -20,6 +23,7 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentChange;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -133,12 +137,27 @@ public class MeasureUnitsController {
     }
 
     public void deleteFromFireBase(MeasureUnits mu){
+
         try {
-            getReferenceFireStore().document(mu.getCODE()).delete();
+            WriteBatch lote = db.batch();
+            lote.delete(getReferenceFireStore().document(mu.getCODE()));
+            for(KV2 data: getDependencies(mu.getCODE())){
+                for(DocumentReference dr : CloudFireStoreDB.getInstance(context, null, null).getDocumentsReferencesByTableName(data)){
+                    lote.delete(dr);
+                }
+            }
+
+            lote.commit().addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    e.printStackTrace();
+                }
+            });
         }catch(Exception e){
             e.printStackTrace();
         }
     }
+
 
 
     public ArrayList<MeasureUnits> getMeasureUnits(String where, String[]args, String orderBy){
@@ -271,6 +290,21 @@ public class MeasureUnitsController {
             }
         }
 
+    }
+
+    /**
+     * retorna un arrayList con todas las  dependencias en otras tablas (llave foranea)
+     * @param code
+     * @return
+     */
+    public ArrayList<KV2> getDependencies(String code){
+        ArrayList<KV2> tables = new ArrayList<>();
+        if(DB.getInstance(context).hasDependencies(ProductsMeasureController.TABLE_NAME,ProductsMeasureController.CODEMEASURE,code))
+            tables.add(new KV2(ProductsMeasureController.TABLE_NAME,ProductsMeasureController.CODEMEASURE,code));
+
+
+        return tables;
+        //priceList,productsControl, productsMeasure,combos
     }
 
 }

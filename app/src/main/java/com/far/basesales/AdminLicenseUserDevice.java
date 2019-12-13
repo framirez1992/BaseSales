@@ -24,6 +24,7 @@ import android.widget.Toast;
 import com.far.basesales.Adapters.Models.SimpleRowModel;
 import com.far.basesales.Adapters.SimpleRowEditionAdapter;
 import com.far.basesales.CloudFireStoreObjects.Devices;
+import com.far.basesales.CloudFireStoreObjects.Licenses;
 import com.far.basesales.CloudFireStoreObjects.Users;
 import com.far.basesales.CloudFireStoreObjects.UsersDevices;
 import com.far.basesales.Dialogs.UserDeviceDialogFragment;
@@ -48,7 +49,7 @@ public class AdminLicenseUserDevice extends AppCompatActivity implements Listabl
     SimpleRowEditionAdapter adapter;
 
     UsersDevices ud = null;
-    String codeLicense;
+    Licenses licenses;
     String lastSearch = null;
     FirebaseFirestore fs;
     ArrayList<UsersDevices> usersDevices;
@@ -59,12 +60,12 @@ public class AdminLicenseUserDevice extends AppCompatActivity implements Listabl
         super.onCreate(savedInstanceState);
         setContentView(R.layout.maintenance_w_spinner);
 
-        if(getIntent().getExtras()== null || !getIntent().getExtras().containsKey(CODES.EXTRA_CODE_LICENSE) ){
+        if(getIntent().getExtras()== null || !getIntent().getExtras().containsKey(CODES.EXTRA_ADMIN_LICENSE) ){
             finish();
             return;
         }
         fs = FirebaseFirestore.getInstance();
-        codeLicense = getIntent().getStringExtra(CODES.EXTRA_CODE_LICENSE);
+        licenses = (Licenses) getIntent().getSerializableExtra(CODES.EXTRA_ADMIN_LICENSE);
 
         findViewById(R.id.cvSpinner).setVisibility(View.GONE);
 
@@ -139,7 +140,7 @@ public class AdminLicenseUserDevice extends AppCompatActivity implements Listabl
 
     public void setUpListeners(){
 
-        fs.collection(Tablas.generalUsers).document(codeLicense)
+        fs.collection(Tablas.generalUsers).document(licenses.getCODE())
                 .collection(Tablas.generalUsersUsersDevices)
                 .addSnapshotListener(AdminLicenseUserDevice.this, new EventListener<QuerySnapshot>() {
                     @Override
@@ -154,7 +155,7 @@ public class AdminLicenseUserDevice extends AppCompatActivity implements Listabl
                     }
                 });
 
-        fs.collection(Tablas.generalLicencias).document(codeLicense)
+        fs.collection(Tablas.generalLicencias).document(licenses.getCODE())
                 .collection(Tablas.generalLicenciasDevices)
                 .addSnapshotListener(AdminLicenseUserDevice.this, new EventListener<QuerySnapshot>() {
                     @Override
@@ -167,7 +168,7 @@ public class AdminLicenseUserDevice extends AppCompatActivity implements Listabl
                     }
                 });
 
-        fs.collection(Tablas.generalUsers).document(codeLicense)
+        fs.collection(Tablas.generalUsers).document(licenses.getCODE())
                 .collection(Tablas.generalUsersUsers)
                 .addSnapshotListener(AdminLicenseUserDevice.this, new EventListener<QuerySnapshot>() {
                     @Override
@@ -188,7 +189,7 @@ public class AdminLicenseUserDevice extends AppCompatActivity implements Listabl
         }
         ft.addToBackStack(null);
         DialogFragment newFragment = null;
-            newFragment = UserDeviceDialogFragment.newInstance(this,codeLicense,nonAssignedUser,nonAssignedDevices );
+            newFragment = UserDeviceDialogFragment.newInstance(this,licenses.getCODE(),nonAssignedUser,nonAssignedDevices );
 
 
         // Create and show the dialog.
@@ -205,7 +206,7 @@ public class AdminLicenseUserDevice extends AppCompatActivity implements Listabl
         btnAceptar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                fs.collection(Tablas.generalUsers).document(codeLicense).collection(Tablas.generalUsersUsersDevices).document(ud.getCODE()).delete()
+                fs.collection(Tablas.generalUsers).document(licenses.getCODE()).collection(Tablas.generalUsersUsersDevices).document(ud.getCODE()).delete()
                         .addOnSuccessListener(new OnSuccessListener<Void>() {
                             @Override
                             public void onSuccess(Void aVoid) {

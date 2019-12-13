@@ -25,6 +25,7 @@ import com.far.basesales.Adapters.AdminUserRowAdapter;
 import com.far.basesales.Adapters.Models.SimpleRowModel;
 import com.far.basesales.Adapters.Models.UserRowModel;
 import com.far.basesales.Adapters.SimpleRowEditionAdapter;
+import com.far.basesales.CloudFireStoreObjects.Licenses;
 import com.far.basesales.CloudFireStoreObjects.Users;
 import com.far.basesales.Controllers.UsersDevicesController;
 import com.far.basesales.Dialogs.AdminUserDialogFragment;
@@ -50,7 +51,7 @@ public class AdminLicenseUsers extends AppCompatActivity implements ListableActi
         AdminUserRowAdapter adapter;
 
         Users user = null;
-        String codeLicense;
+        Licenses license;
         String lastSearch = null;
         FirebaseFirestore fs;
         ArrayList<Users> users;
@@ -60,12 +61,12 @@ public class AdminLicenseUsers extends AppCompatActivity implements ListableActi
         super.onCreate(savedInstanceState);
         setContentView(R.layout.maintenance_w_spinner);
 
-        if(getIntent().getExtras()== null || !getIntent().getExtras().containsKey(CODES.EXTRA_CODE_LICENSE) ){
+        if(getIntent().getExtras()== null || !getIntent().getExtras().containsKey(CODES.EXTRA_ADMIN_LICENSE) ){
             finish();
             return;
         }
         fs = FirebaseFirestore.getInstance();
-        codeLicense = getIntent().getStringExtra(CODES.EXTRA_CODE_LICENSE);
+        license = (Licenses) getIntent().getSerializableExtra(CODES.EXTRA_ADMIN_LICENSE);
 
         findViewById(R.id.cvSpinner).setVisibility(View.GONE);
 
@@ -140,7 +141,7 @@ public class AdminLicenseUsers extends AppCompatActivity implements ListableActi
 
     public void setUpListeners(){
 
-        fs.collection(Tablas.generalUsers).document(codeLicense)
+        fs.collection(Tablas.generalUsers).document(license.getCODE())
                 .collection(Tablas.generalUsersUsers)
                 .addSnapshotListener(AdminLicenseUsers.this, new EventListener<QuerySnapshot>() {
                     @Override
@@ -165,9 +166,9 @@ public class AdminLicenseUsers extends AppCompatActivity implements ListableActi
         ft.addToBackStack(null);
         DialogFragment newFragment = null;
         if(isNew){
-            newFragment = AdminUserDialogFragment.newInstance(this,null,codeLicense);
+            newFragment = AdminUserDialogFragment.newInstance(this,null,license.getCODE());
         }else {
-            newFragment = AdminUserDialogFragment.newInstance(this,user,codeLicense);
+            newFragment = AdminUserDialogFragment.newInstance(this,user,license.getCODE());
         }
 
         // Create and show the dialog.
@@ -198,7 +199,7 @@ public class AdminLicenseUsers extends AppCompatActivity implements ListableActi
                     }
                 });*/
 
-                fs.collection(Tablas.generalUsers).document(codeLicense).collection(Tablas.generalUsersUsersDevices)
+                fs.collection(Tablas.generalUsers).document(license.getCODE()).collection(Tablas.generalUsersUsersDevices)
                         .whereEqualTo(UsersDevicesController.CODEUSER, user.getCODE()).get()
                         .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
                             @Override

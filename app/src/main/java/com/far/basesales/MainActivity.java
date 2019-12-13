@@ -1,5 +1,6 @@
 package com.far.basesales;
 
+import android.app.Dialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
@@ -11,7 +12,9 @@ import android.support.v7.widget.CardView;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -80,6 +83,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         findViewById(R.id.imgSearch).setVisibility(View.GONE);
 
 
+
         imgMenu.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -101,6 +105,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 //callNotificationsDialog();
             }
         });
+
+        Users u = usersController.getUserByCode(Funciones.getCodeuserLogged(MainActivity.this));
+        TextView tvUser = (nav.getHeaderView(0).findViewById(R.id.tvUserName));
+        tvUser.setText(u != null ? u.getUSERNAME() : "UNKNOWN");
 
         setUpForUserType();
         setInitialFragment();
@@ -189,7 +197,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             goToSavedReceipts();
         }else if(id == R.id.goConfiguration){
             //startActivity(new Intent(this, BluetoothScan.class));
-        }*/ else  {
+        }*/ else if(id == R.id.logout){
+            logout();
+        }else  {
             changeModule(id);
         }
 
@@ -286,10 +296,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         break;
                     }ud = null;
                 }
-
-                if(!valid){
-                    exitWithNoLoginCode(CODES.CODE_DEVICES_NOT_ASSIGNED_TO_USER);
-                }
+            }
+            if(!valid){
+                exitWithNoLoginCode(CODES.CODE_DEVICES_NOT_ASSIGNED_TO_USER);
             }
         }
     };
@@ -365,25 +374,22 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         facturar.setVisible(false);
         reportes.setVisible(false);
 
+        //if(UserControlController.getInstance(MainActivity.this).createOrders()){
+            nav.getMenu().findItem(R.id.goMenu).setVisible(true);
+        //}
+        //if(UserControlController.getInstance(MainActivity.this).chargeOrders()){
+            nav.getMenu().findItem(R.id.goReceip).setVisible(true);
+        //}
+
         if(usersController.isSuperUser() || usersController.isAdmin()){//SU o Administrador
-            mantenimientoProductos.setVisible(usersController.isSuperUser());
-            mantenimientoUsuarios.setVisible(usersController.isSuperUser());
-            mantenimientoClientes.setVisible(usersController.isSuperUser());
+            mantenimientoProductos.setVisible(/*usersController.isSuperUser()*/true);
+            //mantenimientoUsuarios.setVisible(/*usersController.isSuperUser()*/true);
+            mantenimientoClientes.setVisible(/*usersController.isSuperUser()*/true);
             mantenimientoControles.setVisible(usersController.isSuperUser());
 
-            crearOrdenes.setVisible(usersController.isSuperUser());
-            facturar.setVisible(usersController.isSuperUser());
-            reportes.setVisible(true);
-        }else {
-
-            if(UserControlController.getInstance(MainActivity.this).createOrders()){
-                nav.getMenu().findItem(R.id.goMenu).setVisible(true);
-            }
-            if(UserControlController.getInstance(MainActivity.this).chargeOrders()){
-                nav.getMenu().findItem(R.id.goReceip).setVisible(true);
-            }
-
-
+            //rearOrdenes.setVisible(usersController.isSuperUser());
+            //facturar.setVisible(usersController.isSuperUser());
+            //reportes.setVisible(true);
         }
 
     }
@@ -456,6 +462,29 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     public void  goToReceipts(){
         startActivity(new Intent(MainActivity.this, MainReceipt.class));
+    }
+
+    public void logout(){
+        final Dialog d =Funciones.getCustomDialog2Btn(MainActivity.this, getResources().getColor(R.color.colorPrimary), "Logout", "Esta seguro que desea cerrar la sesion?", R.drawable.ic_power, new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                Funciones.savePreferences(MainActivity.this, CODES.PREFERENCE_USERSKEY_CODE, "");
+                Funciones.savePreferences(MainActivity.this, CODES.PREFERENCE_USERSKEY_USERTYPE, "");
+                finish();
+            }
+        }, null);
+        d.findViewById(R.id.btnNegative).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                d.dismiss();
+            }
+        });
+
+        d.show();
+        Window window = d.getWindow();
+        window.setLayout(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        window.setBackgroundDrawableResource(android.R.color.transparent);
     }
 
 }

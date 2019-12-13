@@ -17,7 +17,7 @@ import com.far.basesales.Globales.CODES;
 public class MaintenanceFragment extends Fragment {
 
 
-    ImageView btnFamily, btnGroup, btnMeasures, btnProducts,btnFamilyInv, btnGroupInv, btnMeasuresInv, btnProductsInv, btnUsers, btnUserRol, btnControls
+    ImageView btnFamily, btnGroup, btnMeasures, btnProducts,btnFamilyInv, btnGroupInv, btnMeasuresInv, btnProductsInv, btnUsers, btnUserRol/*, btnControls*/
     ,btnActualizationCenter, btnUsersControl, btnRolesControl, btnClients, btnPrinter;
     LinearLayout llMainScreen,llClients, llMaintenanceControls, llMaintenanceUsers, llMaintenanceProducts,llMaintenanceInventory, llConfiguration;
     public MaintenanceFragment() {
@@ -54,7 +54,7 @@ public class MaintenanceFragment extends Fragment {
         btnProductsInv = view.findViewById(R.id.btnProductsInv);
         btnUsers = view.findViewById(R.id.btnUsers);
         btnUserRol = view.findViewById(R.id.btnUserRol);
-        btnControls = view.findViewById(R.id.btnControls);
+        //btnControls = view.findViewById(R.id.btnControls);
         btnActualizationCenter = view.findViewById(R.id.btnActualizationCenter);
         btnUsersControl = view.findViewById(R.id.btnUsersControl);
         btnRolesControl = view.findViewById(R.id.btnRolesControl);
@@ -74,7 +74,7 @@ public class MaintenanceFragment extends Fragment {
         btnUsers.setOnClickListener(imageClick);
         btnUserRol.setOnClickListener(imageClick);
 
-        btnControls.setOnClickListener(imageClick);
+        //btnControls.setOnClickListener(imageClick);
         btnUsersControl.setOnClickListener(imageClick);
         btnRolesControl.setOnClickListener(imageClick);
 
@@ -125,9 +125,9 @@ public class MaintenanceFragment extends Fragment {
                 case R.id.btnActualizationCenter:
                     i = new Intent(getActivity(), MainActualizationCenter.class);
                     break;
-                case R.id.btnControls:
+               /* case R.id.btnControls:
                     i = new Intent(getActivity(), MaintenanceUsersControl.class);
-                    break;
+                    break;*/
                 case R.id.btnRolesControl:
                     i =new Intent(getActivity(), MainAssignation.class);
                     i.putExtra(CODES.EXTRA_MAINASSIGNATION_TABLE, UserControlController.TABLE_NAME);

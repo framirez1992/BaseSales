@@ -3,9 +3,18 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:showIn="navigation_view">
 
-    <item android:id="@+id/goMainScreen"
-        android:title="Dashboard"
-        android:icon="@drawable/dashboard"/>
+    <item android:title="Inicio">
+        <menu>
+            <item android:id="@+id/logout"
+                android:title="Logout"
+                android:icon="@drawable/ic_power"/>
+
+            <item android:id="@+id/goMainScreen"
+                android:title="Dashboard"
+                android:icon="@drawable/dashboard"/>
+
+        </menu>
+    </item>
 
     <item android:title="Mantenimientos">
         <menu>

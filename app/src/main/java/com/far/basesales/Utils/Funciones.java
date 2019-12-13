@@ -440,11 +440,16 @@ public class Funciones {
     }
 
     public static Dialog getAlertDeleteAllDependencies(Context c, String itemName, ArrayList<KV2> tables){
+        String fullDependencyMsg ="";
         String msgDependency = "";
         for(KV2 s: tables){
             msgDependency+= s.getKey()+"\n";
         }
-        String msg = "Esta seguro que desea eliminar ["+itemName+"]  permanentemente?\nTambien seran eliminadas todas las dependencias en: \n"+msgDependency;
+        if(!msgDependency.isEmpty()){
+            fullDependencyMsg="\nTambien seran eliminadas todas las dependencias en: \n"+msgDependency;
+        }
+
+        String msg = "Esta seguro que desea eliminar ["+itemName+"]  permanentemente?"+fullDependencyMsg;
         final Dialog d = getCustomDialog2Btn(c,c.getResources().getColor(R.color.red_700),"Delete", msg,R.drawable.delete,null, null);
         d.findViewById(R.id.btnNegative).setOnClickListener(new View.OnClickListener() {
             @Override

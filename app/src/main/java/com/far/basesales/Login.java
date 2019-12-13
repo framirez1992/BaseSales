@@ -351,11 +351,11 @@ public class Login extends AppCompatActivity implements OnFailureListener, FireB
         if(code != CODES.CODE_USERS_ENABLED){
 
             if(code == CODES.CODE_USERS_DISBLED){
-                Toast.makeText(Login.this, "Usuario inactivo. Contacte con el administrador", Toast.LENGTH_LONG).show();
+                Snackbar.make(findViewById(R.id.root), "Usuario inactivo. Contacte con el administrador", Snackbar.LENGTH_LONG).show();
             }
 
             if(code == CODES.CODE_USERS_INVALID){
-                Toast.makeText(Login.this, "Usuario deshabilitado. Contacte con el administrador", Toast.LENGTH_LONG).show();
+                Snackbar.make(findViewById(R.id.root), "Usuario deshabilitado. Contacte con el administrador", Snackbar.LENGTH_LONG).show();
 
             }
             return false;
@@ -701,38 +701,6 @@ public class Login extends AppCompatActivity implements OnFailureListener, FireB
             }
             setMessageCargaInicial("Este dispositivo no esta asociado al usuario", R.color.red_700);
             endLoading();
-        }
-    };
-
-    public OnSuccessListener<QuerySnapshot> DevicesValidationListener = new OnSuccessListener<QuerySnapshot>() {
-        @Override
-        public void onSuccess(QuerySnapshot querySnapshot) {
-            boolean enabled = true;
-            //int devicesCount = querySnapshot.getDocuments().size();//registrados
-            /*String phoneID = Funciones.getPhoneID(Login.this);
-            for(DocumentSnapshot doc : querySnapshot){
-                Devices dev = doc.toObject(Devices.class);
-                if(dev.getCODE().equals(phoneID)){
-                    enabled = dev.isENABLED();
-                    break;
-                }
-            }*/
-
-            /*if(!enabled){//Dispositivo registrado e inactivo
-                setMessageCargaInicial("Dispositivo inactivo. contacte con el administrador.", R.color.red_700);
-                endLoading();
-                return;
-            }*/
-
-            /*if ((devicesCount >= license.getDEVICES())) {
-                setMessageCargaInicial(Funciones.gerErrorMessage(CODES.CODE_LICENSE_DEVICES_LIMIT_REACHED),  R.color.red_700);
-                endLoading();
-                return;
-            } else if (registrado || (!registrado && (devicesCount < license.getDEVICES()))) {*/
-                //boolean registerDevice =  (!registrado && (devicesCount < license.getDEVICES()));
-                CloudFireStoreDB.getInstance(Login.this, Login.this, Login.this).CargaInicial(license/*,  registerDevice*/);
-                setMessageCargaInicial("Cargando datos...", android.R.color.black);
-            //}
         }
     };
 

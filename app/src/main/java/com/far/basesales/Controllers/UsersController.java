@@ -278,18 +278,21 @@ public class UsersController {
         where=((where != null)? "WHERE "+where:"");
         try {
 
-            String sql = "SELECT u."+CODE+" as CODE,u."+SYSTEMCODE+" as SYSTEMCODE, u."+USERNAME+" AS USERNAME, u."+ENABLED+" ENABLED, ut."+UserTypesController.DESCRIPTION+" as ROLE, u."+MDATE+" AS MDATE " +
+            String sql = "SELECT u."+CODE+" as CODE,u."+SYSTEMCODE+" as SYSTEMCODE, u."+USERNAME+" AS USERNAME, u."+ENABLED+" ENABLED, ifnull(ut."+UserTypesController.DESCRIPTION+", 'NO ASIGNADO') as ROLE, u."+MDATE+" AS MDATE " +
                     "FROM "+TABLE_NAME+" u " +
-                    "INNER JOIN "+UserTypesController.TABLE_NAME+" ut on u."+ROLE+" = ut."+UserTypesController.CODE+" "+
+                    "LEFT JOIN "+UserTypesController.TABLE_NAME+" ut on u."+ROLE+" = ut."+UserTypesController.CODE+" "+
                     where;
             Cursor c = DB.getInstance(context).getReadableDatabase().rawQuery(sql, args);
             while(c.moveToNext()){
-                result.add(new UserRowModel(c.getString(c.getColumnIndex("CODE")),
-                        c.getString(c.getColumnIndex("SYSTEMCODE")),
-                        c.getString(c.getColumnIndex("USERNAME")),
-                        c.getString(c.getColumnIndex("ROLE")) ,
-                        c.getString(c.getColumnIndex("ENABLED")).equals("1"),
-                        c.getString(c.getColumnIndex("MDATE")) != null));
+                if(!c.getString(c.getColumnIndex("SYSTEMCODE")).equals(CODES.USER_SYSTEM_CODE_SU)){
+                    result.add(new UserRowModel(c.getString(c.getColumnIndex("CODE")),
+                            c.getString(c.getColumnIndex("SYSTEMCODE")),
+                            c.getString(c.getColumnIndex("USERNAME")),
+                            c.getString(c.getColumnIndex("ROLE")) ,
+                            c.getString(c.getColumnIndex("ENABLED")).equals("1"),
+                            c.getString(c.getColumnIndex("MDATE")) != null));
+                }
+
             }
         }catch(Exception e){
             e.printStackTrace();

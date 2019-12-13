@@ -160,7 +160,7 @@ public class ProductsController {
                     "ifnull(toc."+TempOrdersController.DETAIL_POSITION+", 0) as POSITION, pt."+ProductsTypesController.CODE+" as PTCODE, pt."+ProductsTypesController.DESCRIPTION+" as PTDESCRIPTION, " +
                     "pst."+ProductsSubTypesController.CODE+" AS PSTCODE, pst."+ProductsSubTypesController.DESCRIPTION+" AS PSTDESCRIPTION, p."+MDATE+" AS MDATE, ifnull(pc."+ProductsControlController.BLOQUED+", 0) as BLOQUED " +
                     "FROM "+TABLE_NAME+" p " +
-                    "INNER JOIN "+ProductsMeasureController.TABLE_NAME+" pmc on pmc."+ProductsMeasureController.CODEPRODUCT+" = p."+ProductsController.CODE+" "+
+                    "INNER JOIN "+ProductsMeasureController.TABLE_NAME+" pmc on pmc."+ProductsMeasureController.CODEPRODUCT+" = p."+ProductsController.CODE+" AND pmc."+ProductsMeasureController.ENABLED+" = '1' "+
                     "INNER JOIN "+ProductsTypesController.TABLE_NAME+" pt ON pt."+ProductsTypesController.CODE+" = p."+TYPE+" "+
                     "INNER JOIN "+ProductsSubTypesController.TABLE_NAME+" pst ON pst."+ProductsSubTypesController.CODE+" = "+SUBTYPE+" "+
                     "LEFT JOIN "+TempOrdersController.TABLE_NAME_DETAIL+" toc  on toc."+TempOrdersController.DETAIL_CODEPRODUCT+" = p."+CODE+" AND toc."+TempOrdersController.DETAIL_CODEUND+" = pmc."+ProductsMeasureController.CODEMEASURE+" "+
@@ -243,10 +243,10 @@ public class ProductsController {
             }else{
                 lote.update(getReferenceFireStore().document(product.getCODE()), product.toMap());
             }
+            String notIn=" NOT IN ('1'";
 
             if (newMeasures != null && !newMeasures.isEmpty()){
 
-                String notIn=" NOT IN ('1'";
                 for(ProductsMeasure pm: newMeasures){
                     String where = ProductsMeasureController.CODEMEASURE+" = ? AND "+ProductsMeasureController.CODEPRODUCT+" = ?";
                     String[]args = new String[]{pm.getCODEMEASURE(), pm.getCODEPRODUCT()};
@@ -263,25 +263,25 @@ public class ProductsController {
                         //ACTUALIZAR LOCAL
                         where = ProductsMeasureController.CODE+" = ?";
                         ProductsMeasureController.getInstance(context).update(pm,where, new String[]{pm.getCODE()});
-
-                        notIn+=",'"+pm.getCODE()+"'";
                     }else{//INSERTAR
                         lote.set(ProductsMeasureController.getInstance(context).getReferenceFireStore().document(pm.getCODE()), pm.toMap());
                         ProductsMeasureController.getInstance(context).insert(pm);
                     }
-                }
 
-                notIn+=")";
-                String where = ProductsMeasureController.CODEPRODUCT+" = ? AND "+ProductsMeasureController.ENABLED+" = ? AND  "+ProductsMeasureController.CODE+notIn;
-                ArrayList<ProductsMeasure> toDisable = ProductsMeasureController.getInstance(context).getProductsMeasure(where, new String[]{product.getCODE(), "1"});
-                for(ProductsMeasure pm: toDisable){
-                    pm.setENABLED(false);
-                    pm.setMDATE(null);
-                    where = ProductsMeasureController.CODE+" = ?";
-                    ProductsMeasureController.getInstance(context).update(pm,where, new String[]{pm.getCODE()});
-
-                    lote.update(ProductsMeasureController.getInstance(context).getReferenceFireStore().document(pm.getCODE()), pm.toMap());
+                    notIn+=",'"+pm.getCODE()+"'";
                 }
+            }
+
+            notIn+=")";
+            String where = ProductsMeasureController.CODEPRODUCT+" = ? AND "+ProductsMeasureController.ENABLED+" = ? AND  "+ProductsMeasureController.CODE+notIn;
+            ArrayList<ProductsMeasure> toDisable = ProductsMeasureController.getInstance(context).getProductsMeasure(where, new String[]{product.getCODE(), "1"});
+            for(ProductsMeasure pm: toDisable){
+                pm.setENABLED(false);
+                pm.setMDATE(null);
+                where = ProductsMeasureController.CODE+" = ?";
+                ProductsMeasureController.getInstance(context).update(pm,where, new String[]{pm.getCODE()});
+
+                lote.update(ProductsMeasureController.getInstance(context).getReferenceFireStore().document(pm.getCODE()), pm.toMap());
             }
 
             lote.commit().addOnFailureListener(new OnFailureListener() {

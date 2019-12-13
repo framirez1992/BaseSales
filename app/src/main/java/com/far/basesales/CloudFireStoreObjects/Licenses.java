@@ -1,15 +1,18 @@
 package com.far.basesales.CloudFireStoreObjects;
 
+import android.os.Parcelable;
+
 import com.far.basesales.Controllers.LicenseController;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.IgnoreExtraProperties;
 import com.google.firebase.firestore.ServerTimestamp;
 
+import java.io.Serializable;
 import java.util.Date;
 import java.util.HashMap;
 
 @IgnoreExtraProperties
-public class Licenses {
+public class Licenses implements Serializable {
     private String CODE,PASSWORD, CLIENTNAME ;
     private int COUNTER,DAYS,DEVICES, STATUS;
     private boolean ENABLED, UPDATED;

@@ -150,11 +150,9 @@ public class ProductsDialogfragment extends DialogFragment implements OnFailureL
                 if(tempObj == null){
                     Save();
                 }else{
-                    //showLoadingDialog();
-                    EditProduct();
+                    Edit();
                 }
                 llSave.setEnabled(true);
-                //closeLoadingDialog();
             }
         });
 
@@ -234,6 +232,14 @@ public class ProductsDialogfragment extends DialogFragment implements OnFailureL
         }
     }
 
+    public void Edit(){
+        if(validate()) {
+            EditProduct();
+        }else{
+            llSave.setEnabled(true);
+        }
+    }
+
     public void SaveProduct(){
         try {
             String code = etCode.getText().toString();
@@ -244,7 +250,7 @@ public class ProductsDialogfragment extends DialogFragment implements OnFailureL
 
             ArrayList<ProductsMeasure> list = new ArrayList<>();
             for(EditSelectionRowModel ssrm: selected){
-                list.add(new ProductsMeasure(Funciones.generateCode(), code, ssrm.getCode(),Double.parseDouble(ssrm.getText()),true, null, null));
+                list.add(new ProductsMeasure(Funciones.generateCode(), code, ssrm.getCode(),Double.parseDouble(ssrm.getText()),ssrm.isChecked(), null, null));
             }
 
             if(type.equals(CODES.ENTITY_TYPE_EXTRA_PRODUCTSFORSALE)){
@@ -272,7 +278,7 @@ public class ProductsDialogfragment extends DialogFragment implements OnFailureL
 
             ArrayList<ProductsMeasure> list = new ArrayList<>();
             for(EditSelectionRowModel ssrm: selected){
-                list.add(new ProductsMeasure(Funciones.generateCode(), products.getCODE(), ssrm.getCode(),Double.parseDouble(ssrm.getText()),true, null, null));
+                list.add(new ProductsMeasure(Funciones.generateCode(), products.getCODE(), ssrm.getCode(),Double.parseDouble(ssrm.getText()),ssrm.isChecked(), null, null));
             }
 
             if(type.equals(CODES.ENTITY_TYPE_EXTRA_PRODUCTSFORSALE)){

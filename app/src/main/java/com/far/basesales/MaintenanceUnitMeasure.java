@@ -186,6 +186,37 @@ public class MaintenanceUnitMeasure extends AppCompatActivity implements Listabl
             description = measureUnit.getDESCRIPTION();
         }
 
+        final Dialog d = Funciones.getAlertDeleteAllDependencies(MaintenanceUnitMeasure.this,description,
+                measureUnitsController.getDependencies(measureUnit.getCODE()));
+        CardView btnAceptar = d.findViewById(R.id.btnPositive);
+        btnAceptar.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(measureUnit != null){
+                    if(type.equals(CODES.ENTITY_TYPE_EXTRA_PRODUCTSFORSALE)){
+                        measureUnitsController.deleteFromFireBase(measureUnit);
+                    }else if(type.equals(CODES.ENTITY_TYPE_EXTRA_INVENTORY)){
+                        measureUnitsInvController.deleteFromFireBase(measureUnit);
+                    }
+
+                }
+                d.dismiss();
+            }
+        });
+
+        d.show();
+        Window window = d.getWindow();
+        window.setLayout(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        window.setBackgroundDrawableResource(android.R.color.transparent);
+
+    }
+   /* public void callDeleteConfirmation(){
+
+        String description = "";
+        if(measureUnit != null){
+            description = measureUnit.getDESCRIPTION();
+        }
+
         String msg = "Esta seguro que desea eliminar \'"+description+"\' permanentemente?";
         final Dialog d = Funciones.getCustomDialog2Btn(this,getResources().getColor(R.color.red_700),"Delete", msg,R.drawable.delete,null, null);
         CardView btnAceptar = d.findViewById(R.id.btnPositive);
@@ -217,7 +248,7 @@ public class MaintenanceUnitMeasure extends AppCompatActivity implements Listabl
         window.setLayout(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
         window.setBackgroundDrawableResource(android.R.color.transparent);
 
-    }
+    }*/
 
     public void refreshList(String data){
         objects.clear();

@@ -38,6 +38,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
 import javax.annotation.Nullable;
@@ -49,7 +50,7 @@ public class AdminLicenseTokens extends AppCompatActivity implements ListableAct
     SimpleRowEditionAdapter adapter;
 
     Token token = null;
-    String codeLicense;
+    Licenses license;
     String lastSearch = null;
     FirebaseFirestore fs;
     ArrayList<Token> tokens;
@@ -58,12 +59,12 @@ public class AdminLicenseTokens extends AppCompatActivity implements ListableAct
         super.onCreate(savedInstanceState);
         setContentView(R.layout.maintenance_w_spinner);
 
-        if(getIntent().getExtras()== null || !getIntent().getExtras().containsKey(CODES.EXTRA_CODE_LICENSE) ){
+        if(getIntent().getExtras()== null || !getIntent().getExtras().containsKey(CODES.EXTRA_ADMIN_LICENSE) ){
             finish();
             return;
         }
         fs = FirebaseFirestore.getInstance();
-        codeLicense = getIntent().getStringExtra(CODES.EXTRA_CODE_LICENSE);
+        license = (Licenses) getIntent().getSerializableExtra(CODES.EXTRA_ADMIN_LICENSE);
 
         findViewById(R.id.cvSpinner).setVisibility(View.GONE);
 
@@ -138,7 +139,7 @@ public class AdminLicenseTokens extends AppCompatActivity implements ListableAct
 
     public void setUpListeners(){
 
-        fs.collection(Tablas.generalUsers).document(codeLicense)
+        fs.collection(Tablas.generalUsers).document(license.getCODE())
                 .collection(Tablas.generalUsersToken)
                 .addSnapshotListener(AdminLicenseTokens.this, new EventListener<QuerySnapshot>() {
             @Override
@@ -162,9 +163,9 @@ public class AdminLicenseTokens extends AppCompatActivity implements ListableAct
         ft.addToBackStack(null);
         DialogFragment newFragment = null;
         if(isNew){
-            newFragment = TokenDialogFragment.newInstance(this,null,codeLicense);
+            newFragment = TokenDialogFragment.newInstance(this,null,license.getCODE());
         }else {
-            newFragment = TokenDialogFragment.newInstance(this,token,codeLicense);
+            newFragment = TokenDialogFragment.newInstance(this,token,license.getCODE());
         }
 
         // Create and show the dialog.
@@ -181,7 +182,7 @@ public class AdminLicenseTokens extends AppCompatActivity implements ListableAct
         btnAceptar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                fs.collection(Tablas.generalUsers).document(codeLicense).collection(Tablas.generalUsersToken).document(token.getCODE()).delete()
+                fs.collection(Tablas.generalUsers).document(license.getCODE()).collection(Tablas.generalUsersToken).document(token.getCODE()).delete()
                         .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
