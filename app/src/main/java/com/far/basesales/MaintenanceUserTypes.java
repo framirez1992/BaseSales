@@ -71,7 +71,7 @@ public class MaintenanceUserTypes extends AppCompatActivity implements ListableA
     @Override
     protected void onStart() {
         super.onStart();
-        userTypesController.getReferenceFireStore().addSnapshotListener(new EventListener<QuerySnapshot>() {
+        userTypesController.getReferenceFireStore().addSnapshotListener(MaintenanceUserTypes.this, new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(QuerySnapshot querySnapshot, FirebaseFirestoreException e) {
                 userTypesController.delete(null, null);//limpia la tabla

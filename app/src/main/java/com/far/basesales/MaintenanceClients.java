@@ -73,7 +73,7 @@ public class MaintenanceClients extends AppCompatActivity implements ListableAct
     @Override
     protected void onStart() {
         super.onStart();
-        clientsController.getReferenceFireStore().addSnapshotListener(new EventListener<QuerySnapshot>() {
+        clientsController.getReferenceFireStore().addSnapshotListener(MaintenanceClients.this, new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(QuerySnapshot querySnapshot, FirebaseFirestoreException e) {
                 clientsController.delete(null, null);//limpia la tabla

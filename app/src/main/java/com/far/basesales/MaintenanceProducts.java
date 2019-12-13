@@ -195,7 +195,7 @@ public class MaintenanceProducts extends AppCompatActivity implements ListableAc
 
     public void setUpListeners(){
         if(type.equals(CODES.ENTITY_TYPE_EXTRA_PRODUCTSFORSALE)) {
-            productsMeasureController.getReferenceFireStore().addSnapshotListener(new EventListener<QuerySnapshot>() {
+            productsMeasureController.getReferenceFireStore().addSnapshotListener(MaintenanceProducts.this, new EventListener<QuerySnapshot>() {
                 @Override
                 public void onEvent(QuerySnapshot querySnapshot, FirebaseFirestoreException e) {
                     productsMeasureController.delete(null, null);//limpia la tabla
@@ -211,7 +211,7 @@ public class MaintenanceProducts extends AppCompatActivity implements ListableAc
             });
 
 
-            productsController.getReferenceFireStore().addSnapshotListener(new EventListener<QuerySnapshot>() {
+            productsController.getReferenceFireStore().addSnapshotListener(MaintenanceProducts.this, new EventListener<QuerySnapshot>() {
                 @Override
                 public void onEvent(QuerySnapshot querySnapshot, FirebaseFirestoreException e) {
                     productsController.delete(null, null);//limpia la tabla

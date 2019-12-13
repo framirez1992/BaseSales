@@ -111,7 +111,7 @@ public class AdminLicenseUsersControl extends AppCompatActivity implements Lista
     protected void onStart() {
         super.onStart();
         fs.collection(Tablas.generalUsers).document(license.getCODE()).collection(Tablas.generalUsersUserControl)
-                .addSnapshotListener(new EventListener<QuerySnapshot>() {
+                .addSnapshotListener(AdminLicenseUsersControl.this, new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(QuerySnapshot querySnapshot, FirebaseFirestoreException e) {
                 try {
@@ -131,7 +131,7 @@ public class AdminLicenseUsersControl extends AppCompatActivity implements Lista
 
 
         fs.collection(Tablas.generalUsers).document(license.getCODE()).collection(Tablas.generalUsersUsers)
-                .addSnapshotListener(new EventListener<QuerySnapshot>() {
+                .addSnapshotListener(AdminLicenseUsersControl.this, new EventListener<QuerySnapshot>() {
                     @Override
                     public void onEvent(QuerySnapshot querySnapshot, FirebaseFirestoreException e) {
                         try {

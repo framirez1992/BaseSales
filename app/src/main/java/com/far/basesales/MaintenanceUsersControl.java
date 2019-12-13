@@ -96,7 +96,7 @@ public class MaintenanceUsersControl extends AppCompatActivity implements Listab
     @Override
     protected void onStart() {
         super.onStart();
-        userControlController.getReferenceFireStore().addSnapshotListener(new EventListener<QuerySnapshot>() {
+        userControlController.getReferenceFireStore().addSnapshotListener(MaintenanceUsersControl.this, new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(QuerySnapshot querySnapshot, FirebaseFirestoreException e) {
                 try {

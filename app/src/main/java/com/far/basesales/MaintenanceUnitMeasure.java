@@ -135,7 +135,7 @@ public class MaintenanceUnitMeasure extends AppCompatActivity implements Listabl
 
     public void setUpListeners(){
         if(type.equals(CODES.ENTITY_TYPE_EXTRA_PRODUCTSFORSALE)){
-            measureUnitsController.getReferenceFireStore().addSnapshotListener(new EventListener<QuerySnapshot>() {
+            measureUnitsController.getReferenceFireStore().addSnapshotListener(MaintenanceUnitMeasure.this, new EventListener<QuerySnapshot>() {
                 @Override
                 public void onEvent(QuerySnapshot querySnapshot, FirebaseFirestoreException e) {
                     measureUnitsController.delete(null, null);//limpia la tabla
@@ -150,7 +150,7 @@ public class MaintenanceUnitMeasure extends AppCompatActivity implements Listabl
                 }
             });
         }else if(type.equals(CODES.ENTITY_TYPE_EXTRA_INVENTORY)){
-            measureUnitsInvController.getReferenceFireStore().addSnapshotListener(new EventListener<QuerySnapshot>() {
+            measureUnitsInvController.getReferenceFireStore().addSnapshotListener(MaintenanceUnitMeasure.this, new EventListener<QuerySnapshot>() {
                 @Override
                 public void onEvent(QuerySnapshot querySnapshot, FirebaseFirestoreException e) {
                     measureUnitsInvController.delete(null, null);//limpia la tabla

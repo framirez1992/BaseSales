@@ -95,7 +95,7 @@ public class MaintenanceUsers extends AppCompatActivity implements ListableActiv
     @Override
     protected void onStart() {
         super.onStart();
-        usersController.getReferenceFireStore().addSnapshotListener(new EventListener<QuerySnapshot>() {
+        usersController.getReferenceFireStore().addSnapshotListener(MaintenanceUsers.this, new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(QuerySnapshot querySnapshot, FirebaseFirestoreException e) {
                 usersController.delete(null, null);//limpia la tabla

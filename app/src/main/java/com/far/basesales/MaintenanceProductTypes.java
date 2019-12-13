@@ -140,7 +140,7 @@ public class MaintenanceProductTypes extends AppCompatActivity implements Listab
 
     public void setUpListeners(){
         if(type.equals(CODES.ENTITY_TYPE_EXTRA_PRODUCTSFORSALE)) {
-            productsTypesController.getReferenceFireStore().addSnapshotListener(new EventListener<QuerySnapshot>() {
+            productsTypesController.getReferenceFireStore().addSnapshotListener(MaintenanceProductTypes.this, new EventListener<QuerySnapshot>() {
                 @Override
                 public void onEvent(QuerySnapshot querySnapshot, FirebaseFirestoreException e) {
                     productsTypesController.delete(null, null);//limpia la tabla
@@ -155,7 +155,7 @@ public class MaintenanceProductTypes extends AppCompatActivity implements Listab
                 }
             });
         }else if(type.equals(CODES.ENTITY_TYPE_EXTRA_INVENTORY)){
-            productsTypesInvController.getReferenceFireStore().addSnapshotListener(new EventListener<QuerySnapshot>() {
+            productsTypesInvController.getReferenceFireStore().addSnapshotListener(MaintenanceProductTypes.this, new EventListener<QuerySnapshot>() {
                 @Override
                 public void onEvent(QuerySnapshot querySnapshot, FirebaseFirestoreException e) {
                     productsTypesInvController.delete(null, null);//limpia la tabla

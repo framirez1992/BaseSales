@@ -174,7 +174,7 @@ public class MaintenanceProductSubTypes extends AppCompatActivity implements Lis
     public void setUpListeners(){
 
         if(type.equals(CODES.ENTITY_TYPE_EXTRA_PRODUCTSFORSALE)) {
-            productsTypesController.getReferenceFireStore().addSnapshotListener(new EventListener<QuerySnapshot>() {
+            productsTypesController.getReferenceFireStore().addSnapshotListener(MaintenanceProductSubTypes.this, new EventListener<QuerySnapshot>() {
                 @Override
                 public void onEvent(QuerySnapshot querySnapshot, FirebaseFirestoreException e) {
                     productsTypesController.delete(null, null);//limpia la tabla
@@ -188,7 +188,7 @@ public class MaintenanceProductSubTypes extends AppCompatActivity implements Lis
                     refreshList();
                 }
             });
-            productsSubTypesController.getReferenceFireStore().addSnapshotListener(new EventListener<QuerySnapshot>() {
+            productsSubTypesController.getReferenceFireStore().addSnapshotListener(MaintenanceProductSubTypes.this, new EventListener<QuerySnapshot>() {
                 @Override
                 public void onEvent(QuerySnapshot querySnapshot, FirebaseFirestoreException e) {
                     productsSubTypesController.delete(null, null);
@@ -204,7 +204,7 @@ public class MaintenanceProductSubTypes extends AppCompatActivity implements Lis
                 }
             });
         }else if(type.equals(CODES.ENTITY_TYPE_EXTRA_INVENTORY)){
-            productsTypesInvController.getReferenceFireStore().addSnapshotListener(new EventListener<QuerySnapshot>() {
+            productsTypesInvController.getReferenceFireStore().addSnapshotListener(MaintenanceProductSubTypes.this, new EventListener<QuerySnapshot>() {
                 @Override
                 public void onEvent(QuerySnapshot querySnapshot, FirebaseFirestoreException e) {
                     productsTypesInvController.delete(null, null);//limpia la tabla
@@ -218,7 +218,7 @@ public class MaintenanceProductSubTypes extends AppCompatActivity implements Lis
                     refreshList();
                 }
             });
-            productsSubTypesInvController.getReferenceFireStore().addSnapshotListener(new EventListener<QuerySnapshot>() {
+            productsSubTypesInvController.getReferenceFireStore().addSnapshotListener(MaintenanceProductSubTypes.this, new EventListener<QuerySnapshot>() {
                 @Override
                 public void onEvent(QuerySnapshot querySnapshot, FirebaseFirestoreException e) {
                     productsSubTypesInvController.delete(null, null);
