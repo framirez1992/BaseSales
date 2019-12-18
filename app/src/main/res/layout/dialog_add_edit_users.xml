@@ -73,6 +73,26 @@
 
             </LinearLayout>-->
 
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="10dp">
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:text="Company"
+                    android:layout_weight="1"
+                    android:textStyle="bold"
+                    android:textSize="16sp"/>
+
+                <Spinner android:id="@+id/spnCompany"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="3"/>
+
+            </LinearLayout>
+
             <android.support.design.widget.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -120,6 +140,7 @@
                     android:layout_height="wrap_content"/>
 
             </android.support.design.widget.TextInputLayout>
+
             <LinearLayout android:id="@+id/llFamilia"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

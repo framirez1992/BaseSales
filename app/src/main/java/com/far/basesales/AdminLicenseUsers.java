@@ -25,6 +25,7 @@ import com.far.basesales.Adapters.AdminUserRowAdapter;
 import com.far.basesales.Adapters.Models.SimpleRowModel;
 import com.far.basesales.Adapters.Models.UserRowModel;
 import com.far.basesales.Adapters.SimpleRowEditionAdapter;
+import com.far.basesales.CloudFireStoreObjects.Company;
 import com.far.basesales.CloudFireStoreObjects.Licenses;
 import com.far.basesales.CloudFireStoreObjects.Users;
 import com.far.basesales.Controllers.UsersDevicesController;
@@ -55,6 +56,7 @@ public class AdminLicenseUsers extends AppCompatActivity implements ListableActi
         String lastSearch = null;
         FirebaseFirestore fs;
         ArrayList<Users> users;
+        ArrayList<Company> companies;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,6 +75,7 @@ public class AdminLicenseUsers extends AppCompatActivity implements ListableActi
         rvList = findViewById(R.id.rvList);
         objects = new ArrayList<>();
         users = new ArrayList<>();
+        companies = new ArrayList<>();
 
         LinearLayoutManager manager = new LinearLayoutManager(AdminLicenseUsers.this);
         rvList.setLayoutManager(manager);
@@ -156,6 +159,17 @@ public class AdminLicenseUsers extends AppCompatActivity implements ListableActi
 
                     }
                 });
+
+        fs.collection(Tablas.generalUsers).document(license.getCODE()).collection(Tablas.generalUsersCompany).addSnapshotListener(new EventListener<QuerySnapshot>() {
+            @Override
+            public void onEvent(@javax.annotation.Nullable QuerySnapshot querySnapshot, @javax.annotation.Nullable FirebaseFirestoreException e) {
+                companies = new ArrayList<>();
+                for (DocumentSnapshot ds : querySnapshot) {
+                    Company c = ds.toObject(Company.class);
+                    companies.add(c);
+                }
+            }
+        });
     }
     public void callAddDialog(boolean isNew){
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
@@ -166,9 +180,9 @@ public class AdminLicenseUsers extends AppCompatActivity implements ListableActi
         ft.addToBackStack(null);
         DialogFragment newFragment = null;
         if(isNew){
-            newFragment = AdminUserDialogFragment.newInstance(this,null,license.getCODE());
+            newFragment = AdminUserDialogFragment.newInstance(this,null,companies, license.getCODE());
         }else {
-            newFragment = AdminUserDialogFragment.newInstance(this,user,license.getCODE());
+            newFragment = AdminUserDialogFragment.newInstance(this,user,companies, license.getCODE());
         }
 
         // Create and show the dialog.

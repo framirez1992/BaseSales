@@ -240,16 +240,21 @@ public class Writer {
         return null;
     }
 
-    public String createPDF(String folderName, String name, Invoice invoice)  {
+    public String createPDF(String folderName, String name, Invoice invoice) throws Exception  {
 
-        try {
-            File pdfFolder = new File(Environment.getExternalStoragePublicDirectory(
-                    Environment.DIRECTORY_DOWNLOADS), folderName);
+        String ruta = Environment.getExternalStorageDirectory().getAbsolutePath() + "/"+folderName;
+            /*File pdfFolder = new File(Environment.getExternalStoragePublicDirectory(
+                    Environment.DIRECTORY_DOWNLOADS), folderName);*/
+            File pdfFolder = new File(ruta);
             if (!pdfFolder.exists()) {
-                pdfFolder.mkdir();
+                pdfFolder.mkdirs();
             }
 
             File myFile = new File(pdfFolder, name + ".pdf");
+            if(myFile.exists()){
+                myFile.delete();
+                //myFile.createNewFile();
+            }
 
             OutputStream output = new FileOutputStream(myFile);
 
@@ -494,9 +499,5 @@ public class Writer {
 
             document.close();
             return myFile.getAbsolutePath();
-        }catch (Exception e){
-            Toast.makeText(context, e.getMessage(), Toast.LENGTH_LONG).show();
-        }
-        return null;
     }
 }

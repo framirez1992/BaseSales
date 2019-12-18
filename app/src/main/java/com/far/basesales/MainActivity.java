@@ -414,6 +414,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public void changeModule(int id){
 
         if((usersController.isSuperUser() || usersController.isAdmin())) {
+            fragmentMaintenance.llMaintenanceCompany.setVisibility((id == R.id.goMantCompany) ? View.VISIBLE : View.GONE);
             fragmentMaintenance.llMaintenanceInventory.setVisibility((id == R.id.goMantInventario) ? View.VISIBLE : View.GONE);
             fragmentMaintenance.llMaintenanceProducts.setVisibility((id == R.id.goMantProductos) ? View.VISIBLE : View.GONE);
             fragmentMaintenance.llMaintenanceUsers.setVisibility((id == R.id.goMantUsuarios) ? View.VISIBLE : View.GONE);

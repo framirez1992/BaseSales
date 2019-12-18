@@ -15,20 +15,14 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
-import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.SearchView;
-import android.widget.Spinner;
-import android.widget.TextView;
 
-import com.far.basesales.Adapters.ClientEditionAdapter;
-import com.far.basesales.Adapters.Models.ClientRowModel;
-import com.far.basesales.CloudFireStoreObjects.Clients;
-import com.far.basesales.CloudFireStoreObjects.Licenses;
-import com.far.basesales.Controllers.ClientsController;
-import com.far.basesales.Controllers.LicenseController;
-import com.far.basesales.Dialogs.ClientsDialogFragment;
+import com.far.basesales.Adapters.CompanyEditionAdapter;
+import com.far.basesales.Adapters.Models.CompanyRowModel;
+import com.far.basesales.CloudFireStoreObjects.Company;
+import com.far.basesales.Controllers.CompanyController;
+import com.far.basesales.Dialogs.CompanyDialogFragment;
 import com.far.basesales.Interfases.DialogCaller;
 import com.far.basesales.Interfases.ListableActivity;
 import com.far.basesales.Utils.Funciones;
@@ -39,14 +33,13 @@ import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 
-public class MaintenanceClients extends AppCompatActivity implements ListableActivity, DialogCaller {
+public class MaintenanceCompany extends AppCompatActivity implements ListableActivity, DialogCaller {
 
     RecyclerView rvList;
-    ArrayList<ClientRowModel> objects;
-    ClientEditionAdapter adapter;
-    ClientsController clientsController;
-    Clients clients;
-    Licenses licence;
+    ArrayList<CompanyRowModel> objects;
+    CompanyEditionAdapter adapter;
+    CompanyController companyController;
+    Company company;
     String lastSearch = null;
 
     @Override
@@ -54,8 +47,7 @@ public class MaintenanceClients extends AppCompatActivity implements ListableAct
         super.onCreate(savedInstanceState);
         setContentView(R.layout.maintenance_w_spinner);
 
-        clientsController = ClientsController.getInstance(MaintenanceClients.this);
-        licence = LicenseController.getInstance(MaintenanceClients.this).getLicense();
+        companyController = CompanyController.getInstance(MaintenanceCompany.this);
 
         findViewById(R.id.cvSpinner).setVisibility(View.GONE);
 
@@ -63,9 +55,9 @@ public class MaintenanceClients extends AppCompatActivity implements ListableAct
 
         objects = new ArrayList<>();
 
-        LinearLayoutManager manager = new LinearLayoutManager(MaintenanceClients.this);
+        LinearLayoutManager manager = new LinearLayoutManager(MaintenanceCompany.this);
         rvList.setLayoutManager(manager);
-        adapter = new ClientEditionAdapter(this,this, objects);
+        adapter = new CompanyEditionAdapter(this,this, objects);
         rvList.setAdapter(adapter);
 
         refreshList();
@@ -74,15 +66,14 @@ public class MaintenanceClients extends AppCompatActivity implements ListableAct
     @Override
     protected void onStart() {
         super.onStart();
-        clientsController.getReferenceFireStore().addSnapshotListener(MaintenanceClients.this, new EventListener<QuerySnapshot>() {
+        companyController.getReferenceFireStore().addSnapshotListener(MaintenanceCompany.this, new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(QuerySnapshot querySnapshot, FirebaseFirestoreException e) {
-                clientsController.delete(null, null);//limpia la tabla
-
+                companyController.delete(null, null);//limpia la tabla
                 for(DocumentSnapshot ds: querySnapshot){
 
-                    Clients c = ds.toObject(Clients.class);
-                    clientsController.insert(c);
+                    Company c = ds.toObject(Company.class);
+                    companyController.insert(c);
                 }
 
                 refreshList();
@@ -145,7 +136,7 @@ public class MaintenanceClients extends AppCompatActivity implements ListableAct
             ft.remove(prev);
         }
         ft.addToBackStack(null);
-        DialogFragment newFragment =  ClientsDialogFragment.newInstance((isNew)?null:clients, this);
+        DialogFragment newFragment =  CompanyDialogFragment.newInstance(MaintenanceCompany.this, (isNew)?null:company, this);
         // Create and show the dialog.
         newFragment.show(ft, "dialog");
     }
@@ -153,8 +144,8 @@ public class MaintenanceClients extends AppCompatActivity implements ListableAct
     public void callDeleteConfirmation(){
 
         String description = "";
-        if(clients != null){
-            description = clients.getNAME();
+        if(company != null){
+            description = company.getNAME();
         }
 
         String msg = "Esta seguro que desea eliminar \'"+description+"\' permanentemente?";
@@ -164,8 +155,8 @@ public class MaintenanceClients extends AppCompatActivity implements ListableAct
         btnAceptar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(clients != null){
-                    clientsController.deleteFromFireBase(clients);
+                if(company != null){
+                    companyController.deleteFromFireBase(company);
                 }
                 d.dismiss();
             }
@@ -192,30 +183,30 @@ public class MaintenanceClients extends AppCompatActivity implements ListableAct
         ArrayList<String> x = new ArrayList<>();
 
         if(lastSearch != null){
-            where += "AND (u."+ClientsController.NAME+" like  ? OR "+ClientsController.CODE+" like ? OR "+ClientsController.PHONE+" like ?)";
+            where += "AND ("+CompanyController.NAME+" like  ? OR "+CompanyController.RNC+" like ? OR "+CompanyController.PHONE+" like ? " +
+                    "OR "+CompanyController.PHONE2+" like ? OR "+CompanyController.ADDRESS+" like ? OR "+CompanyController.ADDRESS2+" like ?  )";
             x.add(lastSearch+"%" );
             x.add("%"+lastSearch+"%");
             x.add("%"+lastSearch+"%");
+            x.add("%"+lastSearch+"%" );
+            x.add("%"+lastSearch+"%");
+            x.add("%"+lastSearch+"%");
         }
-       /* if(spn.getSelectedItem() != null && !((KV)spn.getSelectedItem()).getKey().equals("0")){
-            where += " AND ut."+ UserTypesController.CODE+" like ? ";
-            x.add(((KV)spn.getSelectedItem()).getKey());
-        }*/
 
         if(x.size() > 0){
             args = x.toArray(new String[x.size()]);
         }
-        objects.addAll(clientsController.getClientSRM(where, args, null));
+        objects.addAll(companyController.getCompanyRM(where, args, null));
         adapter.notifyDataSetChanged();
     }
 
 
     @Override
     public void onClick(Object obj) {
-        clients = null;
-        ClientRowModel sr = (ClientRowModel)obj;
+        company = null;
+        CompanyRowModel sr = (CompanyRowModel)obj;
 
-        clients = clientsController.getClientByCode(sr.getCode());
+        company = companyController.getCompanyByCode(sr.getCode());
 
     }
 

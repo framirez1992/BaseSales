@@ -17,9 +17,9 @@ import com.far.basesales.Globales.CODES;
 public class MaintenanceFragment extends Fragment {
 
 
-    ImageView btnFamily, btnGroup, btnMeasures, btnProducts,btnFamilyInv, btnGroupInv, btnMeasuresInv, btnProductsInv, btnUsers, btnUserRol/*, btnControls*/
+    ImageView btnFamily, btnGroup, btnMeasures, btnProducts,btnFamilyInv, btnGroupInv, btnMeasuresInv, btnProductsInv,btnCompany,  btnUsers, btnUserRol/*, btnControls*/
     ,btnActualizationCenter, btnUsersControl, btnRolesControl, btnClients, btnPrinter;
-    LinearLayout llMainScreen,llClients, llMaintenanceControls, llMaintenanceUsers, llMaintenanceProducts,llMaintenanceInventory, llConfiguration;
+    LinearLayout llMainScreen,llClients, llMaintenanceControls, llMaintenanceUsers, llMaintenanceProducts,llMaintenanceInventory,llMaintenanceCompany,  llConfiguration;
     public MaintenanceFragment() {
         // Required empty public constructor
     }
@@ -41,6 +41,7 @@ public class MaintenanceFragment extends Fragment {
         llMaintenanceUsers = view.findViewById(R.id.llMaintenanceUsers);
         llMaintenanceProducts = view.findViewById(R.id.llMaintenanceProducts);
         llMaintenanceInventory = view.findViewById(R.id.llMaintenanceInventory);
+        llMaintenanceCompany = view.findViewById(R.id.llMaintenanceCompany);
         llClients = view.findViewById(R.id.llClients);
         llConfiguration = view.findViewById(R.id.llConfiguration);
 
@@ -52,6 +53,7 @@ public class MaintenanceFragment extends Fragment {
         btnGroupInv = view.findViewById(R.id.btnGroupsInv);
         btnMeasuresInv = view.findViewById(R.id.btnMeasuresInv);
         btnProductsInv = view.findViewById(R.id.btnProductsInv);
+        btnCompany = view.findViewById(R.id.btnCompany);
         btnUsers = view.findViewById(R.id.btnUsers);
         btnUserRol = view.findViewById(R.id.btnUserRol);
         //btnControls = view.findViewById(R.id.btnControls);
@@ -77,6 +79,8 @@ public class MaintenanceFragment extends Fragment {
         //btnControls.setOnClickListener(imageClick);
         btnUsersControl.setOnClickListener(imageClick);
         btnRolesControl.setOnClickListener(imageClick);
+
+        btnCompany.setOnClickListener(imageClick);
 
         btnClients.setOnClickListener(imageClick);
 
@@ -128,6 +132,9 @@ public class MaintenanceFragment extends Fragment {
                /* case R.id.btnControls:
                     i = new Intent(getActivity(), MaintenanceUsersControl.class);
                     break;*/
+                case R.id.btnCompany:
+                    i = new Intent(getActivity(), MaintenanceCompany.class);
+                    break;
                 case R.id.btnRolesControl:
                     i =new Intent(getActivity(), MainAssignation.class);
                     i.putExtra(CODES.EXTRA_MAINASSIGNATION_TABLE, UserControlController.TABLE_NAME);

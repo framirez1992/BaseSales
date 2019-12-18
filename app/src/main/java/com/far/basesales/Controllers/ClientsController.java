@@ -58,11 +58,11 @@ public class ClientsController {
     }
 
 
-    public void sendToFireBase(Clients clients){
+    public void sendToFireBase(Clients clients, OnSuccessListener onSuccessListener, OnFailureListener failure){
         try {
             WriteBatch lote = db.batch();
             lote.set(getReferenceFireStore().document(clients.getCODE()), clients.toMap());
-            lote.commit();
+            lote.commit().addOnSuccessListener(onSuccessListener).addOnFailureListener(failure);
 
         }catch(Exception e){
             e.printStackTrace();

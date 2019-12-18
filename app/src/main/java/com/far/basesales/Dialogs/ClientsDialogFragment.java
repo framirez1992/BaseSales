@@ -13,12 +13,15 @@ import android.widget.LinearLayout;
 
 import com.far.basesales.CloudFireStoreObjects.Clients;
 import com.far.basesales.Controllers.ClientsController;
+import com.far.basesales.Interfases.DialogCaller;
 import com.far.basesales.R;
 import com.far.basesales.Utils.Funciones;
 import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 
 public class ClientsDialogFragment extends DialogFragment implements OnFailureListener {
 
+    DialogCaller dialogCaller;
     public Clients tempObj;
     public String type;
 
@@ -32,10 +35,11 @@ public class ClientsDialogFragment extends DialogFragment implements OnFailureLi
      * Create a new instance of MyDialogFragment, providing "num"
      * as an argument.
      */
-    public  static ClientsDialogFragment newInstance(Clients c) {
+    public  static ClientsDialogFragment newInstance(Clients c, DialogCaller dialogCaller) {
 
         ClientsDialogFragment f = new ClientsDialogFragment();
         f.tempObj = c;
+        f.dialogCaller = dialogCaller;
 
         // Supply num input as an argument.
         Bundle args = new Bundle();
@@ -110,7 +114,7 @@ public class ClientsDialogFragment extends DialogFragment implements OnFailureLi
         }
     }
 
-    public boolean validateProductType(){
+    public boolean validateClient(){
         if(etName.getText().toString().trim().equals("")){
             Snackbar.make(getView(), "Especifique un nombre", Snackbar.LENGTH_SHORT).show();
             return false;
@@ -121,22 +125,38 @@ public class ClientsDialogFragment extends DialogFragment implements OnFailureLi
 
 
     public void Save(){
-        if(validateProductType()) {
-            SaveProductType();
+        if(validateClient()) {
+            SaveClient();
+        }else{
+            llSave.setEnabled(true);
         }
 
     }
 
-    public void SaveProductType(){
+    public void SaveClient(){
         try {
             String code = Funciones.generateCode();
             String document = etDocument.getText().toString();
             String name = etName.getText().toString();
             String phone = etPhone.getText().toString();
-            Clients pt = new Clients(code,document, name, phone);
+            final Clients pt = new Clients(code,document, name, phone);
+            clientsController.insert(pt);
 
-            clientsController.sendToFireBase(pt);
-            this.dismiss();
+            clientsController.sendToFireBase(pt, new OnSuccessListener() {
+                @Override
+                public void onSuccess(Object o) {
+                    llSave.setEnabled(true);
+                    dismiss();
+                    dialogCaller.dialogClosed(pt);
+                }
+            }, new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    llSave.setEnabled(true);
+                    Snackbar.make(getView(), e.getMessage(), Snackbar.LENGTH_SHORT).show();
+                }
+            });
+
         }catch(Exception e){
             e.printStackTrace();
         }
@@ -151,9 +171,18 @@ public class ClientsDialogFragment extends DialogFragment implements OnFailureLi
             tempObj.setMDATE(null);
             tempObj.setPHONE(etPhone.getText().toString());
 
-            clientsController.sendToFireBase(tempObj);
+            clientsController.sendToFireBase(tempObj, new OnSuccessListener() {
+                @Override
+                public void onSuccess(Object o) {
+                    dismiss();
+                }
+            }, new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    Snackbar.make(getView(), e.getMessage(), Snackbar.LENGTH_SHORT).show();
+                }
+            });
 
-            this.dismiss();
         }catch(Exception e){
             e.printStackTrace();
         }
@@ -167,7 +196,6 @@ public class ClientsDialogFragment extends DialogFragment implements OnFailureLi
         etDocument.setText(tempObj.getDOCUMENT());
         etName.setText(tempObj.getNAME());
         etPhone.setText(tempObj.getPHONE());
-
     }
 
 

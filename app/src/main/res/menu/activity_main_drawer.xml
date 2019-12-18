@@ -20,6 +20,11 @@
         <menu>
 
             <item
+                android:id="@+id/goMantCompany"
+                android:icon="@drawable/ic_company"
+                android:title="Empresas" />
+
+            <item
                 android:id="@+id/goMantInventario"
                 android:icon="@drawable/ic_inventario"
                 android:title="Inventario" />

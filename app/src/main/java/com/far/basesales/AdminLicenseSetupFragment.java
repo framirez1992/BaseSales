@@ -81,14 +81,14 @@ public class AdminLicenseSetupFragment extends Fragment {
             }
         });
 
-        btnControls.setOnClickListener(new View.OnClickListener() {
+        /*btnControls.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-               /* Intent i = new Intent(getContext(), MaintenanceUsersControl.class);
+                Intent i = new Intent(getContext(), MaintenanceUsersControl.class);
                 i.putExtra(CODES.EXTRA_ADMIN_LICENSE, licenses);
-                startActivity(i);*/
+                startActivity(i);
             }
-        });
+        });*/
 
         if(licenses != null){
             ((TextView)view.findViewById(R.id.tvLicenceDescription)).setText(licenses.getCODE()+" - "+licenses.getCLIENTNAME());

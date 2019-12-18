@@ -121,6 +121,7 @@ public class ReceiptResumeFragment extends Fragment {
                 ((MainReceipt)parentActivity).showReceiptList();
             }
         });
+
     }
 
     @Override
@@ -257,7 +258,12 @@ public class ReceiptResumeFragment extends Fragment {
     }
 
     public void sendEmail(){
-       ReceiptController.getInstance(parentActivity).createPDF(model.getCode());
+        try{
+            ReceiptController.getInstance(parentActivity).createPDF(model.getCode());
+        }catch (Exception e){
+         e.printStackTrace();
+        }
+
     }
 
     public void showPaymentDialog(){

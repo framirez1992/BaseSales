@@ -3,6 +3,7 @@ package com.far.basesales.Controllers;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.support.annotation.NonNull;
 
@@ -38,6 +39,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.WriteBatch;
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -294,6 +296,17 @@ public class ReceiptController {
 
     }
 
+
+
+    public void searchReceiptByCodeFromFireBase(String code, OnSuccessListener<QuerySnapshot> success, OnCompleteListener<QuerySnapshot> complete, OnFailureListener failure){
+            getReferenceFireStore().
+                    whereEqualTo(CODE, code).//mayor que, ya que las fechas (la que buscamos de la DB) tienen hora, minuto y segundos.
+                    get().
+                    addOnSuccessListener(success).addOnCompleteListener(complete).
+                    addOnFailureListener(failure);
+
+    }
+
     public  String printReceipt(String codeReceipt)throws Exception{
 
         Print p = new Print(context,Print.PULGADAS.PULGADAS_2);
@@ -322,13 +335,14 @@ public class ReceiptController {
         return null;
     }
 
-    public void createPDF(String codeReceipt){
+    public String createPDF(String codeReceipt) throws Exception{
         Receipts receipts = getReceiptByCode(codeReceipt);
         Company company = CompanyController.getInstance(context).getCompany();
         Header header=null;
         if(company!= null){
-            Image i = new Image(BitmapFactory.decodeResource(context.getResources(),R.drawable.optica));
-            header = new Header(company.getNAME(), company.getADDRESS(), company.getPHONE(), company.getPHONE(), i);
+            Bitmap logo =Picasso.with(context).load(company.getLOGO()).get();
+            Image i = new Image(/*BitmapFactory.decodeResource(context.getResources(),R.drawable.optica)*/logo);
+            header = new Header(company.getNAME(), company.getADDRESS(), company.getPHONE(), company.getADDRESS2(), i);
         }else{
             Image i = new Image(BitmapFactory.decodeResource(context.getResources(),R.drawable.optica));
             header = new Header("NONE", "NONE", "NONE", "NONE", i);
@@ -353,7 +367,7 @@ public class ReceiptController {
         }
 
         Invoice invoice = new Invoice(header,"Recibo", "footer", receipts.getCode(),Funciones.getFormatedDateRepDom(new Date()),c, o, payments);
-        writer.createPDF("BaseSales", "R_"+receipts.getCode()+Funciones.generateCode(),invoice);
+        return writer.createPDF("BaseSales", "R_"+receipts.getCode(),invoice);
     }
 
 }

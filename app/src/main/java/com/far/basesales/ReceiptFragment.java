@@ -37,6 +37,7 @@ import com.far.basesales.Dialogs.ClientSearchDialog;
 import com.far.basesales.Dialogs.ClientsDialogFragment;
 import com.far.basesales.Generic.KV;
 import com.far.basesales.Globales.CODES;
+import com.far.basesales.Interfases.DialogCaller;
 import com.far.basesales.Utils.Funciones;
 
 import java.util.ArrayList;
@@ -45,11 +46,11 @@ import java.util.ArrayList;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class ReceiptFragment extends Fragment {
+public class ReceiptFragment extends Fragment implements DialogCaller {
 
 
     TextInputEditText etDocument, etName, etAmount;
-    CardView btnSearch;
+    CardView btnSearch, btnAddClient;
     LinearLayout llGoResumen;
     LinearLayout llPay;
     ClientSearchDialog dialog;
@@ -79,6 +80,7 @@ public class ReceiptFragment extends Fragment {
         llPay = view.findViewById(R.id.llPay);
         btnSearch = view.findViewById(R.id.btnSearch);
         spnPaymentType = view.findViewById(R.id.spnPaymentType);
+        btnAddClient = view.findViewById(R.id.btnAddClient);
 
 
         PaymentController.getInstance(parentActivity).fillSpinnerPaymentType(spnPaymentType);
@@ -104,6 +106,13 @@ public class ReceiptFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 searchClient();
+            }
+        });
+
+        btnAddClient.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                callAddDialog();
             }
         });
 
@@ -221,5 +230,25 @@ public class ReceiptFragment extends Fragment {
             return false;
         }
         return true;
+    }
+
+    public void callAddDialog(){
+        FragmentTransaction ft = ((AppCompatActivity)parentActivity).getSupportFragmentManager().beginTransaction();
+        Fragment prev = ((AppCompatActivity)parentActivity).getSupportFragmentManager().findFragmentByTag("dialog");
+        if (prev != null) {
+            ft.remove(prev);
+        }
+        ft.addToBackStack(null);
+        DialogFragment newFragment =  ClientsDialogFragment.newInstance(null, this);
+        // Create and show the dialog.
+        newFragment.show(ft, "dialog");
+    }
+
+    @Override
+    public void dialogClosed(Object o) {
+        Clients c = (Clients)o;
+        client = new ClientRowModel(c.getCODE(),c.getDOCUMENT(),c.getNAME(),c.getPHONE(),true);
+        etName.setText(client.getName());
+        etDocument.setText(client.getDocument());
     }
 }

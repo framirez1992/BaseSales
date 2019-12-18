@@ -14,6 +14,7 @@ import android.widget.LinearLayout;
 import android.widget.Spinner;
 
 import com.far.basesales.CloudFireStoreObjects.Users;
+import com.far.basesales.Controllers.CompanyController;
 import com.far.basesales.Controllers.RolesController;
 import com.far.basesales.Controllers.UserTypesController;
 import com.far.basesales.Controllers.UsersController;
@@ -30,11 +31,12 @@ public class UsersDialogFragment extends DialogFragment implements OnFailureList
 
     LinearLayout llSave;
     TextInputEditText etName, etPassword, etPassword2, etCode;
-    Spinner /*spnLevel,*/ spnRol;
+    Spinner /*spnLevel,*/ spnRol, spnCompany;
     CheckBox cbEnabled;
 
     UsersController usersController;
     UserTypesController userTypesController;
+    CompanyController companyController;
 
     public  static UsersDialogFragment newInstance(Object pt) {
 
@@ -59,6 +61,7 @@ public class UsersDialogFragment extends DialogFragment implements OnFailureList
         setStyle(style, theme);
         usersController = UsersController.getInstance(getActivity());
         userTypesController = UserTypesController.getInstance(getActivity());
+        companyController = CompanyController.getInstance(getActivity());
 
     }
 
@@ -101,10 +104,12 @@ public class UsersDialogFragment extends DialogFragment implements OnFailureList
         etPassword = view.findViewById(R.id.etPassword);
         etPassword2 = view.findViewById(R.id.etPassword2);
         spnRol = view.findViewById(R.id.spnRole);
+        spnCompany = view.findViewById(R.id.spnCompany);
         //spnLevel = view.findViewById(R.id.spnLevel);
         cbEnabled = view.findViewById(R.id.cbEnabled);
 
         userTypesController.fillSpnUserTypes(spnRol,false);
+        companyController.fillSpnCompany(spnCompany);
         //RolesController.getInstance(getActivity()).fillGeneralRoles(spnLevel);
 
         //etCode.setEnabled(false);
@@ -128,7 +133,10 @@ public class UsersDialogFragment extends DialogFragment implements OnFailureList
     }
 
     public boolean validate(){
-        if(etCode.getText().toString().trim().equals("")){
+         if(spnCompany.getSelectedItem()== null){
+            Snackbar.make(getView(), "La empresa es obligatoria", Snackbar.LENGTH_SHORT).show();
+            return false;
+        }else if(etCode.getText().toString().trim().equals("")){
             Snackbar.make(getView(), "El codigo de usuario es obligatorio", Snackbar.LENGTH_SHORT).show();
             return false;
         }else if(tempObj == null && usersController.getUserByCode(etCode.getText().toString()) != null){
@@ -169,7 +177,7 @@ public class UsersDialogFragment extends DialogFragment implements OnFailureList
             String password = etPassword.getText().toString().trim();
             boolean enabled = cbEnabled.isChecked();
             String role = ((KV)spnRol.getSelectedItem()).getKey();
-            String empresa = "01";
+            String empresa = ((KV)spnCompany.getSelectedItem()).getKey();
             Users users = new Users(code,systemCode, password, userName, role, empresa, enabled);
             usersController.sendToFireBase(users);
             this.dismiss();
@@ -193,7 +201,7 @@ public class UsersDialogFragment extends DialogFragment implements OnFailureList
             Users user = ((Users)tempObj);
             user.setUSERNAME(etName.getText().toString());
             user.setPASSWORD(etPassword.getText().toString().trim());
-            user.setCOMPANY("01");
+            user.setCOMPANY(((KV)spnCompany.getSelectedItem()).getKey());
             user.setENABLED(user.getCODE().equals(Funciones.getCodeuserLogged(getActivity()))?true:cbEnabled.isChecked());//Para que es mismo usuario no se deshabilite
             user.setROLE(((KV)spnRol.getSelectedItem()).getKey());
             user.setMDATE(null);
@@ -216,6 +224,7 @@ public class UsersDialogFragment extends DialogFragment implements OnFailureList
         etPassword.setText(u.getPASSWORD());
         etPassword2.setText(u.getPASSWORD());
         setRolePosition(u.getROLE());
+        setCompanyPosition(u.getCOMPANY());
         cbEnabled.setChecked(u.isENABLED());
 
     }
@@ -224,6 +233,15 @@ public class UsersDialogFragment extends DialogFragment implements OnFailureList
         for(int i = 0; i< spnRol.getAdapter().getCount(); i++){
             if(((KV)spnRol.getAdapter().getItem(i)).getKey().equals(key)){
                 spnRol.setSelection(i);
+                break;
+            }
+        }
+    }
+
+    public void setCompanyPosition(String key){
+        for(int i = 0; i< spnCompany.getAdapter().getCount(); i++){
+            if(((KV)spnCompany.getAdapter().getItem(i)).getKey().equals(key)){
+                spnCompany.setSelection(i);
                 break;
             }
         }

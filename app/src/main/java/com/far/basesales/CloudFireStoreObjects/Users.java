@@ -29,10 +29,10 @@ public class Users {
         this.CODE = cod; this.SYSTEMCODE = systemCode; this.PASSWORD = passwrd; this.USERNAME = usrName;
         this.ROLE = role; this.ENABLED = enabled;this.COMPANY = company;
     }
-    public Users(String cod, String systemCode, String passwrd, String usrName, boolean enabled){
+    public Users(String cod, String systemCode, String passwrd, String usrName,String company,  boolean enabled){
 
         this.CODE = cod; this.SYSTEMCODE = systemCode; this.PASSWORD = passwrd; this.USERNAME = usrName;
-        this.ROLE = ""; this.ENABLED = enabled;this.COMPANY = "";
+        this.ROLE = ""; this.ENABLED = enabled;this.COMPANY = company;
     }
 
     public HashMap<String, Object> toMap(){
@@ -57,7 +57,7 @@ public class Users {
         this.USERNAME = c.getString(c.getColumnIndex(UsersController.USERNAME));
         this.ROLE = c.getString(c.getColumnIndex(UsersController.ROLE));
         this.ENABLED = c.getString(c.getColumnIndex(UsersController.ENABLED)).equals("1");
-        this.COMPANY = c.getString(c.getColumnIndex(UsersController.COMPANY));;
+        this.COMPANY = c.getString(c.getColumnIndex(UsersController.COMPANY));
         this.DATE = Funciones.parseStringToDate(c.getString(c.getColumnIndex(UsersController.DATE)));
         this.MDATE = Funciones.parseStringToDate(c.getString(c.getColumnIndex(UsersController.MDATE)));
     }

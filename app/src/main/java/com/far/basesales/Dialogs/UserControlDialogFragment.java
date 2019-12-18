@@ -110,7 +110,7 @@ public class UserControlDialogFragment extends DialogFragment implements OnFailu
                 KV kv = (KV)parent.getItemAtPosition(position);
                 switch (kv.getKey()){
                     case CODES.USERSCONTROL_TARGET_COMPANY:
-                        CompanyController.getInstance(getActivity()).fillSpnCompany(spnDestiny, false); break;
+                        CompanyController.getInstance(getActivity()).fillSpnCompany(spnDestiny); break;
                     case CODES.USERSCONTROL_TARGET_USER_ROL:
                         UserTypesController.getInstance(getActivity()).fillSpnUserTypes(spnDestiny, false); break;
                     case CODES.USERSCONTROL_TARGET_USER:

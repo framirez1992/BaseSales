@@ -45,6 +45,8 @@ import com.far.basesales.Controllers.SalesController;
 import com.far.basesales.Controllers.TempOrdersController;
 import com.far.basesales.Controllers.Transaction;
 import com.far.basesales.Controllers.UserControlController;
+import com.far.basesales.Dialogs.ClientsDialogFragment;
+import com.far.basesales.Dialogs.ReceiptOptionsDialog;
 import com.far.basesales.Globales.CODES;
 import com.far.basesales.Interfases.ListableActivity;
 import com.far.basesales.Utils.Funciones;
@@ -77,6 +79,8 @@ public class MainOrders extends AppCompatActivity implements ListableActivity/*,
     String orderCode = null;
     //RelativeLayout rlNotifications;
 
+    Receipts lastReceipt;
+
 
 
     /*DrawerLayout drawer;
@@ -88,6 +92,7 @@ public class MainOrders extends AppCompatActivity implements ListableActivity/*,
     Dialog dialogConfirmPayment;
     Dialog dialogLoading;
     Dialog errorDialog;
+    Dialog postPayment;
 
     public static final String KEY_ORDERCODE = "KEYORDERCODE";
     boolean editingOrder;
@@ -447,6 +452,23 @@ public class MainOrders extends AppCompatActivity implements ListableActivity/*,
         window.setBackgroundDrawableResource(android.R.color.transparent);
     }
 
+    public void showPostPaymentConfirmation(){
+        if(lastReceipt == null){
+            Toast.makeText(MainOrders.this, "unable to get Receipt", Toast.LENGTH_LONG).show();
+            return;
+        }
+        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+        Fragment prev = getSupportFragmentManager().findFragmentByTag("dialog");
+        if (prev != null) {
+            ft.remove(prev);
+        }
+        ft.addToBackStack(null);
+        DialogFragment newFragment =  ReceiptOptionsDialog.newInstance(MainOrders.this, lastReceipt);
+        newFragment.setCancelable(false);
+        // Create and show the dialog.
+         newFragment.show(ft, "dialog");
+    }
+
     public void closePaymentConfirmation(){
         if(dialogConfirmPayment!= null){
             dialogConfirmPayment.dismiss();
@@ -486,7 +508,7 @@ public class MainOrders extends AppCompatActivity implements ListableActivity/*,
 
     public void closeOrders(Receipts receipt, Payment payment, Sales sales){
 
-
+        lastReceipt = receipt;
         Transaction.getInstance(MainOrders.this).sendToFireBase(sales,receipt,payment, this, this, this);
 
            /* ///////////////////////////////////////////////////////////////////
@@ -521,15 +543,17 @@ public class MainOrders extends AppCompatActivity implements ListableActivity/*,
 
     @Override
     public void onComplete(@NonNull Task task) {
-        closeLoadingDialog();
         if(task.getException()!= null){
-           showErrorDialog(task.getException().getMessage()+"\n"+task.getException().getLocalizedMessage());
+            lastReceipt = null;
+            closeLoadingDialog();
+            showErrorDialog(task.getException().getMessage()+"\n"+task.getException().getLocalizedMessage());
         }
 
     }
 
     @Override
     public void onFailure(@NonNull Exception e) {
+        lastReceipt = null;
         closeLoadingDialog();
         if(errorDialog!= null && !errorDialog.isShowing()){
             showErrorDialog(e.getMessage()+"\n"+e.getLocalizedMessage());
@@ -538,6 +562,11 @@ public class MainOrders extends AppCompatActivity implements ListableActivity/*,
 
     @Override
     public void onSuccess(QuerySnapshot querySnapshot) {
+        closeLoadingDialog();
+        showPostPaymentConfirmation();
+    }
+
+    public void newOrderAndRefresh(){
         refresh();
         goToNewOrder();
         showMenu();

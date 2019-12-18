@@ -4,24 +4,26 @@ import android.database.Cursor;
 
 import com.far.basesales.Controllers.CompanyController;
 import com.far.basesales.Utils.Funciones;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.IgnoreExtraProperties;
 import com.google.firebase.firestore.ServerTimestamp;
 
 import java.util.Date;
+import java.util.HashMap;
 
 
 @IgnoreExtraProperties
 public class Company {
-    private String CODE,NAME,RNC,ADDRESS,ADDRESS2,PHONE, PHONE2;
+    private String CODE,NAME,RNC,ADDRESS,ADDRESS2,PHONE, PHONE2, LOGO;
     private @ServerTimestamp
     Date DATE, MDATE;
     public Company(){
 
     }
-    public Company(String code, String name, String rnc, String address, String address2, String phone, String phone2, Date date, Date mdate){
+    public Company(String code, String name, String rnc, String address, String address2, String phone, String phone2,String logo, Date date, Date mdate){
         this.CODE = code; this.NAME = name; this.RNC = rnc;
         this.ADDRESS = address; this.ADDRESS2 = address2; this.PHONE = phone;
-        this.PHONE2 = phone2; this.DATE = date; this.MDATE = mdate;
+        this.PHONE2 = phone2; this.LOGO = logo; this.DATE = date; this.MDATE = mdate;
     }
 
     public Company(Cursor c){
@@ -32,8 +34,25 @@ public class Company {
         this.ADDRESS2 = c.getString(c.getColumnIndex(CompanyController.ADDRESS2));
         this.PHONE = c.getString(c.getColumnIndex(CompanyController.PHONE));
         this.PHONE2 =c.getString(c.getColumnIndex(CompanyController.PHONE2));
+        this.LOGO =c.getString(c.getColumnIndex(CompanyController.LOGO));
         this.DATE = Funciones.parseStringToDate(c.getString(c.getColumnIndex(CompanyController.DATE)));
         this.MDATE = Funciones.parseStringToDate(c.getString(c.getColumnIndex(CompanyController.MDATE)));
+    }
+
+    public HashMap<String, Object> toMap(){
+        HashMap<String, Object> map = new HashMap<>();
+        map.put(CompanyController.CODE, CODE);
+        map.put(CompanyController.RNC, RNC);
+        map.put(CompanyController.NAME, NAME);
+        map.put(CompanyController.ADDRESS, ADDRESS);
+        map.put(CompanyController.ADDRESS2, ADDRESS2);
+        map.put(CompanyController.PHONE, PHONE);
+        map.put(CompanyController.PHONE2, PHONE2);
+        map.put(CompanyController.LOGO, LOGO);
+        map.put(CompanyController.DATE, (DATE == null)? FieldValue.serverTimestamp():DATE);
+        map.put(CompanyController.MDATE, (MDATE == null)? FieldValue.serverTimestamp():MDATE);
+
+        return map;
     }
 
     public String getCODE() {
@@ -90,6 +109,14 @@ public class Company {
 
     public void setPHONE2(String PHONE2) {
         this.PHONE2 = PHONE2;
+    }
+
+    public String getLOGO() {
+        return LOGO;
+    }
+
+    public void setLOGO(String LOGO) {
+        this.LOGO = LOGO;
     }
 
     public Date getDATE() {

@@ -1,5 +1,6 @@
 package com.far.basesales;
 
+import android.Manifest;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Intent;
@@ -7,6 +8,7 @@ import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.CardView;
@@ -22,6 +24,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 
+import com.example.bluetoothlibrary.BluetoothScan;
 import com.far.basesales.CloudFireStoreObjects.Devices;
 import com.far.basesales.CloudFireStoreObjects.Licenses;
 import com.far.basesales.CloudFireStoreObjects.Token;
@@ -45,6 +48,8 @@ import com.google.firebase.FirebaseApp;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
+
+import java.util.ArrayList;
 
 public class Login extends AppCompatActivity implements OnFailureListener, FireBaseOK, AsyncExecutor {
 
@@ -77,27 +82,32 @@ public class Login extends AppCompatActivity implements OnFailureListener, FireB
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-        init();
-        initDialog();
-        if(Funciones.getPreferencesInt(Login.this, CODES.EXTRA_SECURITY_ERROR_CODE)>-1){
-            int code = Funciones.getPreferencesInt(Login.this, CODES.EXTRA_SECURITY_ERROR_CODE);
-            ((TextView)findViewById(R.id.tvErrorMsg)).setText(Funciones.gerErrorMessage(code));
+        if(getUngrantedPermissions().size()>0){
+            requestPermissions(getUngrantedPermissions());
+        }else{
+            init();
+            initDialog();
+            if(Funciones.getPreferencesInt(Login.this, CODES.EXTRA_SECURITY_ERROR_CODE)>-1){
+                int code = Funciones.getPreferencesInt(Login.this, CODES.EXTRA_SECURITY_ERROR_CODE);
+                ((TextView)findViewById(R.id.tvErrorMsg)).setText(Funciones.gerErrorMessage(code));
+            }
         }
+
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        if(licenseController.getLicense() == null) {
+        if(licenseController != null && licenseController.getLicense() == null) {
            Snackbar.make(findViewById(R.id.root), "Realize una carga inicial", Snackbar.LENGTH_LONG).show();
         }
     }
 
-    public void startActivityLoginFromBegining(){
+   /* public void startActivityLoginFromBegining(){
         Intent intent = new Intent(getApplicationContext(), Login.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(intent);
-    }
+    }*/
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -388,20 +398,6 @@ public class Login extends AppCompatActivity implements OnFailureListener, FireB
     public void showPhoneID(){
         tvPhoneID.setText("Device: "+Funciones.getPhoneID(Login.this));
     }
-    public void agregarAlServer(){
-
-    }
-    public void filtroConWhere(){
-
-    }
-
-    public void colocandoMarcaDeTiempo(){
-
-    }
-
-    public void Transaccciones(){
-
-    }
 
 
 
@@ -413,24 +409,22 @@ public class Login extends AppCompatActivity implements OnFailureListener, FireB
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if(requestCode == 1){
-
-            if (grantResults.length > 0) {
-
-                boolean granted = true;
-                for (int grantResult : grantResults){
-                    if (grantResult == PackageManager.PERMISSION_DENIED){
-                        granted = false;
-                    }
-                }
-                if(granted){
-                    //Funciones.sendSMS("8099983580", "hola vato");
-                }else {
-                    Toast.makeText(Login.this, "Denegado", Toast.LENGTH_LONG).show();
-                }
+        boolean granted = true;
+        if(requestCode == 123){
+            for(int result: grantResults){
+               if(result == PackageManager.PERMISSION_DENIED){
+                   granted = false;
+                   break;
+               }
+            }
+            if(granted){
+                recreate();
+            }else{
+                finish();
             }
         }
     }
+
 
     public void initDialog(){
         try {
@@ -766,4 +760,47 @@ public class Login extends AppCompatActivity implements OnFailureListener, FireB
     public void goToConfiguration(){
         startActivity(new Intent(Login.this, AdminConfiguration.class));
     }
+
+
+
+    public ArrayList<String> getUngrantedPermissions(){
+        ArrayList<String> p = new ArrayList<>();
+        if(checkPermissions(Manifest.permission.INTERNET) != PackageManager.PERMISSION_GRANTED){
+         p.add(Manifest.permission.INTERNET);
+        }
+        if(checkPermissions(Manifest.permission.ACCESS_NETWORK_STATE) != PackageManager.PERMISSION_GRANTED){
+            p.add(Manifest.permission.ACCESS_NETWORK_STATE);
+        }
+        if(checkPermissions(Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED){
+            p.add(Manifest.permission.READ_EXTERNAL_STORAGE);
+        }
+        if(checkPermissions(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED){
+            p.add(Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        }
+        if(checkPermissions(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED){
+            p.add(Manifest.permission.ACCESS_COARSE_LOCATION);
+        }
+        /*if(checkPermissions(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED){
+            p.add(Manifest.permission.ACCESS_FINE_LOCATION);
+        }*/
+        if(checkPermissions(Manifest.permission.BLUETOOTH) != PackageManager.PERMISSION_GRANTED){
+            p.add(Manifest.permission.BLUETOOTH);
+        }
+        if(checkPermissions(Manifest.permission.BLUETOOTH_ADMIN) != PackageManager.PERMISSION_GRANTED){
+            p.add(Manifest.permission.BLUETOOTH_ADMIN);
+        }
+
+        return p;
+    }
+
+    public void requestPermissions(ArrayList<String> permissions){
+        ActivityCompat.requestPermissions(Login.this,
+               /* new String[]{Manifest.permission.READ_EXTERNAL_STORAGE,
+                        Manifest.permission.ACCESS_COARSE_LOCATION,
+                        Manifest.permission.ACCESS_FINE_LOCATION,
+                        Manifest.permission.BLUETOOTH,
+                        Manifest.permission.BLUETOOTH_ADMIN}*/permissions.toArray(new String[permissions.size()]),
+                123);
+    }
+
 }

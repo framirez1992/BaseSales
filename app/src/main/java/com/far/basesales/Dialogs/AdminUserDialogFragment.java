@@ -9,11 +9,13 @@ import android.support.v4.app.DialogFragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 
 import com.far.basesales.AdminLicenseUsers;
+import com.far.basesales.CloudFireStoreObjects.Company;
 import com.far.basesales.CloudFireStoreObjects.Users;
 import com.far.basesales.Controllers.RolesController;
 import com.far.basesales.Generic.KV;
@@ -23,15 +25,18 @@ import com.far.basesales.Utils.Funciones;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 
+import java.util.ArrayList;
+
 public class AdminUserDialogFragment extends DialogFragment implements OnFailureListener {
 
     AdminLicenseUsers adminLicenseUsers;
     public Users tempObj;
+    ArrayList<Company> companies;
     public String codeLicense;
 
     LinearLayout llSave;
     TextInputEditText etName, etPassword, etCode;
-    Spinner spnLevel;
+    Spinner spnLevel, spnCompany;
     CheckBox cbEnabled;
 
 
@@ -39,12 +44,13 @@ public class AdminUserDialogFragment extends DialogFragment implements OnFailure
      * Create a new instance of MyDialogFragment, providing "num"
      * as an argument.
      */
-    public  static AdminUserDialogFragment newInstance(AdminLicenseUsers adminLicenseUsers, Users users, String codeLicense) {
+    public  static AdminUserDialogFragment newInstance(AdminLicenseUsers adminLicenseUsers, Users users,ArrayList<Company> companies, String codeLicense) {
 
         AdminUserDialogFragment f = new AdminUserDialogFragment();
         f.adminLicenseUsers = adminLicenseUsers;
         f.tempObj = users;
         f.codeLicense = codeLicense;
+        f.companies = companies;
 
         // Supply num input as an argument.
         Bundle args = new Bundle();
@@ -101,9 +107,11 @@ public class AdminUserDialogFragment extends DialogFragment implements OnFailure
         etName = view.findViewById(R.id.etName);
         etPassword = view.findViewById(R.id.etPassword);
         spnLevel = view.findViewById(R.id.spnLevel);
+        spnCompany = view.findViewById(R.id.spnCompany);
         cbEnabled = view.findViewById(R.id.cbEnabled);
 
         RolesController.getInstance(getActivity()).fillGeneralRolesLocal(spnLevel);
+        fillSpnCompany();
 
         llSave.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -112,7 +120,7 @@ public class AdminUserDialogFragment extends DialogFragment implements OnFailure
                 if(tempObj == null){
                     Save();
                 }else{
-                    EditLicense();
+                    EditUser();
                 }
             }
         });
@@ -123,7 +131,10 @@ public class AdminUserDialogFragment extends DialogFragment implements OnFailure
     }
 
     public boolean validate(){
-        if(etCode.getText().toString().trim().equals("")){
+        if(spnCompany.getSelectedItem()== null){
+            Snackbar.make(getView(), "La empresa es obligatoria", Snackbar.LENGTH_SHORT).show();
+            return false;
+        }else if(etCode.getText().toString().trim().equals("")){
             Snackbar.make(getView(), "El codigo de usuario es obligatorio", Snackbar.LENGTH_SHORT).show();
             return false;
         }else if(tempObj == null && adminLicenseUsers.getUserByCode(etCode.getText().toString()) != null){
@@ -156,9 +167,10 @@ public class AdminUserDialogFragment extends DialogFragment implements OnFailure
             String systemCode = ((KV)spnLevel.getSelectedItem()).getKey();
             String userName = etName.getText().toString();
             String password = etPassword.getText().toString().trim();
+            String company = ((KV)spnCompany.getSelectedItem()).getKey();
             boolean enabled = cbEnabled.isChecked();
 
-            Users u = new Users(code,systemCode, password, userName, enabled);
+            Users u = new Users(code,systemCode, password, userName,company, enabled);
 
 
             adminLicenseUsers.getFs().collection(Tablas.generalUsers).document(codeLicense).collection(Tablas.generalUsersUsers).document(u.getCODE()).set(u.toMap())
@@ -177,12 +189,14 @@ public class AdminUserDialogFragment extends DialogFragment implements OnFailure
     }
 
 
-    public void EditLicense(){
+    public void EditUser(){
         try {
             Users u = tempObj;
             u.setUSERNAME(etName.getText().toString());
             u.setPASSWORD(etPassword.getText().toString().trim());
             u.setENABLED(cbEnabled.isChecked());
+            u.setSYSTEMCODE(((KV)spnLevel.getSelectedItem()).getKey());
+            u.setCOMPANY(((KV)spnCompany.getSelectedItem()).getKey());
             u.setMDATE(null);
 
             adminLicenseUsers.getFs().collection(Tablas.generalUsers).document(codeLicense).collection(Tablas.generalUsersUsers)
@@ -211,8 +225,17 @@ public class AdminUserDialogFragment extends DialogFragment implements OnFailure
         etName.setText(u.getUSERNAME());
         etPassword.setText(u.getPASSWORD());
         setLevelPosition(u.getSYSTEMCODE());
+        setCompanyPosition(u.getCOMPANY());
         cbEnabled.setChecked(u.isENABLED());
 
+    }
+
+    public void fillSpnCompany(){
+        ArrayList<KV> spnList = new ArrayList<>();
+        for(Company ut : companies){
+            spnList.add(new KV(ut.getCODE(), ut.getNAME()+" ["+ut.getRNC()+"]"));
+        }
+        spnCompany.setAdapter(new ArrayAdapter<KV>(getActivity(), android.R.layout.simple_list_item_1,spnList));
     }
 
 
@@ -225,6 +248,14 @@ public class AdminUserDialogFragment extends DialogFragment implements OnFailure
         }
     }
 
+    public void setCompanyPosition(String key){
+        for(int i = 0; i< spnCompany.getAdapter().getCount(); i++){
+            if(((KV)spnCompany.getAdapter().getItem(i)).getKey().equals(key)){
+                spnCompany.setSelection(i);
+                break;
+            }
+        }
+    }
 
     @Override
     public void onFailure(@NonNull Exception e) {

@@ -441,7 +441,7 @@ public class UserControlController {
 
     public void fillSpinnerByControlLevel(Spinner spn, String target){
         if(target.equals(CODES.USERSCONTROL_TARGET_COMPANY)){
-         CompanyController.getInstance(context).fillSpnCompany(spn, false);
+         CompanyController.getInstance(context).fillSpnCompany(spn);
         }else if(target.equals(CODES.USERSCONTROL_TARGET_USER_ROL)){
         UserTypesController.getInstance(context).fillSpnUserTypes(spn, false);
         }else if(target.equals(CODES.USERSCONTROL_TARGET_USER)){
