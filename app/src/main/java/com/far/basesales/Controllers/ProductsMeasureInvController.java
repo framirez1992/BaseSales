@@ -67,7 +67,7 @@ public class ProductsMeasureInvController {
     public ArrayList<ProductsMeasure>getProductsMeasure(String where, String[] args){
         ArrayList<ProductsMeasure> result = new ArrayList<>();
         try {
-            Cursor c = DB.getInstance(context).getReadableDatabase().query(TABLE_NAME, columns, where, args, null, null, CODEMEASURE);
+           /* Cursor c = DB.getInstance(context).getReadableDatabase().query(TABLE_NAME, columns, where, args, null, null, CODEMEASURE);
             while(c.moveToNext()){
                 result.add(new ProductsMeasure(
                         c.getString(c.getColumnIndex(CODE)),
@@ -78,7 +78,7 @@ public class ProductsMeasureInvController {
                         c.getString(c.getColumnIndex(DATE)),
                         c.getString(c.getColumnIndex(MDATE))));
 
-            }c.close();
+            }c.close();*/
         }catch (Exception e){
             e.printStackTrace();
         }

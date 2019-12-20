@@ -43,6 +43,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 
 import java.net.URL;
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -521,6 +522,18 @@ public class Funciones {
         return String.format("%.2f", decimal);
     }
 
+    public static String formatPhone(String phone){
+        String formatted =phone;
+        if(phone.length() == 10){
+            formatted = phone.substring(0, 3)+"-"+phone.substring(3, 6)+"-"+phone.substring(6);
+        }
+        return formatted;
+    }
+
+    public static String formatMoney(double amount){
+            DecimalFormat formatter = new DecimalFormat("###,###,##0.00");
+            return formatter.format(amount);
+    }
     public static Dialog getCustomDialog(Context context, int color, String title, String msg, int icon, View.OnClickListener listener){
         Dialog d = new Dialog(context);
         d.setContentView(R.layout.custom_dialog_1btn);

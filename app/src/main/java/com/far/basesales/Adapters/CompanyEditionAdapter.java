@@ -13,6 +13,7 @@ import android.widget.TextView;
 import com.far.basesales.Adapters.Models.CompanyRowModel;
 import com.far.basesales.Interfases.ListableActivity;
 import com.far.basesales.R;
+import com.far.basesales.Utils.Funciones;
 
 import java.util.ArrayList;
 
@@ -73,7 +74,7 @@ public class CompanyEditionAdapter extends RecyclerView.Adapter<CompanyEditionAd
         public void fillData(CompanyRowModel model){
             tvRnc.setText(model.getRnc());
             tvName.setText(model.getName());
-            tvPhone.setText(model.getPhone());
+            tvPhone.setText(Funciones.formatPhone(model.getPhone()));
             tvPhone2.setText(model.getPhone2());
             tvAddress.setText(model.getAddress());
             tvAddress2.setText(model.getAddress2());

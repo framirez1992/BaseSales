@@ -241,7 +241,10 @@ public class ReceiptOptionsDialog extends DialogFragment  {
             protected String doInBackground(Void... voids) {
                 String value = "ERROR-";
                 try{
-                    value= ReceiptController.getInstance(activity).createPDF(receipts.getCode());
+                    if(ReceiptController.getInstance(activity).update(receipts) <1){
+                        ReceiptController.getInstance(activity).insert(receipts);
+                    }
+                    value= ReceiptController.getInstance(activity).createPDF(receipts.getCode(), 1);
                 }catch (Exception e){
                     value +=e.getMessage();
                 }

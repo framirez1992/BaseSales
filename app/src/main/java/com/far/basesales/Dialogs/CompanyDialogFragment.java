@@ -166,6 +166,8 @@ public class CompanyDialogFragment extends DialogFragment implements OnFailureLi
         if(validate()) {
             if(tempObj!= null && keeptLogo()){
                 EditCompany(tempObj.getLOGO());
+                dismiss();
+                endLoading();
             }else{
                 uploadImage();
             }

@@ -13,16 +13,17 @@ import java.util.HashMap;
 @IgnoreExtraProperties
 public class ProductsMeasure {
         private String CODE, CODEPRODUCT,CODEMEASURE;
-        private Double PRICE;
+        private Double PRICE, MINPRICE, MAXPRICE;
     private @ServerTimestamp
     Date DATE, MDATE;
-        private Boolean ENABLED;
+        private Boolean ENABLED, RANGE;
         public ProductsMeasure(){
 
         }
-        public ProductsMeasure(String code, String codeProduct, String codeMeasure,double price,boolean enabled, String date, String mdate){
+        public ProductsMeasure(String code, String codeProduct, String codeMeasure,double price,boolean range, double minPrice, double maxPrice, boolean enabled, String date, String mdate){
             this.CODE = code; this.CODEPRODUCT = codeProduct; this.CODEMEASURE =codeMeasure;this.PRICE = price;
-            this.ENABLED = enabled;this.DATE = Funciones.parseStringToDate(date); this.MDATE = Funciones.parseStringToDate(mdate);
+            this.ENABLED = enabled;this.RANGE = range; this.MINPRICE = minPrice; this.MAXPRICE = maxPrice;
+            this.DATE = Funciones.parseStringToDate(date); this.MDATE = Funciones.parseStringToDate(mdate);
         }
 
         public HashMap<String, Object> toMap(){
@@ -32,6 +33,9 @@ public class ProductsMeasure {
             map.put(ProductsMeasureController.CODEMEASURE, CODEMEASURE);
             map.put(ProductsMeasureController.PRICE, PRICE);
             map.put(ProductsMeasureController.ENABLED, ENABLED);
+            map.put(ProductsMeasureController.RANGE, RANGE);
+            map.put(ProductsMeasureController.MINPRICE, MINPRICE);
+            map.put(ProductsMeasureController.MAXPRICE, MAXPRICE);
             map.put(ProductsMeasureController.DATE, (DATE == null)? FieldValue.serverTimestamp():DATE);
             map.put(ProductsMeasureController.MDATE,(MDATE == null)? FieldValue.serverTimestamp():MDATE);
 
@@ -92,5 +96,29 @@ public class ProductsMeasure {
 
     public void setENABLED(Boolean ENABLED) {
         this.ENABLED = ENABLED;
+    }
+
+    public Double getMINPRICE() {
+        return MINPRICE;
+    }
+
+    public void setMINPRICE(Double MINPRICE) {
+        this.MINPRICE = MINPRICE;
+    }
+
+    public Double getMAXPRICE() {
+        return MAXPRICE;
+    }
+
+    public void setMAXPRICE(Double MAXPRICE) {
+        this.MAXPRICE = MAXPRICE;
+    }
+
+    public Boolean getRANGE() {
+        return RANGE;
+    }
+
+    public void setRANGE(Boolean RANGE) {
+        this.RANGE = RANGE;
     }
 }

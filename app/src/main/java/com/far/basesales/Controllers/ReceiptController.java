@@ -15,6 +15,7 @@ import com.far.basesales.CloudFireStoreObjects.Company;
 import com.far.basesales.CloudFireStoreObjects.Licenses;
 import com.far.basesales.CloudFireStoreObjects.Receipts;
 import com.far.basesales.CloudFireStoreObjects.SalesDetails;
+import com.far.basesales.CloudFireStoreObjects.Users;
 import com.far.basesales.DataBase.DB;
 import com.far.basesales.Globales.CODES;
 import com.far.basesales.Globales.Tablas;
@@ -28,6 +29,11 @@ import com.far.farpdf.Entities.Order;
 import com.far.farpdf.Entities.OrderDetail;
 import com.far.farpdf.Entities.Payment;
 import com.far.farpdf.Objects.Image;
+import com.far.farpdf.Objects.Line;
+import com.far.farpdf.Objects.LineItem;
+import com.far.farpdf.Objects.Table;
+import com.far.farpdf.Objects.TableCell;
+import com.far.farpdf.Objects.TableColumn;
 import com.far.farpdf.PDF.Writer;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -41,6 +47,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.WriteBatch;
 import com.squareup.picasso.Picasso;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -111,6 +118,7 @@ public class ReceiptController {
         cv.put(DISCOUNT, r.getDiscount());
         cv.put(TOTAL, r.getTotal());
         cv.put(PAIDAMOUNT, r.getPaidamount());
+        cv.put(DATE, Funciones.getFormatedDate(r.getDate()));
         cv.put(MDATE, Funciones.getFormatedDate(r.getMdate()));
 
         long result = DB.getInstance(context).getWritableDatabase().update(TABLE_NAME,cv,CODE+"=?", new String[]{r.getCode()});
@@ -335,19 +343,29 @@ public class ReceiptController {
         return null;
     }
 
-    public String createPDF(String codeReceipt) throws Exception{
+    public String createPDF(String codeReceipt, int format) throws Exception{
+        Writer writer = new Writer(context);
+       if(format == 1){
+           return writer.createPDF("BaseSales", "R_"+codeReceipt,format1(codeReceipt));
+       }else if(format == 2){
+           return writer.createPDF("BaseSales", "R_"+codeReceipt,format2(codeReceipt));
+       }
+        return null;
+    }
+
+    public Invoice format2(String codeReceipt) throws Exception{
+
         Receipts receipts = getReceiptByCode(codeReceipt);
         Company company = CompanyController.getInstance(context).getCompany();
         Header header=null;
         if(company!= null){
             Bitmap logo =Picasso.with(context).load(company.getLOGO()).get();
             Image i = new Image(/*BitmapFactory.decodeResource(context.getResources(),R.drawable.optica)*/logo);
-            header = new Header(company.getNAME(), company.getADDRESS(), company.getPHONE(), company.getADDRESS2(), i);
+            header = new Header(company.getNAME(), company.getADDRESS(), Funciones.formatPhone(company.getPHONE()), company.getADDRESS2(), i);
         }else{
             Image i = new Image(BitmapFactory.decodeResource(context.getResources(),R.drawable.optica));
             header = new Header("NONE", "NONE", "NONE", "NONE", i);
         }
-        Writer writer = new Writer(context);
 
         Clients clients = ClientsController.getInstance(context).getClientByCode(receipts.getCodeclient());
         Client c = new Client(clients.getNAME(), clients.getDOCUMENT(), clients.getPHONE(), "address");
@@ -367,7 +385,115 @@ public class ReceiptController {
         }
 
         Invoice invoice = new Invoice(header,"Recibo", "footer", receipts.getCode(),Funciones.getFormatedDateRepDom(new Date()),c, o, payments);
-        return writer.createPDF("BaseSales", "R_"+receipts.getCode(),invoice);
+        return invoice;
+    }
+
+    public ArrayList<Object> format1(String codeReceipt) throws Exception{
+        ArrayList<Object> obj = new ArrayList<>();
+
+        Receipts receipts = getReceiptByCode(codeReceipt);
+        Company company = CompanyController.getInstance(context).getCompany();
+        Header header=null;
+        if(company!= null){
+            Bitmap logo =Picasso.with(context).load(company.getLOGO()).get();
+            Image i = new Image(/*BitmapFactory.decodeResource(context.getResources(),R.drawable.optica)*/logo);
+            header = new Header(company.getNAME(), company.getADDRESS(), Funciones.formatPhone(company.getPHONE()), company.getADDRESS2(), i);
+        }else{
+            Image i = new Image(BitmapFactory.decodeResource(context.getResources(),R.drawable.optica));
+            header = new Header("NONE", "NONE", "NONE", "NONE", i);
+        }
+
+        Clients clients = ClientsController.getInstance(context).getClientByCode(receipts.getCodeclient());
+        Client c = new Client(clients.getNAME(), clients.getDOCUMENT(), clients.getPHONE(), "address");
+
+        Users u = UsersController.getInstance(context).getUserByCode(receipts.getCodeuser());
+
+
+        obj.add(header.getLogo().center());
+        //obj.add(new LineItem(header.getName()).bold().center());
+        obj.add(new LineItem(header.getAddress()).bold().center());
+        obj.add(new LineItem(header.getPhone()).bold().center());
+        obj.add(new LineItem(" "));
+        obj.add(new LineItem("Fecha: "+new SimpleDateFormat("dd-MM-yyyy HH:mm:ss a").format(receipts.getDate())));
+        obj.add(new LineItem("No: "+receipts.getCode()));
+        obj.add(new LineItem(" "));
+        obj.add(new LineItem("Vendedor: "+u.getUSERNAME()));
+        obj.add(new LineItem("Cliente:  "+c.getName()));
+        obj.add(new LineItem(" "));
+        obj.add(new LineItem("FACTURA COMERCIAL").size(25).bold().center());
+        obj.add(new LineItem(" "));
+        obj.add(new Line());
+        obj.add(new LineItem(" "));
+
+        ArrayList<TableColumn> columns = new ArrayList<>();
+        columns.add(new TableColumn("Cantidad",20));
+        columns.add(new TableColumn("Descripcion",50));
+        columns.add(new TableColumn("Precio",30));
+
+        ArrayList<TableCell> cells = new ArrayList<>();
+
+        for(SalesDetailModel sd : SalesController.getInstance(context).getSaleDetailModels(receipts.getCode())){
+            cells.add(new TableCell(sd.getQuantity()).center());
+            cells.add(new TableCell(sd.getMeasureDescription()+" "+sd.getProductDescription()).left());
+            cells.add(new TableCell("$"+Funciones.formatMoney(Double.parseDouble(sd.getTotal()))).right());
+        }
+
+        cells.add(new TableCell(" ").noBorder());
+        cells.add(new TableCell(" ").noBorder());
+        cells.add(new TableCell(" ").noBorder());
+
+
+        cells.add(new TableCell(" ").noBorder());
+        cells.add(new TableCell("Total:").bold().right().noBorder());
+        cells.add(new TableCell("$"+Funciones.formatMoney(receipts.getTotal())).bold().right().noBorder());
+
+        cells.add(new TableCell(" ").noBorder());
+        cells.add(new TableCell(" ").right().noBorder());
+        cells.add(new TableCell(" ").right().noBorder());
+
+        cells.add(new TableCell(" ").noBorder());
+        cells.add(new TableCell("Pagos").bold().size(20).center().noBorder());
+        cells.add(new TableCell(" ").noBorder());
+
+        cells.add(new TableCell(" ").noBorder());
+        cells.add(new TableCell(" ").noBorder());
+        cells.add(new TableCell(" ").noBorder());
+
+        double totalPayment = 0.0;
+        ArrayList<com.far.basesales.CloudFireStoreObjects.Payment> payments =PaymentController.getInstance(context).getPayments(PaymentController.CODERECEIPT+" = ?", new String[]{receipts.getCode()}, null);
+        for(com.far.basesales.CloudFireStoreObjects.Payment p : payments){
+            totalPayment+=p.getTOTAL();
+
+            String label ="";
+            if(p.getTYPE().equals(CODES.PAYMENTTYPE_CASH)){
+                label="Efectivo: ";
+            }else if(p.getTYPE().equals(CODES.PAYMENTTYPE_CREDIT)){
+                label="Credito:  ";
+            }
+
+            cells.add(new TableCell(" "));
+            cells.add(new TableCell(label).right());
+            cells.add(new TableCell("$"+Funciones.formatMoney(p.getTOTAL())).right());
+        }
+
+        cells.add(new TableCell(" "));
+        cells.add(new TableCell("Total Pagado").right());
+        cells.add(new TableCell("$"+Funciones.formatMoney(totalPayment)).right());
+
+        cells.add(new TableCell(" ").noBorder());
+        cells.add(new TableCell(" ").noBorder());
+        cells.add(new TableCell(" ").right().noBorder());
+
+        obj.add(new Table(columns, cells));
+
+
+        obj.add(new LineItem(" "));
+        obj.add(new Line().thickness(2));
+        obj.add(new LineItem(" "));
+        //obj.add(new LineItem("30 dias de garantia. Favor enviar esta factura al Email:opticaellocario@wepa.com con un dia de antelacion.").size(10).center());
+
+        return obj;
+
     }
 
 }

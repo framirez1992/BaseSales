@@ -6,6 +6,7 @@ import android.database.Cursor;
 import android.support.annotation.NonNull;
 
 import com.far.basesales.Adapters.Models.EditSelectionRowModel;
+import com.far.basesales.Adapters.Models.ProductMeasureRowModel;
 import com.far.basesales.CloudFireStoreObjects.Licenses;
 import com.far.basesales.CloudFireStoreObjects.ProductsMeasure;
 import com.far.basesales.DataBase.DB;
@@ -33,10 +34,11 @@ public class ProductsMeasureController {
 
     public static final String TABLE_NAME ="PRODUCTSMEASURE";
     public static  String CODE = "code", CODEPRODUCT = "codeproduct", CODEMEASURE = "codemeasure" ,PRICE="price",
-            ENABLED = "enabled", DATE = "date", MDATE= "mdate";
-    private static String[] columns = new String[]{CODE, CODEPRODUCT, CODEMEASURE,PRICE,ENABLED, DATE, MDATE};
+            ENABLED = "enabled",RANGE ="range", MINPRICE="minprice", MAXPRICE = "maxprice",  DATE = "date", MDATE= "mdate";
+    private static String[] columns = new String[]{CODE, CODEPRODUCT, CODEMEASURE,PRICE,ENABLED,RANGE, MINPRICE, MAXPRICE,  DATE, MDATE};
     public static String QUERY_CREATE = "CREATE TABLE "+TABLE_NAME+"("
-            +CODE+" TEXT, "+CODEPRODUCT+" TEXT, "+CODEMEASURE+" TEXT,"+PRICE+" DECIMAL,"+ENABLED+" TEXT, "+DATE+" TEXT," + MDATE+" TEXT)";
+            +CODE+" TEXT, "+CODEPRODUCT+" TEXT, "+CODEMEASURE+" TEXT,"+PRICE+" DECIMAL,"+ENABLED+" TEXT,"+RANGE+" TEXT," +
+            ""+MINPRICE+" DECIMAL, "+MAXPRICE+" DECIMAL,  "+DATE+" TEXT," + MDATE+" TEXT)";
     Context context;
     FirebaseFirestore db;
     private static  ProductsMeasureController instance;
@@ -71,14 +73,28 @@ public class ProductsMeasureController {
         try {
             Cursor c = DB.getInstance(context).getReadableDatabase().query(TABLE_NAME, columns, where, args, null, null, CODEMEASURE);
             while(c.moveToNext()){
+
+                String code =  c.getString(c.getColumnIndex(CODE));
+                String codeProduct = c.getString(c.getColumnIndex(CODEPRODUCT));
+                String codeMeasure = c.getString(c.getColumnIndex(CODEMEASURE));
+                double price = c.getDouble(c.getColumnIndex(PRICE));
+                String range = c.getString(c.getColumnIndex(RANGE));
+                double minPrice = c.getDouble(c.getColumnIndex(MINPRICE));
+                double maxPrice = c.getDouble(c.getColumnIndex(MAXPRICE));
+                String enabled = c.getString(c.getColumnIndex(ENABLED));
+                String date = c.getString(c.getColumnIndex(DATE));
+                String mdate = c.getString(c.getColumnIndex(MDATE));
                result.add(new ProductsMeasure(
-                       c.getString(c.getColumnIndex(CODE)),
-                       c.getString(c.getColumnIndex(CODEPRODUCT)),
-                       c.getString(c.getColumnIndex(CODEMEASURE)),
-                       c.getDouble(c.getColumnIndex(PRICE)),
-                       c.getString(c.getColumnIndex(ENABLED)).equals("1"),
-                       c.getString(c.getColumnIndex(DATE)),
-                       c.getString(c.getColumnIndex(MDATE))));
+                       code,
+                       codeProduct,
+                       codeMeasure,
+                       price,
+                       (range != null && range.equals("1")),
+                       minPrice,
+                       maxPrice,
+                       (enabled!= null && enabled.equals("1")),
+                       date,
+                       mdate));
 
             }c.close();
         }catch (Exception e){
@@ -123,6 +139,9 @@ public class ProductsMeasureController {
         cv.put(CODEMEASURE,p.getCODEMEASURE());
         cv.put(PRICE,p.getPRICE());
         cv.put(ENABLED, p.getENABLED());
+        cv.put(RANGE, p.getRANGE());
+        cv.put(MINPRICE, p.getMINPRICE());
+        cv.put(MAXPRICE, p.getMAXPRICE());
         cv.put(DATE, Funciones.getFormatedDate(p.getDATE()));
         cv.put(MDATE, Funciones.getFormatedDate(p.getMDATE()));
 
@@ -137,6 +156,9 @@ public class ProductsMeasureController {
         cv.put(CODEMEASURE,p.getCODEMEASURE());
         cv.put(PRICE,p.getPRICE());
         cv.put(ENABLED, p.getENABLED());
+        cv.put(RANGE, p.getRANGE());
+        cv.put(MINPRICE, p.getMINPRICE());
+        cv.put(MAXPRICE, p.getMAXPRICE());
         cv.put(DATE, Funciones.getFormatedDate(p.getDATE()));
         cv.put(MDATE, Funciones.getFormatedDate(p.getMDATE()));
 
@@ -149,18 +171,25 @@ public class ProductsMeasureController {
         return result;
     }
 
-    public ArrayList<EditSelectionRowModel> getSSRMByCodeProduct(String codeProduct){
-        ArrayList<EditSelectionRowModel> result = new ArrayList<>();
+    public ArrayList<ProductMeasureRowModel> getSSRMByCodeProduct(String codeProduct){
+        ArrayList<ProductMeasureRowModel> result = new ArrayList<>();
         try {
-            String sql = "SELECT pm." + CODEMEASURE + " AS CODE, mu." + MeasureUnitsController.DESCRIPTION + " AS DESCRIPTION, ifnull(pm."+PRICE+", 0.0) as PRICE, pm."+ENABLED+" AS ENABLED " +
+            String sql = "SELECT pm." + CODEMEASURE + " AS CODEMEASURE, mu." + MeasureUnitsController.DESCRIPTION + " AS MEASUREDESCRIPTION, " +
+                    " ifnull(pm."+RANGE+", '0') as RANGE,ifnull("+MINPRICE+", 0) as MINPRICE, ifnull("+MAXPRICE+", 0) as MAXPRICE,   ifnull(pm."+PRICE+", 0) as PRICE, pm."+ENABLED+" AS ENABLED " +
                     "FROM " + TABLE_NAME + " pm " +
                     "INNER JOIN " + MeasureUnitsController.TABLE_NAME + " mu ON pm." + CODEMEASURE + " = mu." + MeasureUnitsController.CODE + " " +
                     "WHERE pm." + CODEPRODUCT + " = ? AND pm.ENABLED = ?";
             Cursor c = DB.getInstance(context).getReadableDatabase().rawQuery(sql, new String[]{codeProduct, "1"});
+
+            //String codeMeasure,String measureDescription,String amount,  boolean priceRange,String minPrice, String maxPrice,  boolean checked
             while (c.moveToNext()) {
-                result.add(new EditSelectionRowModel(c.getString(c.getColumnIndex("CODE")),
-                        c.getString(c.getColumnIndex("DESCRIPTION")),
-                        c.getString(c.getColumnIndex("PRICE")),
+                result.add(new ProductMeasureRowModel(
+                        c.getString(c.getColumnIndex("CODEMEASURE")),
+                        c.getString(c.getColumnIndex("MEASUREDESCRIPTION")),
+                        c.getDouble(c.getColumnIndex("PRICE")),
+                        c.getString(c.getColumnIndex("RANGE")).equals("1"),
+                        c.getDouble(c.getColumnIndex("MINPRICE")),
+                        c.getDouble(c.getColumnIndex("MAXPRICE")),
                         c.getString(c.getColumnIndex("ENABLED")).equals("1")));
             }
         }catch(Exception e){

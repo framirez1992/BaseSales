@@ -7,17 +7,19 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.design.widget.TextInputEditText;
 import android.support.v4.app.DialogFragment;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.CheckBox;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
+import android.widget.TextView;
 
-import com.far.basesales.Adapters.EditSelectionRowAdapter;
-import com.far.basesales.Adapters.Models.EditSelectionRowModel;
+import com.far.basesales.Adapters.Models.ProductMeasureRowModel;
 import com.far.basesales.CloudFireStoreObjects.Products;
 import com.far.basesales.CloudFireStoreObjects.ProductsMeasure;
 import com.far.basesales.Controllers.MeasureUnitsController;
@@ -30,6 +32,7 @@ import com.far.basesales.Controllers.ProductsTypesController;
 import com.far.basesales.Controllers.ProductsTypesInvController;
 import com.far.basesales.Generic.KV;
 import com.far.basesales.Globales.CODES;
+import com.far.basesales.Interfases.ListableActivity;
 import com.far.basesales.R;
 import com.far.basesales.Utils.Funciones;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -39,7 +42,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 import java.util.ArrayList;
 
 
-public class ProductsDialogfragment extends DialogFragment implements OnFailureListener {
+public class ProductsDialogfragment extends DialogFragment implements ListableActivity, OnFailureListener {
 
     private Products tempObj;
 
@@ -49,9 +52,15 @@ public class ProductsDialogfragment extends DialogFragment implements OnFailureL
     RecyclerView rvMeasures;
     LinearLayout llMeasureScreen, llMainScreen, llNext;
 
+    TextView tvMeasureName;
+    CheckBox cbActiveMeasure,cbActiveRange;
+    TextInputEditText etMeasurePrice, etMin, etMax;
+    CardView btnApply;
+    ProductMeasureRowModel selectedRowModel;
+
     ProductsController productsController;
     ProductsInvController productsInvController;
-    ArrayList<EditSelectionRowModel> selected = new ArrayList<>() ;
+    ArrayList<ProductMeasureRowModel> selected = new ArrayList<>() ;
     boolean firstTime = true;
     String type;
 
@@ -131,6 +140,34 @@ public class ProductsDialogfragment extends DialogFragment implements OnFailureL
         rvMeasures = view.findViewById(R.id.rvMeasures);
         rvMeasures.setLayoutManager(new LinearLayoutManager(getActivity()));
 
+        tvMeasureName = view.findViewById(R.id.tvMeasureName);
+        cbActiveMeasure = view.findViewById(R.id.cbActiveMeasure);
+        cbActiveRange = view.findViewById(R.id.cbActiveRange);
+        etMeasurePrice = view.findViewById(R.id.etMeasurePrice);
+        etMin = view.findViewById(R.id.etMin);
+        etMax = view.findViewById(R.id.etMax);
+        btnApply = view.findViewById(R.id.btnApply);
+
+        btnApply.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(selectedRowModel == null){
+                    return;
+                }
+                selectedRowModel.setAmount(Double.parseDouble(etMeasurePrice.getText().toString()));
+                selectedRowModel.setChecked(cbActiveMeasure.isChecked());
+                selectedRowModel.setPriceRange(cbActiveRange.isChecked());
+                selectedRowModel.setMinPrice(Double.parseDouble(etMin.getText().toString()));
+                selectedRowModel.setMaxPrice(Double.parseDouble(etMax.getText().toString()));
+
+                ((ProductMeasureSelectionAdapter)rvMeasures.getAdapter()).update();
+               /* //si esta en los selected actualizar
+                rvMeasures.getAdapter().notifyDataSetChanged();
+                rvMeasures.invalidate();*/
+                clearMeasureData();
+            }
+        });
+
         if(type.equals(CODES.ENTITY_TYPE_EXTRA_PRODUCTSFORSALE)){
             ProductsTypesController.getInstance(getActivity()).fillSpinner(spnFamily, false);
             ProductsSubTypesController.getInstance(getActivity()).fillSpinner(spnGroup, false);
@@ -146,7 +183,7 @@ public class ProductsDialogfragment extends DialogFragment implements OnFailureL
             @Override
             public void onClick(View v) {
                 llSave.setEnabled(false);
-                selected = ((EditSelectionRowAdapter)rvMeasures.getAdapter()).getSelectedObjects();
+                selected = ((ProductMeasureSelectionAdapter)rvMeasures.getAdapter()).getSelectedObjects();
                 if(tempObj == null){
                     Save();
                 }else{
@@ -249,8 +286,9 @@ public class ProductsDialogfragment extends DialogFragment implements OnFailureL
             Products product = new Products(code, description, productType, productSubType, false);
 
             ArrayList<ProductsMeasure> list = new ArrayList<>();
-            for(EditSelectionRowModel ssrm: selected){
-                list.add(new ProductsMeasure(Funciones.generateCode(), code, ssrm.getCode(),Double.parseDouble(ssrm.getText()),ssrm.isChecked(), null, null));
+            for(ProductMeasureRowModel ssrm: selected){
+                //String code, String codeProduct, String codeMeasure,double price,boolean range, double minPrice, double maxPrice, boolean enabled, String date, String mdate
+                list.add(new ProductsMeasure(Funciones.generateCode(), code, ssrm.getCodeMeasure(),ssrm.getAmount(),ssrm.isPriceRange(), ssrm.getMinPrice(),ssrm.getMaxPrice(),ssrm.isChecked(), null, null));
             }
 
             if(type.equals(CODES.ENTITY_TYPE_EXTRA_PRODUCTSFORSALE)){
@@ -277,8 +315,10 @@ public class ProductsDialogfragment extends DialogFragment implements OnFailureL
             products.setMDATE(null);
 
             ArrayList<ProductsMeasure> list = new ArrayList<>();
-            for(EditSelectionRowModel ssrm: selected){
-                list.add(new ProductsMeasure(Funciones.generateCode(), products.getCODE(), ssrm.getCode(),Double.parseDouble(ssrm.getText()),ssrm.isChecked(), null, null));
+            for(ProductMeasureRowModel ssrm: selected){
+                //String code, String codeProduct, String codeMeasure,double price,boolean range, double minPrice, double maxPrice, boolean enabled, String date, String mdate
+                list.add(new ProductsMeasure(Funciones.generateCode(), products.getCODE(), ssrm.getCodeMeasure(),ssrm.getAmount(),
+                        ssrm.isPriceRange(),ssrm.getMinPrice(),ssrm.getMaxPrice() ,true, null, null));
             }
 
             if(type.equals(CODES.ENTITY_TYPE_EXTRA_PRODUCTSFORSALE)){
@@ -334,14 +374,14 @@ public class ProductsDialogfragment extends DialogFragment implements OnFailureL
                // selectedObjs.addAll(ProductsMeasureInvController.getInstance(getActivity()).getSSRMByCodeProduct(((Products) tempObj).getCODE()));
             }
         }
-        ArrayList<EditSelectionRowModel> arr = null;
+        ArrayList<ProductMeasureRowModel> arr = null;
         if(type.equals(CODES.ENTITY_TYPE_EXTRA_PRODUCTSFORSALE)){
             arr =  MeasureUnitsController.getInstance(getActivity()).getUnitMeasuresSSRM(null, null, null);
         }else if(type.equals(CODES.ENTITY_TYPE_EXTRA_INVENTORY)){
             //arr = MeasureUnitsInvController.getInstance(getActivity()).getUnitMeasuresSSRM(null, null, null);
         }
 
-        rvMeasures.setAdapter(new EditSelectionRowAdapter(getActivity(),arr, selected));
+        rvMeasures.setAdapter(new ProductMeasureSelectionAdapter(getActivity(),this, arr, selected));
         rvMeasures.getAdapter().notifyDataSetChanged();
         rvMeasures.invalidate();
     }
@@ -401,5 +441,33 @@ public class ProductsDialogfragment extends DialogFragment implements OnFailureL
         });
         errorDialog.setCancelable(false);
         errorDialog.show();
+    }
+
+    @Override
+    public void onClick(Object obj) {
+        if(obj instanceof ProductMeasureRowModel){
+            ProductMeasureRowModel item = (ProductMeasureRowModel)obj;
+            setMeasureData(item);
+        }
+    }
+
+    public void setMeasureData(ProductMeasureRowModel item){
+        selectedRowModel = item;
+        tvMeasureName.setText(item.getMeasureDescription());
+        cbActiveMeasure.setChecked(item.isChecked());
+        cbActiveRange.setChecked(item.isPriceRange());
+        etMeasurePrice.setText(String.valueOf(item.getAmount()));
+        etMin.setText(String.valueOf(item.getMinPrice()));
+        etMax.setText(String.valueOf(item.getMaxPrice()));
+    }
+
+    public void clearMeasureData(){
+        selectedRowModel = null;
+        tvMeasureName.setText("");
+        cbActiveMeasure.setChecked(false);
+        cbActiveRange.setChecked(false);
+        etMeasurePrice.setText("");
+        etMin.setText("");
+        etMax.setText("");
     }
 }

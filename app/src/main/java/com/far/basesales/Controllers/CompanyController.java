@@ -71,7 +71,7 @@ public class CompanyController {
         cv.put(RNC, c.getRNC());
         cv.put(PHONE,c.getPHONE() );
         cv.put(PHONE2,c.getPHONE2() );
-        cv.put(ADDRESS,c.getADDRESS2() );
+        cv.put(ADDRESS,c.getADDRESS() );
         cv.put(ADDRESS2,c.getADDRESS2() );
         cv.put(LOGO, c.getLOGO());
         cv.put(DATE, Funciones.getFormatedDate((Date) c.getDATE()));
@@ -88,7 +88,7 @@ public class CompanyController {
         cv.put(RNC, c.getRNC());
         cv.put(PHONE,c.getPHONE() );
         cv.put(PHONE2,c.getPHONE2() );
-        cv.put(ADDRESS,c.getADDRESS2() );
+        cv.put(ADDRESS,c.getADDRESS() );
         cv.put(ADDRESS2,c.getADDRESS2() );
         cv.put(LOGO, c.getLOGO());
         cv.put(MDATE, Funciones.getFormatedDate(c.getMDATE()));

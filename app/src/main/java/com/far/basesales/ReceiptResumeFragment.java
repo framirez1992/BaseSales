@@ -259,7 +259,7 @@ public class ReceiptResumeFragment extends Fragment {
 
     public void sendEmail(){
         try{
-            ReceiptController.getInstance(parentActivity).createPDF(model.getCode());
+            ReceiptController.getInstance(parentActivity).createPDF(model.getCode(), 1);
         }catch (Exception e){
          e.printStackTrace();
         }

@@ -8,6 +8,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 
 import com.far.basesales.Adapters.Models.EditSelectionRowModel;
+import com.far.basesales.Adapters.Models.ProductMeasureRowModel;
 import com.far.basesales.Adapters.Models.SimpleRowModel;
 import com.far.basesales.CloudFireStoreObjects.Licenses;
 import com.far.basesales.CloudFireStoreObjects.MeasureUnits;
@@ -235,8 +236,8 @@ public class MeasureUnitsController {
      * @param campoOrder
      * @return
      */
-    public ArrayList<EditSelectionRowModel> getUnitMeasuresSSRM(String where, String[] args, String campoOrder){
-        ArrayList<EditSelectionRowModel> result = new ArrayList<>();
+    public ArrayList<ProductMeasureRowModel> getUnitMeasuresSSRM(String where, String[] args, String campoOrder){
+        ArrayList<ProductMeasureRowModel> result = new ArrayList<>();
         if(campoOrder == null){campoOrder = DESCRIPTION;}
         where=((where != null)? "WHERE "+where:"");
         try {
@@ -248,7 +249,8 @@ public class MeasureUnitsController {
             while(c.moveToNext()){
                 String code = c.getString(c.getColumnIndex("CODE"));
                 String name = c.getString(c.getColumnIndex("DESCRIPTION"));
-                result.add(new EditSelectionRowModel(code,name ,"", false));
+                //String codeMeasure, String measureDescription, String amount, boolean priceRange,String minPrice, String maxPrice,  boolean checked
+                result.add(new ProductMeasureRowModel(code,name ,0,false, 0, 0, false));
             }
         }catch(Exception e){
             e.printStackTrace();
