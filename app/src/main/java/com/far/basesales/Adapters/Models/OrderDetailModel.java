@@ -10,6 +10,7 @@ public class OrderDetailModel {
     String codeProduct;
     String product_name;
     String quantity;
+    String manualPrice;
     String codeMeasure;
     String measureDescription;
     String code;
@@ -17,12 +18,13 @@ public class OrderDetailModel {
     boolean blocked;
     ArrayList<KV2> measures;
 
-    public OrderDetailModel(String codeProduct, String code, String code_sales, String name, String qty, String codemeasure, String measure, String blocked, ArrayList<KV2> measures){
+    public OrderDetailModel(String codeProduct, String code, String code_sales, String name, String qty,String manualPrice,  String codemeasure, String measure, String blocked, ArrayList<KV2> measures){
         this.code = code;
         this.code_sales = code_sales;
         this.codeProduct = codeProduct;
         this.product_name = name;
         this.quantity = qty;
+        this.manualPrice = manualPrice;
         this.codeMeasure = codemeasure;
         this.measureDescription = measure;
         this.measures = measures;
@@ -99,5 +101,16 @@ public class OrderDetailModel {
 
     public void setBlocked(boolean blocked) {
         this.blocked = blocked;
+    }
+
+    public String getManualPrice() {
+        if(manualPrice== null || (manualPrice!= null && manualPrice.isEmpty())){
+            return "";
+        }
+        return manualPrice;
+    }
+
+    public void setManualPrice(String manualPrice) {
+        this.manualPrice = manualPrice;
     }
 }

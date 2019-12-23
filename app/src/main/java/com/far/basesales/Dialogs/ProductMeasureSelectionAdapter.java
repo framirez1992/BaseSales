@@ -23,13 +23,26 @@ public class ProductMeasureSelectionAdapter extends RecyclerView.Adapter<Product
     ListableActivity listableActivity;
     ArrayList<ProductMeasureRowModel> objects;
     ArrayList<ProductMeasureRowModel> previousSaved;
-    boolean firstLoad=true;
 
     public ProductMeasureSelectionAdapter(Activity act, ListableActivity la,  ArrayList<ProductMeasureRowModel> objs, ArrayList<ProductMeasureRowModel> previousSaved) {
         this.activity = act;
         this.listableActivity = la;
         this.objects = objs;
         this.previousSaved = previousSaved;
+
+
+        for(ProductMeasureRowModel pm: objects){
+            if (isSaved(pm)) {
+                ProductMeasureRowModel p= previousSaved.get(findPositionInPreviousSaved(pm));
+                pm.setChecked(p.isChecked());
+                pm.setAmount(p.getAmount());
+                pm.setMaxPrice(p.getMaxPrice());
+                pm.setMinPrice(p.getMinPrice());
+                pm.setPriceRange(p.isPriceRange());
+
+            }
+        }
+
     }
 
     @NonNull
@@ -42,20 +55,7 @@ public class ProductMeasureSelectionAdapter extends RecyclerView.Adapter<Product
 
     @Override
     public void onBindViewHolder(@NonNull ProductMeasureRowHolder holder, final int position) {
-
-        if (firstLoad && isSaved(objects.get(position))) {
-            firstLoad=false;
-            ProductMeasureRowModel p= previousSaved.get(findPositionInPreviousSaved(objects.get(position)));
-            objects.get(position).setChecked(p.isChecked());
-            objects.get(position).setAmount(p.getAmount());
-            objects.get(position).setMaxPrice(p.getMaxPrice());
-            objects.get(position).setMinPrice(p.getMinPrice());
-            objects.get(position).setPriceRange(p.isPriceRange());
-
-        }
         holder.fillData(objects.get(position));
-
-
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

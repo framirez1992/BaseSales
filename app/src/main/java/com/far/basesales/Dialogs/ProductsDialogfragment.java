@@ -154,6 +154,9 @@ public class ProductsDialogfragment extends DialogFragment implements ListableAc
                 if(selectedRowModel == null){
                     return;
                 }
+                if(!validateRowModelEdition()){
+                    return;
+                }
                 selectedRowModel.setAmount(Double.parseDouble(etMeasurePrice.getText().toString()));
                 selectedRowModel.setChecked(cbActiveMeasure.isChecked());
                 selectedRowModel.setPriceRange(cbActiveRange.isChecked());
@@ -469,5 +472,34 @@ public class ProductsDialogfragment extends DialogFragment implements ListableAc
         etMeasurePrice.setText("");
         etMin.setText("");
         etMax.setText("");
+    }
+
+
+    public boolean validateRowModelEdition(){
+        double price = 0.0;
+        double minPrice = 0.0;
+        double maxPrice = 0.0;
+        try{
+           price = Double.parseDouble(etMeasurePrice.getText().toString());
+        }catch (Exception e){
+            Snackbar.make(getView(), "Precio invalido", Snackbar.LENGTH_LONG).show();
+            etMeasurePrice.requestFocus();
+            return false;
+        }
+        try{
+            minPrice = Double.parseDouble(etMin.getText().toString());
+        }catch (Exception e){
+            Snackbar.make(getView(), "Precio minimo invalido", Snackbar.LENGTH_LONG).show();
+            etMin.requestFocus();
+            return false;
+        }
+        try{
+            maxPrice = Double.parseDouble(etMax.getText().toString());
+        }catch (Exception e){
+            Snackbar.make(getView(), "Precio maximo invalido", Snackbar.LENGTH_LONG).show();
+            etMax.requestFocus();
+            return false;
+        }
+        return true;
     }
 }

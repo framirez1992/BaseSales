@@ -223,7 +223,7 @@ public class ResumenOrderFragment extends Fragment {
     }
 
     public void refreshTotal(){
-        tvTotal.setText(Funciones.formatDecimal(TempOrdersController.getInstance(parentActivity).getSumPrice()));
+        tvTotal.setText(Funciones.formatMoney(TempOrdersController.getInstance(parentActivity).getSumPrice()));
 
     }
 

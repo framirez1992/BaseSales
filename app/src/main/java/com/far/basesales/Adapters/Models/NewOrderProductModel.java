@@ -15,10 +15,13 @@ public class NewOrderProductModel {
     boolean blocked;
     ArrayList<KV2> measures;
 
-    public NewOrderProductModel(String codeOrderDetail, String codeProduct, String name, String quantity, String measure, String bloqued, ArrayList<KV2> measures){
+    String manualPrice;
+
+    public NewOrderProductModel(String codeOrderDetail, String codeProduct, String name, String quantity, String measure,String manualPrice, String bloqued, ArrayList<KV2> measures){
         this.codeOrderDetail = codeOrderDetail; this.codeProduct = codeProduct;
         this.name = name; this.quantity = quantity; this.measure = measure;
         this.measures = measures;this.blocked = (bloqued.equals("1"));
+        this.manualPrice = manualPrice;
     }
 
     public String getCodeOrderDetail() {
@@ -77,4 +80,14 @@ public class NewOrderProductModel {
         this.blocked = blocked;
     }
 
+    public String getManualPrice() {
+        if(manualPrice == null || (manualPrice!= null && manualPrice.isEmpty())){
+            return "";
+        }
+        return manualPrice;
+    }
+
+    public void setManualPrice(String manualPrice) {
+        this.manualPrice = manualPrice;
+    }
 }

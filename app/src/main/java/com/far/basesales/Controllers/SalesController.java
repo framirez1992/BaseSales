@@ -37,9 +37,9 @@ public class SalesController {
 
     public static final String TABLE_NAME_DETAIL = Tablas.generalUsersSalesDetails;
     public static String DETAIL_CODE = "code",DETAIL_CODESALES = "codesales", DETAIL_CODEPRODUCT = "codeproduct",
-            DETAIL_DISCOUNT = "discount", DETAIL_POSITION = "position", DETAIL_PRICE = "price",DETAIL_TAX = "tax",
+            DETAIL_DISCOUNT = "discount", DETAIL_POSITION = "position", DETAIL_PRICE = "price", DETAIL_MANUALPRICE = "manualprice", DETAIL_TAX = "tax",
             DETAIL_QUANTITY = "quantity", DETAIL_CODEUND = "codeund", DETAIL_DATE="date", DETAIL_MDATE="mdate";
-    String[]columnsDetails = new String[]{DETAIL_CODE,DETAIL_CODESALES, DETAIL_CODEPRODUCT,DETAIL_CODEUND,DETAIL_DISCOUNT,DETAIL_POSITION,DETAIL_QUANTITY,DETAIL_PRICE,DETAIL_TAX, DATE, MDATE};
+    String[]columnsDetails = new String[]{DETAIL_CODE,DETAIL_CODESALES, DETAIL_CODEPRODUCT,DETAIL_CODEUND,DETAIL_DISCOUNT,DETAIL_POSITION,DETAIL_QUANTITY,DETAIL_PRICE,DETAIL_MANUALPRICE, DETAIL_TAX, DATE, MDATE};
 
 
     Context context;
@@ -68,7 +68,7 @@ public class SalesController {
     public static String getQueryCreateDetail(){
               String QUERY_CREATE_DETAIL = "CREATE TABLE "+TABLE_NAME_DETAIL+" ("
                 +DETAIL_CODE+" TEXT, "+DETAIL_CODESALES+" TEXT, "+DETAIL_CODEPRODUCT+" TEXT, "+DETAIL_POSITION+" INTEGER, "
-                +DETAIL_QUANTITY+" DOUBLE, "+DETAIL_CODEUND+" TEXT,"+DETAIL_PRICE+" DECIMAL(11, 3),"+DETAIL_DISCOUNT+" DECIMAL(11,3), "+DETAIL_TAX+"  DECIMAL(11,3), " +
+                +DETAIL_QUANTITY+" DOUBLE, "+DETAIL_CODEUND+" TEXT,"+DETAIL_PRICE+" DECIMAL(11, 3), "+DETAIL_MANUALPRICE+" DECIMAL(11, 3), "+DETAIL_DISCOUNT+" DECIMAL(11,3), "+DETAIL_TAX+"  DECIMAL(11,3), " +
                 DETAIL_DATE+" TEXT, "+DETAIL_MDATE+" TEXT)";
               return QUERY_CREATE_DETAIL;
 
@@ -169,6 +169,7 @@ public class SalesController {
         cv.put(DETAIL_DISCOUNT,sd.getDISCOUNT());
         cv.put(DETAIL_POSITION,sd.getPOSITION());
         cv.put(DETAIL_PRICE,sd.getPRICE());
+        cv.put(DETAIL_MANUALPRICE,sd.getMANUALPRICE());
         cv.put(DETAIL_QUANTITY,sd.getQUANTITY());
         cv.put(DETAIL_TAX,sd.getTAX());
         cv.put(DETAIL_CODEUND, sd.getCODEUND());
@@ -187,6 +188,7 @@ public class SalesController {
         cv.put(DETAIL_DISCOUNT,sd.getDISCOUNT());
         cv.put(DETAIL_POSITION,sd.getPOSITION());
         cv.put(DETAIL_PRICE,sd.getPRICE());
+        cv.put(DETAIL_MANUALPRICE,sd.getMANUALPRICE());
         cv.put(DETAIL_QUANTITY,sd.getQUANTITY());
         cv.put(DETAIL_TAX,sd.getTAX());
         cv.put(DETAIL_CODEUND, sd.getCODEUND());

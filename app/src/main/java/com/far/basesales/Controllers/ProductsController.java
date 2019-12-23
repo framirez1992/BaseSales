@@ -156,7 +156,7 @@ public class ProductsController {
             String sql = "SELECT * FROM ("+
                     "SELECT toc."+TempOrdersController.DETAIL_CODE+" AS CODEORDERDETAIL, p."+CODE+" as CODE, p."+DESCRIPTION+" AS DESCRIPTION, ifnull(toc."+TempOrdersController.DETAIL_QUANTITY+", 0) AS QUANTITY, " +
                     //COLOCANDO UNA UNIDAD DE MEDIDA POR DEFECTO A CADA PRODUCTO QUE VENGA EN EL QUERY. SI NO ESTA GUARDADO EN LA TABLA TEMPORAL TOMARA UNA UNIDAD CUALQUIERA DE LAS QUE EL PRODUCTO YA TIENE REGISTRADA.
-                    "ifnull(toc."+TempOrdersController.DETAIL_CODEUND+", pmc."+ProductsMeasureController.CODEMEASURE+" ) as MEASURE," +
+                    "ifnull(toc."+TempOrdersController.DETAIL_CODEUND+", pmc."+ProductsMeasureController.CODEMEASURE+" ) as MEASURE,ifnull(toc."+TempOrdersController.DETAIL_MANUALPRICE+", pmc."+ProductsMeasureController.PRICE+") as MANUALPRICE, " +
                     "ifnull(toc."+TempOrdersController.DETAIL_POSITION+", 0) as POSITION, pt."+ProductsTypesController.CODE+" as PTCODE, pt."+ProductsTypesController.DESCRIPTION+" as PTDESCRIPTION, " +
                     "pst."+ProductsSubTypesController.CODE+" AS PSTCODE, pst."+ProductsSubTypesController.DESCRIPTION+" AS PSTDESCRIPTION, p."+MDATE+" AS MDATE, ifnull(pc."+ProductsControlController.BLOQUED+", 0) as BLOQUED " +
                     "FROM "+TABLE_NAME+" p " +
@@ -178,14 +178,17 @@ public class ProductsController {
                 String desc = c.getString(c.getColumnIndex("DESCRIPTION"));
                 String qty = String.valueOf(c.getInt(c.getColumnIndex("QUANTITY")));
                 String measure = c.getString(c.getColumnIndex("MEASURE"));
+                String manualPrice = c.getString(c.getColumnIndex("MANUALPRICE"));
                 String position =  c.getString(c.getColumnIndex("POSITION"));
                 String blocked = c.getString(c.getColumnIndex("BLOQUED"));
                 data+="DESC:"+desc+" MEASURE: "+measure+" ORDER:"+position+"\n";
+
                 result.add(new NewOrderProductModel(codeOrderdetail,
                         code,
                         desc,
                         qty,
                         measure,
+                        manualPrice,
                         blocked,
                         ProductsMeasureController.getInstance(context).getProductsMeasureKVByCodeProduct(c.getString(c.getColumnIndex("CODE")))));
             }

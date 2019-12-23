@@ -89,6 +89,7 @@ public class NewOrderProductRowAdapter extends RecyclerView.Adapter<NewOrderProd
             public void onClick(View v) {
                 lastPosition = position;
                 objects.get(position).setQuantity("0");
+                objects.get(position).setManualPrice(null);
 
                 btnLess.setEnabled(false);
                 imgDelete.setVisibility(View.GONE);
@@ -116,6 +117,8 @@ public class NewOrderProductRowAdapter extends RecyclerView.Adapter<NewOrderProd
                 if(newQuantity <= 0){
                     imgDelete.setVisibility(View.GONE);
                     objects.get(position).setQuantity("0");
+                    objects.get(position).setManualPrice(null);
+
                     deleteOrderLine(objects.get(position));
                     moveSpnMeasure(objects.get(position), spnUnitMeasure);
                 }else{
@@ -213,9 +216,10 @@ public class NewOrderProductRowAdapter extends RecyclerView.Adapter<NewOrderProd
         double quantity = Double.parseDouble(opm.getQuantity());
         double tax = 0;
         double price =pm.getPRICE();
+        double manualPrice = opm.getManualPrice().isEmpty()?0:Double.parseDouble(opm.getManualPrice());
         double discount = 0;
         //String code,String codeSales, String codeProduct, String codeUnd,int position,double quantity,double price, double discount, double tax
-        SalesDetails sd = new SalesDetails(code,codeSale, codeProduct, codeUnd, position, quantity, price, discount, tax);
+        SalesDetails sd = new SalesDetails(code,codeSale, codeProduct, codeUnd, position, quantity, price,manualPrice, discount, tax);
         TempOrdersController.getInstance(activity).insert_Detail(sd);
         ((MainOrders)activity).refreshResume();
 
@@ -258,7 +262,7 @@ public class NewOrderProductRowAdapter extends RecyclerView.Adapter<NewOrderProd
             ft.remove(prev);
         }
         ft.addToBackStack(null);
-        productDialog = AddProductDialog.newInstance(obj, holder, this);
+        productDialog = AddProductDialog.newInstance(activity, obj, holder, this);
         // Create and show the dialog.
         productDialog.show(ft, "AddProductDialog");
     }
@@ -272,8 +276,10 @@ public class NewOrderProductRowAdapter extends RecyclerView.Adapter<NewOrderProd
 
             }else {
                 double newQuantity = Double.parseDouble(editedLine.getQuantity());
+                double manualPrice = Double.parseDouble(editedLine.getManualPrice());
                 if (newQuantity > 0) {
                     sd.setQUANTITY(newQuantity);
+                    sd.setMANUALPRICE(manualPrice);
                     updateOrderLine(sd);
                     editedLine.setQuantity((int)newQuantity+"");
                 }

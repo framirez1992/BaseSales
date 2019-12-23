@@ -24,12 +24,12 @@ public class TempOrdersController {
 
     public static final String TABLE_NAME_DETAIL = Tablas.tempOrdersDetails;
     public static String DETAIL_CODE = "code",DETAIL_CODESALES = "codesales", DETAIL_CODEPRODUCT = "codeproduct",
-            DETAIL_DISCOUNT = "discount", DETAIL_POSITION = "position", DETAIL_PRICE = "price",DETAIL_TAX = "tax",
+            DETAIL_DISCOUNT = "discount", DETAIL_POSITION = "position", DETAIL_PRICE = "price",DETAIL_MANUALPRICE = "manualprice", DETAIL_TAX = "tax",
             DETAIL_QUANTITY = "quantity", DETAIL_CODEUND = "codeund", DETAIL_DATE="date", DETAIL_MDATE="mdate";
-    String[]columnsDetails = new String[]{DETAIL_CODE,DETAIL_CODESALES, DETAIL_CODEPRODUCT,DETAIL_CODEUND,DETAIL_DISCOUNT,DETAIL_POSITION,DETAIL_QUANTITY,DETAIL_PRICE,DETAIL_TAX, DATE, MDATE};
+    String[]columnsDetails = new String[]{DETAIL_CODE,DETAIL_CODESALES, DETAIL_CODEPRODUCT,DETAIL_CODEUND,DETAIL_DISCOUNT,DETAIL_POSITION,DETAIL_QUANTITY,DETAIL_PRICE,DETAIL_MANUALPRICE, DETAIL_TAX, DATE, MDATE};
     public static String QUERY_CREATE_DETAIL = "CREATE TABLE "+TABLE_NAME_DETAIL+" ("
             +DETAIL_CODE+" TEXT,"+DETAIL_CODESALES+" TEXT, "+DETAIL_CODEPRODUCT+" TEXT, "+DETAIL_DISCOUNT+" DECIMAL(11,3), "+DETAIL_POSITION+" INTEGER, "
-            +DETAIL_PRICE+" DECIMAL(11, 3), "+DETAIL_QUANTITY+" DOUBLE, "+DETAIL_TAX+" DECIMAL(11,3), "+DETAIL_CODEUND+" TEXT, " +
+            +DETAIL_PRICE+" DECIMAL(11, 3), "+DETAIL_MANUALPRICE+" DECIMAL(11, 3),  "+DETAIL_QUANTITY+" DOUBLE, "+DETAIL_TAX+" DECIMAL(11,3), "+DETAIL_CODEUND+" TEXT, " +
             DETAIL_DATE+" TEXT, "+DETAIL_MDATE+" TEXT)";
 
     Context context;
@@ -99,11 +99,13 @@ public class TempOrdersController {
         cv.put(DETAIL_DISCOUNT,sd.getDISCOUNT());
         cv.put(DETAIL_POSITION,sd.getPOSITION());
         cv.put(DETAIL_PRICE,sd.getPRICE());
+        cv.put(DETAIL_MANUALPRICE, sd.getMANUALPRICE());
         cv.put(DETAIL_QUANTITY,sd.getQUANTITY());
         cv.put(DETAIL_TAX,sd.getTAX());
         cv.put(DETAIL_CODEUND, sd.getCODEUND());
         cv.put(DETAIL_DATE, Funciones.getFormatedDate(sd.getDATE()));
         cv.put(DETAIL_MDATE, Funciones.getFormatedDate(sd.getMDATE()));
+
 
         long result = DB.getInstance(context).getWritableDatabase().insert(tabla,null,cv);
         return result;
@@ -118,6 +120,7 @@ public class TempOrdersController {
         cv.put(DETAIL_DISCOUNT,sd.getDISCOUNT());
         cv.put(DETAIL_POSITION,sd.getPOSITION());
         cv.put(DETAIL_PRICE,sd.getPRICE());
+        cv.put(DETAIL_MANUALPRICE, sd.getMANUALPRICE());
         cv.put(DETAIL_QUANTITY,sd.getQUANTITY());
         cv.put(DETAIL_TAX,sd.getTAX());
         cv.put(DETAIL_CODEUND, sd.getCODEUND());
@@ -155,7 +158,7 @@ public class TempOrdersController {
                 String sql = "Select sd."+DETAIL_CODE+" as CODE,sd."+DETAIL_CODESALES+" as CODESALES ,p."+ProductsController.CODE+" AS CODEPRODUCT" +
                         ", p." + ProductsController.DESCRIPTION + " as PRODUCTO, sd." + DETAIL_QUANTITY + " as CANTIDAD, sd." + DETAIL_TAX + " as IMPUESTO," +
                         " m."+MeasureUnitsController.CODE+" AS CODEMEDIDA, m." + MeasureUnitsController.DESCRIPTION + " AS MEDIDA, ifnull(pc."+ProductsControlController.BLOQUED+", '0') as BLOQUED, " +
-                        "sd."+DETAIL_DATE+" as DATE, sd."+DETAIL_MDATE+" as MDATE "+
+                        "sd."+DETAIL_MANUALPRICE+" as MANUALPRICE,  sd."+DETAIL_DATE+" as DATE, sd."+DETAIL_MDATE+" as MDATE "+
                         "FROM " + TABLE_NAME_DETAIL + " sd " +
                         "LEFT JOIN " + ProductsController.TABLE_NAME + " p on sd." + DETAIL_CODEPRODUCT + " = p." + ProductsController.CODE + " " +
                         "LEFT JOIN " + MeasureUnitsController.TABLE_NAME + " m on m." + MeasureUnitsController.CODE + " = sd." + DETAIL_CODEUND + " " +
@@ -171,6 +174,7 @@ public class TempOrdersController {
                             c.getString(c.getColumnIndex("CODESALES")),
                             c.getString(c.getColumnIndex("PRODUCTO")),
                             c.getString(c.getColumnIndex("CANTIDAD")),
+                            c.getString(c.getColumnIndex("MANUALPRICE")),
                             c.getString(c.getColumnIndex("CODEMEDIDA")),
                             c.getString(c.getColumnIndex("MEDIDA")),
                             c.getString(c.getColumnIndex("BLOQUED")),
@@ -391,7 +395,7 @@ public class TempOrdersController {
 
     public double getSumPrice(){
             double result = 0.0;
-             String sql = "SELECT  SUM("+DETAIL_PRICE+" * "+DETAIL_QUANTITY+") AS TOTAL " +
+             String sql = "SELECT  SUM(ifnull("+DETAIL_MANUALPRICE+", "+DETAIL_PRICE+") * "+DETAIL_QUANTITY+") AS TOTAL " +
                 "FROM "+TABLE_NAME_DETAIL+" ";
         try {
             Cursor c = DB.getInstance(context).getReadableDatabase().rawQuery(sql, null);

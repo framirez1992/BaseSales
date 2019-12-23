@@ -134,7 +134,7 @@ public class OrderResumeAdapter extends RecyclerView.Adapter<OrderResumeAdapter.
         return objects.size();
     }
 
-    public void saveOrderLine(OrderDetailModel opm){
+   /* public void saveOrderLine(OrderDetailModel opm){
         String code = Funciones.generateCode();
         String codeSale = ((MainOrders)activity).getOrderCode();
         String codeProduct = opm.getCodeProduct();
@@ -149,7 +149,7 @@ public class OrderResumeAdapter extends RecyclerView.Adapter<OrderResumeAdapter.
 
         ((MainOrders)activity).refreshResume();
 
-    }
+    }*/
 
     public void updateOrderLine(SalesDetails sd){
         sd.setPOSITION(Integer.parseInt(Funciones.getSimpleTimeFormat().format(new Date())));
@@ -188,7 +188,7 @@ public class OrderResumeAdapter extends RecyclerView.Adapter<OrderResumeAdapter.
             ft.remove(prev);
         }
         ft.addToBackStack(null);
-        productDialog = AddProductDialog.newInstance(obj, holder, this);
+        productDialog = AddProductDialog.newInstance(activity, obj, holder, this);
         // Create and show the dialog.
         productDialog.show(ft, "AddProductDialog");
     }
@@ -200,11 +200,15 @@ public class OrderResumeAdapter extends RecyclerView.Adapter<OrderResumeAdapter.
 
         } else {
             double newQuantity = Double.parseDouble(editedLine.getQuantity());
+            double manualPrice = Double.parseDouble(editedLine.getManualPrice());
             if (newQuantity > 0) {
                 sd.setQUANTITY(newQuantity);
+                sd.setMANUALPRICE(manualPrice);
                 updateOrderLine(sd);
                 holder.getEtCantidad().setText("" + (int) newQuantity);
             }
+
+            ((MainOrders)activity).refreshResume();
         }
     }
 

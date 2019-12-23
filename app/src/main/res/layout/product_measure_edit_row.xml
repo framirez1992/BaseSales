@@ -11,26 +11,33 @@
         android:padding="20dp"
         android:minHeight="50dp">
 
+        <TextView android:id="@+id/tvMeasure"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:paddingLeft="10dp"
+            android:text=""
+            android:textStyle="bold"
+            android:textSize="15sp"/>
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal">
 
-            <TextView android:id="@+id/tvMeasure"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:paddingLeft="10dp"
-                android:paddingRight="10dp"
-                android:text=""
-                android:layout_weight="2"
-                android:textStyle="bold"
-                android:textSize="15sp"/>
+
+            <CheckBox android:id="@+id/cbCheck"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:text="Activo"
+                android:focusableInTouchMode="false"
+                android:layout_marginRight="20dp"/>
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:gravity="center_vertical"
-                android:text="Precio"/>
+                android:text="Precio"
+                android:layout_marginRight="10dp"/>
 
             <TextView
                 android:id="@+id/etAmount"
@@ -43,19 +50,26 @@
                 android:textSize="20sp"
                 android:textStyle="bold" />
 
+            <View
+                android:layout_width="0dp"
+                android:layout_height="2dp"
+                android:layout_weight="1"/>
+
         </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal">
-        <CheckBox android:id="@+id/cbCheckRange"
+
+        <CheckBox
+            android:id="@+id/cbCheckRange"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:layout_gravity="center_vertical"
-            android:text="Rango"
             android:layout_marginRight="20dp"
-            android:focusableInTouchMode="false"/>
+            android:focusableInTouchMode="false"
+            android:text="Rango" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -85,12 +99,7 @@
             android:paddingLeft="5dp"/>
     </LinearLayout>
 
-        <CheckBox android:id="@+id/cbCheck"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:text="Activo"
-            android:focusableInTouchMode="false"/>
+
     </LinearLayout>
 
 

@@ -71,6 +71,7 @@ public class SalesRowAdapter extends RecyclerView.Adapter<SalesRowAdapter.SalesR
             public void onClick(View v) {
                 lastPosition = position;
                 objects.get(position).setQuantity("0");
+                objects.get(position).setManualPrice(null);
 
                 cvDelete.setVisibility(View.GONE);
                 etQuantity.setText("0");
@@ -108,9 +109,12 @@ public class SalesRowAdapter extends RecyclerView.Adapter<SalesRowAdapter.SalesR
         double quantity = Double.parseDouble(opm.getQuantity());
         double tax = 0;
         double price =pm.getPRICE();
+
+        double manualPrice = opm.getManualPrice().isEmpty()?0:Double.parseDouble(opm.getManualPrice());
+
         double discount = 0;
         //String code,String codeSales, String codeProduct, String codeUnd,int position,double quantity,double price, double discount, double tax
-        SalesDetails sd = new SalesDetails(code,codeSale, codeProduct, codeUnd, position, quantity, price, discount, tax);
+        SalesDetails sd = new SalesDetails(code,codeSale, codeProduct, codeUnd, position, quantity, price,manualPrice,  discount, tax);
         TempOrdersController.getInstance(activity).insert_Detail(sd);
         ((MainOrders)activity).refreshResume();
 
@@ -140,7 +144,7 @@ public class SalesRowAdapter extends RecyclerView.Adapter<SalesRowAdapter.SalesR
             ft.remove(prev);
         }
         ft.addToBackStack(null);
-        productDialog = AddProductDialog.newInstance(obj, holder, this);
+        productDialog = AddProductDialog.newInstance(activity, obj, holder, this);
         // Create and show the dialog.
         productDialog.show(ft, "AddProductDialog");
     }
@@ -154,8 +158,10 @@ public class SalesRowAdapter extends RecyclerView.Adapter<SalesRowAdapter.SalesR
 
         }else {
             double newQuantity = Double.parseDouble(editedLine.getQuantity());
+            double manualPrice = Double.parseDouble(editedLine.getManualPrice());
             if (newQuantity > 0) {
                 sd.setQUANTITY(newQuantity);
+                sd.setMANUALPRICE(manualPrice);
                 updateOrderLine(sd);
                 editedLine.setQuantity((int)newQuantity+"");
             }

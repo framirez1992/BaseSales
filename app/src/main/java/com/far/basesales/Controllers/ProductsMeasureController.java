@@ -132,6 +132,12 @@ public class ProductsMeasureController {
         ArrayList<ProductsMeasure> pm =getProductsMeasure(CODE+" = ?",new String[]{code});
         return pm!=null && pm.size()>0?pm.get(0):null;
     }
+
+    public ProductsMeasure getProductMeasureByProductAndMeasure(String codeProduct, String codeMeasure){
+        ArrayList<ProductsMeasure> pm =getProductsMeasure(ProductsMeasureController.CODEPRODUCT+" = ? AND "+ProductsMeasureController.CODEMEASURE+" = ?", new String[]{codeProduct, codeMeasure});
+        return pm!=null && pm.size()>0?pm.get(0):null;
+    }
+
     public long insert(ProductsMeasure p){
         ContentValues cv = new ContentValues();
         cv.put(CODE, p.getCODE());
@@ -329,5 +335,7 @@ public class ProductsMeasureController {
         }
 
     }
+
+
 
 }

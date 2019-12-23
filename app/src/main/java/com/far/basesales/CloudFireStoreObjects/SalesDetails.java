@@ -17,17 +17,17 @@ import java.util.Map;
 public class SalesDetails {
     private String CODE,CODESALES, CODEPRODUCT,CODEUND;
     private int POSITION;
-    private double QUANTITY, PRICE, DISCOUNT, TAX;
+    private double QUANTITY, PRICE,MANUALPRICE,  DISCOUNT, TAX;
     private @ServerTimestamp
     Date DATE, MDATE;
 
     public SalesDetails(){
 
     }
-    public SalesDetails(String code,String codeSales, String codeProduct, String codeUnd,int position,double quantity,double price, double discount, double tax){
+    public SalesDetails(String code,String codeSales, String codeProduct, String codeUnd,int position,double quantity,double price,double manualPrice, double discount, double tax){
     this.CODE = code; this.CODESALES = codeSales; this.CODEPRODUCT = codeProduct; this.CODEUND = codeUnd;
     this.POSITION = position; this.QUANTITY = quantity; this.TAX = tax;
-    this.PRICE = price; this.DISCOUNT = discount;
+    this.PRICE = price;this.MANUALPRICE = manualPrice; this.DISCOUNT = discount;
     }
 
     public HashMap<String, Object> toMap(){
@@ -41,6 +41,7 @@ public class SalesDetails {
         map.put(SalesController.DETAIL_QUANTITY, QUANTITY);
         map.put(SalesController.DETAIL_TAX, TAX);
         map.put(SalesController.DETAIL_PRICE, PRICE);
+        map.put(SalesController.DETAIL_MANUALPRICE, MANUALPRICE);
         map.put(SalesController.DETAIL_DISCOUNT, DISCOUNT);
         map.put(SalesController.DETAIL_DATE, (DATE == null)? FieldValue.serverTimestamp(): DATE);
         map.put(SalesController.DETAIL_MDATE, (MDATE == null)? FieldValue.serverTimestamp(): MDATE);
@@ -55,7 +56,8 @@ public class SalesDetails {
         this.POSITION = c.getInt(c.getColumnIndex(SalesController.DETAIL_POSITION));
         this.QUANTITY = c.getDouble(c.getColumnIndex(SalesController.DETAIL_QUANTITY));
         this.TAX = c.getDouble(c.getColumnIndex(SalesController.DETAIL_TAX));
-        this.PRICE = c.getDouble(c.getColumnIndex(SalesController.DETAIL_PRICE));;
+        this.PRICE = c.getDouble(c.getColumnIndex(SalesController.DETAIL_PRICE));
+        this.MANUALPRICE = c.getDouble(c.getColumnIndex(SalesController.DETAIL_MANUALPRICE));
         this.DISCOUNT = c.getDouble(c.getColumnIndex(SalesController.DETAIL_DISCOUNT));
         this.DATE = Funciones.parseStringToDate(c.getString(c.getColumnIndex(SalesController.DETAIL_DATE)));
         this.MDATE = Funciones.parseStringToDate(c.getString(c.getColumnIndex(SalesController.DETAIL_MDATE)));
@@ -70,6 +72,7 @@ public class SalesDetails {
         this.QUANTITY = Double.parseDouble(map.get(SalesController.DETAIL_QUANTITY).toString());
         this.TAX =  Double.parseDouble(map.get(SalesController.DETAIL_TAX).toString());
         this.PRICE =  Double.parseDouble(map.get(SalesController.DETAIL_PRICE).toString());
+        this.MANUALPRICE = Double.parseDouble(map.get(SalesController.DETAIL_MANUALPRICE).toString());
         this.DISCOUNT =  Double.parseDouble(map.get(SalesController.DETAIL_DISCOUNT).toString());
         this.DATE = (Date)map.get(SalesController.DETAIL_DATE);
         this.MDATE = (Date)map.get(SalesController.DETAIL_MDATE);
@@ -129,6 +132,14 @@ public class SalesDetails {
 
     public void setPRICE(double PRICE) {
         this.PRICE = PRICE;
+    }
+
+    public double getMANUALPRICE() {
+        return MANUALPRICE;
+    }
+
+    public void setMANUALPRICE(double MANUALPRICE) {
+        this.MANUALPRICE = MANUALPRICE;
     }
 
     public double getDISCOUNT() {
