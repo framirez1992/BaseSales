@@ -2,12 +2,13 @@ package com.far.basesales.Adapters.Models;
 
 public class ReceiptRowModel {
     String code,status, codeClient, clientName, clientDocument, clientPhone, date;
-    double total, paid;
+    double subTotal,discount, taxes, total,  paid;
 
-    public ReceiptRowModel(String code, String status, String codeClient, String clientName, String clientDocument, String clientPhone, String date, double total, double paid){
+    public ReceiptRowModel(String code, String status, String codeClient, String clientName, String clientDocument, String clientPhone, String date,
+                           double subTotal,double discount, double taxes,  double total,  double paid){
         this.code = code; this.status = status; this.codeClient = codeClient; this.clientName = clientName;
-        this.clientDocument = clientDocument; this.clientPhone = clientPhone; this.date = date; this.total = total;
-        this.paid = paid;
+        this.clientDocument = clientDocument; this.clientPhone = clientPhone; this.date = date;
+        this.subTotal = subTotal; this.discount = discount; this.taxes = taxes; this.total = total; this.paid = paid;
     }
 
     public String getCode() {
@@ -80,5 +81,29 @@ public class ReceiptRowModel {
 
     public void setPaid(double paid) {
         this.paid = paid;
+    }
+
+    public double getDiscount() {
+        return discount;
+    }
+
+    public void setDiscount(double discount) {
+        this.discount = discount;
+    }
+
+    public double getSubTotal() {
+        return subTotal;
+    }
+
+    public void setSubTotal(double subTotal) {
+        this.subTotal = subTotal;
+    }
+
+    public double getTaxes() {
+        return taxes;
+    }
+
+    public void setTaxes(double taxes) {
+        this.taxes = taxes;
     }
 }

@@ -272,7 +272,7 @@
         <android.support.v7.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="1"
+            android:layout_weight="1.5"
             app:cardBackgroundColor="@color/colorPrimary">
 
             <LinearLayout
@@ -283,27 +283,83 @@
                 <LinearLayout android:id="@+id/llTotal"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:orientation="horizontal"
-                    android:paddingRight="20dp">
+                    android:orientation="vertical"
+                    android:paddingRight="20dp"
+                    android:gravity="center_vertical">
 
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        android:text="Total: "
-                        android:gravity="center|right"
-                        android:layout_weight="1"
-                        android:textSize="25sp"
-                        android:textColor="@color/white"
-                        android:textStyle="bold"/>
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:text="SubTotal: "
+                            android:gravity="center|right"
+                            android:layout_weight="1"
+                            android:textColor="@color/white"
+                            android:textStyle="bold"/>
 
-                    <TextView android:id="@+id/tvTotal"
-                        android:layout_width="wrap_content"
-                        android:layout_height="match_parent"
-                        android:text=""
-                        android:gravity="center|right"
-                        android:textSize="30sp"
-                        android:textColor="@color/white"
-                        android:textStyle="bold"/>
+                        <TextView android:id="@+id/tvSubTotal"
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:text=""
+                            android:gravity="center|right"
+                            android:textColor="@color/white"
+                            android:textStyle="bold"/>
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:text="Descuento: "
+                            android:gravity="center|right"
+                            android:layout_weight="1"
+                            android:textColor="@color/white"
+                            android:textStyle="bold"/>
+
+                        <TextView android:id="@+id/tvDiscount"
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:text=""
+                            android:gravity="center|right"
+                            android:textColor="@color/white"
+                            android:textStyle="bold"/>
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:text="Total: "
+                            android:gravity="center|right"
+                            android:layout_weight="1"
+                            android:textColor="@color/white"
+                            android:textStyle="bold"
+                            android:textSize="20sp"/>
+
+                        <TextView android:id="@+id/tvTotal"
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:text=""
+                            android:gravity="center|right"
+                            android:textSize="20sp"
+                            android:textColor="@color/white"
+                            android:textStyle="bold"/>
+
+                    </LinearLayout>
+
+
+
 
                 </LinearLayout>
 

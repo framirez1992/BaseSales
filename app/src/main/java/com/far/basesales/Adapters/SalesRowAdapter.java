@@ -193,7 +193,15 @@ public class SalesRowAdapter extends RecyclerView.Adapter<SalesRowAdapter.SalesR
             this.tvName.setText(obj.getName());
             this.tvQuantity.setText(obj.getQuantity());
             if(obj.getMeasures()!= null && obj.getMeasures().size()>0){
-            this.tvTotal.setText("$"+Funciones.formatDecimal(obj.getMeasures().get(0).getValue2()));
+                double price = 0.0;
+                try{
+                    price =Double.parseDouble(obj.getMeasures().get(0).getValue2());
+                    this.tvTotal.setText("$"+Funciones.formatMoney(price));
+                }catch (Exception e){
+                    this.tvTotal.setText("INVALID PRICE "+obj.getMeasures().get(0).getValue2());
+                }
+            }else{
+                tvTotal.setText("NONE");
             }
 
         }

@@ -6,7 +6,7 @@
     app:cardCornerRadius="20dp"
     app:cardBackgroundColor="@color/colorPrimary">
 
-    <LinearLayout
+    <LinearLayout android:id="@+id/llParent"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
@@ -99,8 +99,8 @@
                             android:id="@+id/etAmount"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:focusableInTouchMode="false"
-                            android:inputType="numberDecimal"/>
+                            android:inputType="numberDecimal"
+                            android:selectAllOnFocus="true"/>
                     </android.support.design.widget.TextInputLayout>
 
 

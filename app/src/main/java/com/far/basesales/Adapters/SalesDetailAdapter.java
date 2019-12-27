@@ -12,6 +12,7 @@ import android.widget.TextView;
 import com.far.basesales.Adapters.Models.SalesDetailModel;
 import com.far.basesales.Interfases.ListableActivity;
 import com.far.basesales.R;
+import com.far.basesales.Utils.Funciones;
 
 import java.util.ArrayList;
 
@@ -70,7 +71,15 @@ public class SalesDetailAdapter extends RecyclerView.Adapter<SalesDetailAdapter.
             tvQuantity.setText(obj.getQuantity());
             tvMeasure.setText(obj.getMeasureDescription());
             tvDescription.setText(obj.getProductDescription());
-            tvTotal.setText(obj.getTotal());
+            double amount = 0.0;
+            try{
+                amount = Double.parseDouble(obj.getTotal());
+                tvTotal.setText("$"+ Funciones.formatMoney(amount));
+            }catch (Exception e){
+                tvTotal.setText(obj.getTotal());
+            }
+
+
         }
     }
 }

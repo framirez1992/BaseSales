@@ -60,15 +60,12 @@ public class PaymentController {
     }
 
 
-    public void sendToFireBase(Payment payment){
-        try {
+    public void sendToFireBase(Payment payment, OnSuccessListener successListener, OnCompleteListener completeListener, OnFailureListener failureListener){
             WriteBatch lote = db.batch();
             lote.set(getReferenceFireStore().document(payment.getCODE()), payment.toMap());
-            lote.commit();
-
-        }catch(Exception e){
-            e.printStackTrace();
-        }
+            lote.commit().addOnSuccessListener(successListener)
+                    .addOnCompleteListener(completeListener)
+                    .addOnFailureListener(failureListener);
 
     }
 
@@ -107,6 +104,10 @@ public class PaymentController {
         return result;
     }
 
+    public long update(Payment p){
+        long result = update(p, CODE+" = ?", new String[]{p.getCODE()});
+        return result;
+    }
     public long update(Payment p, String where, String[] args){
         ContentValues cv = new ContentValues();
         cv.put(CODE,p.getCODE() );
@@ -118,7 +119,8 @@ public class PaymentController {
         cv.put(TAX,p.getTAX());
         cv.put(DISCOUNT,p.getDISCOUNT() );
         cv.put(TOTAL,p.getTOTAL() );
-        cv.put(MDATE, Funciones.getFormatedDate((Date)p.getMDATE()));
+        cv.put(DATE, Funciones.getFormatedDate(p.getDATE()));
+        cv.put(MDATE, Funciones.getFormatedDate(p.getMDATE()));
 
         long result = DB.getInstance(context).getWritableDatabase().update(TABLE_NAME,cv,where, args);
         return result;
@@ -212,7 +214,16 @@ public class PaymentController {
                 }
             }
 
+    }
 
+
+
+    public void searchPaymentFromFireBaseByCodeReceipt(String codeReceipt, OnSuccessListener<QuerySnapshot> success, OnCompleteListener<QuerySnapshot> complete, OnFailureListener failure){
+            getReferenceFireStore().
+                    whereEqualTo(CODERECEIPT, codeReceipt).
+                    get().
+                    addOnSuccessListener(success).addOnCompleteListener(complete).
+                    addOnFailureListener(failure);
 
     }
 

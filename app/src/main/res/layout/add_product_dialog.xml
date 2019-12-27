@@ -66,7 +66,8 @@
                     android:layout_height="wrap_content"
                     android:inputType="numberDecimal"
                     android:gravity="center"
-                    android:selectAllOnFocus="true"/>
+                    android:selectAllOnFocus="true"
+                    android:maxLength="12"/>
             </android.support.design.widget.TextInputLayout>
 
         </LinearLayout>
@@ -97,7 +98,7 @@
                     android:inputType="number"
                     android:gravity="center"
                     android:selectAllOnFocus="true"
-                    android:maxLength="3"/>
+                    android:maxLength="4"/>
             </android.support.design.widget.TextInputLayout>
 
 

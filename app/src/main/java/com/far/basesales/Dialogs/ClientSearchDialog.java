@@ -22,6 +22,7 @@ import android.widget.TextView;
 import com.far.basesales.Adapters.ClientsAdapter;
 import com.far.basesales.Adapters.Models.ClientRowModel;
 import com.far.basesales.Controllers.ClientsController;
+import com.far.basesales.Interfases.DialogCaller;
 import com.far.basesales.Interfases.ListableActivity;
 import com.far.basesales.MainOrders;
 import com.far.basesales.R;
@@ -32,15 +33,17 @@ import java.util.ArrayList;
 public class ClientSearchDialog extends DialogFragment {
 
     Activity parentActivity;
+    DialogCaller dialogCaller;
     TextInputEditText etSearch;
     RecyclerView rvList;
     ProgressBar pb;
     ClientsController clientsController;
     CardView btnOK;
 
-    public  static ClientSearchDialog newInstance(Activity parentActivity) {
+    public  static ClientSearchDialog newInstance(Activity parentActivity, DialogCaller dialogCaller) {
         ClientSearchDialog f = new ClientSearchDialog();
         f.parentActivity = parentActivity;
+        f.dialogCaller = dialogCaller;
         return f;
     }
 
@@ -97,7 +100,8 @@ public class ClientSearchDialog extends DialogFragment {
             public void onClick(View v) {
                 ClientRowModel crm = rvList.getAdapter()!= null?((ClientsAdapter)rvList.getAdapter()).getSelected():null;
                 if(crm!= null){
-                    ((MainOrders)parentActivity).setSelectedClientReceipt(crm);
+                    dialogCaller.dialogClosed(crm);
+                    //((MainOrders)parentActivity).setSelectedClientReceipt();
                     dismiss();
                 }else{
                     Funciones.hideKeyBoard(etSearch,parentActivity);

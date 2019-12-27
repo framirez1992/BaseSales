@@ -94,10 +94,9 @@ public class MainReceipt extends AppCompatActivity implements ListableActivity, 
         errorDialog.show();
     }
 
-    public void addPayment(Receipts receipt, Payment payment){
-        Transaction.getInstance(MainReceipt.this).sendToFireBase(receipt, payment,this, this, this);
-    }
-
+   public void refreshPayments(){
+        receiptResumeFragment.searchPayments(false);
+   }
 
     @Override
     public void onBackPressed() {

@@ -425,11 +425,6 @@ public class MainOrders extends AppCompatActivity implements ListableActivity/*,
         return this.editingOrder;
     }
 
-
-    public void setSelectedClientReceipt(ClientRowModel client){
-        receiptFragment.setClientSelected(client);
-    }
-
     public void showPaymentConfirmation(){
         dialogConfirmPayment = null;
         dialogConfirmPayment = Funciones.getCustomDialog2Btn(MainOrders.this,getResources().getColor(R.color.colorPrimary), "Confirmacion", "Esta seguro que desea concretar el pago?", R.drawable.money, new View.OnClickListener() {

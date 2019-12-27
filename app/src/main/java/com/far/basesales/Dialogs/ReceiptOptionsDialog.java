@@ -2,6 +2,7 @@ package com.far.basesales.Dialogs;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
@@ -10,18 +11,29 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
+import android.support.design.widget.TextInputEditText;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.widget.CardView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.LinearLayout;
+import android.widget.Spinner;
 import android.widget.TextView;
 
+import com.far.basesales.CloudFireStoreObjects.Payment;
 import com.far.basesales.CloudFireStoreObjects.Receipts;
+import com.far.basesales.Controllers.PaymentController;
 import com.far.basesales.Controllers.ReceiptController;
+import com.far.basesales.Controllers.Transaction;
+import com.far.basesales.Controllers.UserControlController;
+import com.far.basesales.Generic.KV;
+import com.far.basesales.Globales.CODES;
 import com.far.basesales.MainOrders;
+import com.far.basesales.MainReceipt;
 import com.far.basesales.R;
+import com.far.basesales.Utils.Funciones;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -34,9 +46,10 @@ public class ReceiptOptionsDialog extends DialogFragment  {
 
     Activity activity;
     public Receipts receipts;
-    LinearLayout llProgress, llPrint, llShare;
+    LinearLayout llProgress, llPrint, llShare, llPayment;
     CardView btnClose;
     TextView tvErrorMessage;
+    Dialog paymentDialog;
     int lastAction=-1;
 
 
@@ -79,11 +92,25 @@ public class ReceiptOptionsDialog extends DialogFragment  {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         llProgress = view.findViewById(R.id.llProgress);
+        llPayment = view.findViewById(R.id.llPayment);
         llPrint = view.findViewById(R.id.llPrint);
         llShare = view.findViewById(R.id.llShare);
         btnClose = view.findViewById(R.id.btnClose);
         tvErrorMessage = view.findViewById(R.id.tvErrorMsg);
 
+        if(receipts.getStatus().equals(CODES.CODE_RECEIPT_STATUS_CLOSED)){
+            llPayment.setVisibility(View.GONE);
+        }else{
+            llPayment.setVisibility(View.VISIBLE);
+        }
+
+        llPayment.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showPaymentDialog();
+                dismiss();
+            }
+        });
         llPrint.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -103,6 +130,8 @@ public class ReceiptOptionsDialog extends DialogFragment  {
             public void onClick(View v) {
                 if(activity instanceof MainOrders){
                     ((MainOrders)activity).newOrderAndRefresh();
+                }else if(activity instanceof MainReceipt){
+
                 }
                 dismiss();
             }
@@ -327,6 +356,118 @@ public class ReceiptOptionsDialog extends DialogFragment  {
         a.setCancelable(false);
         a.show();
 
+    }
+
+
+
+
+    public void showPaymentDialog(){
+        paymentDialog = null;
+        paymentDialog = new Dialog(activity);
+        paymentDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        paymentDialog.setContentView(R.layout.payment_dialog);
+        final Spinner spnPaymentType = paymentDialog.findViewById(R.id.spnPaymentType);
+        final TextInputEditText etAmount = paymentDialog.findViewById(R.id.etAmount);
+        final CardView cvPay = paymentDialog.findViewById(R.id.cvPay);
+        TextView tvPendingAmount = paymentDialog.findViewById(R.id.tvPendingAmount);
+
+        PaymentController.getInstance(activity).fillSpinnerPaymentType(spnPaymentType);
+        etAmount.setText(Funciones.formatDecimal(receipts.getTotal()-receipts.getPaidamount()));
+        tvPendingAmount.setText("$"+Funciones.formatDecimal(receipts.getTotal()-receipts.getPaidamount()));
+        /*if(UserControlController.getInstance(activity).multiPayment()) {
+            etAmount.setFocusableInTouchMode(true);
+        }*/
+        cvPay.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(validateEditedAmount(etAmount)){
+                    paymentDialog.setCancelable(false);
+                    cvPay.setEnabled(false);
+                    savePayment(((KV)spnPaymentType.getSelectedItem()).getKey(), etAmount.getText().toString());
+                }
+            }
+        });
+
+        paymentDialog.show();
+        Window window = paymentDialog.getWindow();
+        window.setLayout(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        window.setBackgroundDrawableResource(android.R.color.transparent);
+
+    }
+
+
+
+
+
+    public void savePayment(String paymentType, String editAmount){
+        //((MainReceipt)parentActivity).showLoadingDialog();
+
+        double paymentAmount = Double.parseDouble(editAmount.replace(",", "").replace("$", ""));
+
+        String receiptStatus = (receipts.getTotal()> (receipts.getPaidamount()+paymentAmount))?CODES.CODE_RECEIPT_STATUS_OPEN:CODES.CODE_RECEIPT_STATUS_CLOSED;
+        //String code, String codeUser,String codesale, String codeclient,  String status, String ncf, double subTotal, double taxes, double discount, double total, double paidAmount
+        //Receipts r =ReceiptController.getInstance(activity).getReceiptByCode(receipts.getCode());
+        receipts.setStatus(receiptStatus);
+        receipts.setPaidamount(receipts.getPaidamount()+paymentAmount);
+        receipts.setMdate(null);//para que lo envi con TIMESTAMP
+        //String code, String codeReceipt,String codeUser, String codeClient, String type, double subTotal, double tax, double discount, double total
+        Payment p = new Payment(Funciones.generateCode(), receipts.getCode(), Funciones.getCodeuserLogged(activity),receipts.getCodeclient(), paymentType,0,0,0,paymentAmount);
+
+        ReceiptController.getInstance(activity).update(receipts);
+        PaymentController.getInstance(activity).insert(p);
+
+        Transaction.getInstance(activity).sendToFireBase(receipts, p,new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+
+            }
+        }, new OnCompleteListener() {
+            @Override
+            public void onComplete(@NonNull Task task) {
+
+            }
+        }, new OnSuccessListener() {
+            @Override
+            public void onSuccess(Object o) {
+                paymentDialog.dismiss();
+                paymentDialog=null;
+                if(activity instanceof MainReceipt){
+                    ((MainReceipt)activity).refreshPayments();
+                }
+
+            }
+        });
+        //((MainReceipt)parentActivity).addPayment(r, p);
+
+    }
+
+
+
+
+    public boolean validateEditedAmount(TextInputEditText etAmount){
+        String editAmount = etAmount.getText().toString();
+        double editAmountD=0.0;
+        if(editAmount.isEmpty()){
+            Snackbar.make(paymentDialog.findViewById(R.id.llParent), "Introduzca un monto valido", Snackbar.LENGTH_LONG).show();
+            //((MainReceipt)parentActivity).showErrorDialog();
+            return false;
+        }
+        try{
+            editAmountD=  Double.parseDouble(editAmount.replace(",", "").replace("$", ""));
+        }catch (Exception e){
+            Snackbar.make(paymentDialog.findViewById(R.id.llParent), "Introduzca un monto valido", Snackbar.LENGTH_LONG).show();
+            return false;
+        }
+
+        if(editAmountD <1){
+            Snackbar.make(paymentDialog.findViewById(R.id.llParent), "El importe debe ser superior a $1.00", Snackbar.LENGTH_LONG).show();
+            return false;
+        }
+        if (editAmountD > (receipts.getTotal()-receipts.getPaidamount())){
+            Snackbar.make(paymentDialog.findViewById(R.id.llParent), "El importe no puede ser superior a la deuda.", Snackbar.LENGTH_LONG).show();
+            return false;
+        }
+        return true;
     }
 
 }

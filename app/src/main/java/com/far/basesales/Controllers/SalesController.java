@@ -827,6 +827,17 @@ public class SalesController {
     }
 
 
+    public void searchSalesFromFireBaseByCodeReceipt(String code, OnSuccessListener<QuerySnapshot> success, OnCompleteListener<QuerySnapshot> complete, OnFailureListener failure){
+
+            getReferenceFireStore().
+                    whereEqualTo(CODERECEIPT, code).
+                    get().
+                    addOnSuccessListener(success).addOnCompleteListener(complete).
+                    addOnFailureListener(failure);
+
+    }
+
+
     public void searchDetailChanges(OnSuccessListener<QuerySnapshot> success, OnCompleteListener<QuerySnapshot> complete, OnFailureListener failure){
 
         Date mdate = DB.getLastMDateSaved(context, TABLE_NAME);
@@ -842,6 +853,15 @@ public class SalesController {
                     addOnSuccessListener(success).addOnCompleteListener(complete).
                     addOnFailureListener(failure);
         }
+
+    }
+
+    public void searchSalesDetailFromFireBaseByCodeSale(String codeSale, OnSuccessListener<QuerySnapshot> success, OnCompleteListener<QuerySnapshot> complete, OnFailureListener failure){
+            getReferenceDetailFireStore().
+                    whereEqualTo(DETAIL_CODESALES, codeSale).
+                    get().
+                    addOnSuccessListener(success).addOnCompleteListener(complete).
+                    addOnFailureListener(failure);
 
     }
 
@@ -875,7 +895,7 @@ public class SalesController {
         ArrayList<SalesDetailModel> result = new ArrayList<>();
         String sql = "SELECT sd."+SalesController.DETAIL_CODEPRODUCT+" AS CODEPRODUCT, p."+ProductsController.DESCRIPTION+" AS  PRODUCTDESCRIPTION, " +
                 "sd."+SalesController.DETAIL_CODEUND+" AS CODEMEASURE, mu."+MeasureUnitsController.DESCRIPTION+" AS MEASUREDESCRIPTION, "+
-                "SUM(sd."+SalesController.DETAIL_QUANTITY+") AS QUANTITY, SUM(sd."+SalesController.DETAIL_PRICE+" * "+SalesController.DETAIL_QUANTITY+" ) AS SALESTOTAL "+
+                "SUM(sd."+SalesController.DETAIL_QUANTITY+") AS QUANTITY, SUM(ifnull(sd."+SalesController.DETAIL_MANUALPRICE+", sd."+SalesController.DETAIL_PRICE+") * "+SalesController.DETAIL_QUANTITY+" ) AS SALESTOTAL "+
                 "FROM "+SalesController.TABLE_NAME+" s " +
                 "INNER JOIN "+SalesController.TABLE_NAME_DETAIL+" sd on s."+SalesController.CODE+" = sd."+SalesController.DETAIL_CODESALES+" "+
                 "INNER JOIN "+ProductsController.TABLE_NAME+" p on p."+ProductsController.CODE+" = sd."+SalesController.DETAIL_CODEPRODUCT+" "+

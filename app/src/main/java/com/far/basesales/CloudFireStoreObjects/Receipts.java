@@ -13,21 +13,21 @@ import java.util.HashMap;
 
 public class Receipts {
     String code,codeuser,codesale,codeclient, ncf, status;
-    double subTotal, taxes, discount, total, paidamount;
+    double subtotal, taxes, discount, total, paidamount;
     private @ServerTimestamp
     Date date, mdate;
 
     public Receipts(){
 
     }
-    public Receipts(String code, String codeUser,String codesale, String codeclient,  String status, String ncf, double subTotal, double taxes, double discount, double total, double paidAmount){
+    public Receipts(String code, String codeUser,String codesale, String codeclient,  String status, String ncf, double subtotal, double taxes, double discount, double total, double paidAmount){
         this.code = code;
         this.codeuser = codeUser;
         this.codesale = codesale;
         this.codeclient = codeclient;
         this.status = status;
         this.ncf = ncf;
-        this.subTotal = subTotal;
+        this.subtotal = subtotal;
         this.taxes = taxes;
         this.discount = discount;
         this.total = total;
@@ -41,7 +41,7 @@ public class Receipts {
         this.codeclient = c.getString(c.getColumnIndex(ReceiptController.CODECLIENT));
         this.status = c.getString(c.getColumnIndex(ReceiptController.STATUS));
         this.ncf = c.getString(c.getColumnIndex(ReceiptController.NCF));
-        this.subTotal = c.getDouble(c.getColumnIndex(ReceiptController.SUBTOTAL));
+        this.subtotal = c.getDouble(c.getColumnIndex(ReceiptController.SUBTOTAL));
         this.taxes = c.getDouble(c.getColumnIndex(ReceiptController.TAXES));
         this.discount = c.getDouble(c.getColumnIndex(ReceiptController.DISCOUNT));
         this.total = c.getDouble(c.getColumnIndex(ReceiptController.TOTAL));
@@ -60,7 +60,7 @@ public class Receipts {
         data.put(ReceiptController.CODECLIENT, codeclient);
         data.put(ReceiptController.STATUS, status);
         data.put(ReceiptController.NCF,ncf);
-        data.put(ReceiptController.SUBTOTAL, subTotal);
+        data.put(ReceiptController.SUBTOTAL, subtotal);
         data.put(ReceiptController.TAXES, taxes);
         data.put(ReceiptController.DISCOUNT, discount);
         data.put(ReceiptController.TOTAL, total);
@@ -105,12 +105,12 @@ public class Receipts {
         this.status = status;
     }
 
-    public double getSubTotal() {
-        return subTotal;
+    public double getSubtotal() {
+        return subtotal;
     }
 
-    public void setSubTotal(double subTotal) {
-        this.subTotal = subTotal;
+    public void setSubtotal(double subtotal) {
+        this.subtotal = subtotal;
     }
 
     public double getTaxes() {

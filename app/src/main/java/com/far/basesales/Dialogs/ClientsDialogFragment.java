@@ -175,6 +175,7 @@ public class ClientsDialogFragment extends DialogFragment implements OnFailureLi
                 @Override
                 public void onSuccess(Object o) {
                     dismiss();
+                    dialogCaller.dialogClosed(tempObj);
                 }
             }, new OnFailureListener() {
                 @Override

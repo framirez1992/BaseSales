@@ -43,6 +43,7 @@ import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.WriteBatch;
 import com.squareup.picasso.Picasso;
@@ -55,7 +56,7 @@ import java.util.Date;
 public class ReceiptController {
     public static final String TABLE_NAME ="RECEIPTS";
     //public static final String TABLE_NAME_HISTORY ="RECEIPTS_HISTORY";
-    public static  String CODE = "code",CODEUSER = "codeuser",CODESALE = "codesale",CODECLIENT="codeclient", STATUS = "status",  NCF = "ncf" ,SUBTOTAL="subtotal",TAXES = "taxes", DISCOUNT="discount", TOTAL = "total",PAIDAMOUNT="paidamount",
+    public static  String CODE = "code",CODEUSER = "codeuser", CODESALE = "codesale",CODECLIENT="codeclient", STATUS = "status",  NCF = "ncf" ,SUBTOTAL="subtotal",TAXES = "taxes", DISCOUNT="discount", TOTAL = "total",PAIDAMOUNT="paidamount",
             DATE = "date", MDATE = "mdate";
     public static String QUERY_CREATE = "CREATE TABLE "+TABLE_NAME+"("
             +CODE+" TEXT,"+CODEUSER+" TEXT,"+CODESALE+" TEXT, "+CODECLIENT+" TEXT,  "+STATUS+" TEXT, "+NCF+" TEXT,"+SUBTOTAL+" NUMERIC,"+TAXES+" NUMERIC,"+DISCOUNT+" NUMERIC, "+TOTAL+", "+PAIDAMOUNT+" NUMERIC, " +
@@ -93,7 +94,7 @@ public class ReceiptController {
         cv.put(CODECLIENT, r.getCodeclient());
         cv.put(STATUS, r.getStatus());
         cv.put(NCF,r.getNcf());
-        cv.put(SUBTOTAL, r.getSubTotal());
+        cv.put(SUBTOTAL, r.getSubtotal());
         cv.put(TAXES, r.getTaxes());
         cv.put(DISCOUNT, r.getDiscount());
         cv.put(TOTAL, r.getTotal());
@@ -113,7 +114,7 @@ public class ReceiptController {
         cv.put(CODECLIENT, r.getCodeclient());
         cv.put(STATUS, r.getStatus());
         cv.put(NCF,r.getNcf());
-        cv.put(SUBTOTAL, r.getSubTotal());
+        cv.put(SUBTOTAL, r.getSubtotal());
         cv.put(TAXES, r.getTaxes());
         cv.put(DISCOUNT, r.getDiscount());
         cv.put(TOTAL, r.getTotal());
@@ -242,12 +243,13 @@ public class ReceiptController {
         try {
             String sql = "SELECT r." + CODE + " as CODE,r."+STATUS+" as STATUS, r." + DATE + " as DATE, c." + ClientsController.CODE + " as CODECLIENT, c." + ClientsController.NAME + " as CLIENTNAME, " +
                     "c." + ClientsController.DOCUMENT + " as DOCUMENT, c." + ClientsController.PHONE + " as PHONE,"+
-                    "r." + TOTAL + " as TOTAL, r."+PAIDAMOUNT+" as PAID " +
+                    "r."+SUBTOTAL+" as SUBTOTAL, r."+TAXES+" as TAXES,  r."+DISCOUNT+" as DISCOUNT,  r." + TOTAL + " as TOTAL, r."+PAIDAMOUNT+" as PAID " +
                     "FROM " + TABLE_NAME + " r " +
                     "INNER JOIN " + ClientsController.TABLE_NAME + " c ON r." + CODECLIENT + " = c." + ClientsController.CODE + " " +
+                    "WHERE "+where+" "+
                     "ORDER BY r." + DATE + " DESC";
 
-            Cursor c = DB.getInstance(context).getReadableDatabase().rawQuery(sql, null);
+            Cursor c = DB.getInstance(context).getReadableDatabase().rawQuery(sql, args);
             while (c.moveToNext()) {
                 String code = c.getString(c.getColumnIndex("CODE"));
                 String status = c.getString(c.getColumnIndex("STATUS"));
@@ -256,11 +258,14 @@ public class ReceiptController {
                 String clientName = c.getString(c.getColumnIndex("CLIENTNAME"));
                 String document = c.getString(c.getColumnIndex("DOCUMENT"));
                 String phone = c.getString(c.getColumnIndex("PHONE"));
+                double subTotal = c.getDouble(c.getColumnIndex("SUBTOTAL"));
+                double taxes = c.getDouble(c.getColumnIndex("TAXES"));
+                double discount = c.getDouble(c.getColumnIndex("DISCOUNT"));
                 double total = c.getDouble(c.getColumnIndex("TOTAL"));
                 double paid = c.getDouble(c.getColumnIndex("PAID"));
 
                //String code, String status, String codeClient, String clientName, String clientDocument, String clientPhone, String date, double total
-                result.add(new ReceiptRowModel(code,status,codeClient,clientName,document,phone,date,total, paid));
+                result.add(new ReceiptRowModel(code,status,codeClient,clientName,document,phone,date,subTotal, discount, taxes, total, paid));
             }
             c.close();
         }catch (Exception e){
@@ -269,6 +274,45 @@ public class ReceiptController {
 
         return result;
 
+    }
+
+
+    /**
+     * obtiene la fecha mas alta guardada en la base de datos local en la tabla.
+     * @param status
+     * @return
+     */
+    public Date getLastDateSaved(String status){
+        Date date = null;
+        String sql = "SELECT "+DATE+" as DATE " +
+                "FROM "+TABLE_NAME+" " +
+                "WHERE "+STATUS+" = '"+status+"' "+
+                "ORDER BY "+DATE+" DESC " +
+                "LIMIT 1 ";
+        Cursor c = DB.getInstance(context).getReadableDatabase().rawQuery(sql, null);
+        if(c.moveToFirst()){
+            date = Funciones.parseStringToDate(c.getString(c.getColumnIndex("DATE")));
+        }c.close();
+        return date;
+    }
+
+    /**
+     * obtiene la fecha mas baja guardada en la base de datos local en la tabla .
+     * @param status
+     * @return
+     */
+    public Date getLastInitialDateSaved(String status){
+        Date date = null;
+        String sql = "SELECT "+DATE+" as DATE " +
+                "FROM "+TABLE_NAME+" " +
+                "WHERE "+STATUS+" = '"+status+"' "+
+                "ORDER BY "+DATE+" ASC " +
+                "LIMIT 1 ";
+        Cursor c = DB.getInstance(context).getReadableDatabase().rawQuery(sql, null);
+        if(c.moveToFirst()){
+            date = Funciones.parseStringToDate(c.getString(c.getColumnIndex("DATE")));
+        }c.close();
+        return date;
     }
 
 
@@ -308,10 +352,32 @@ public class ReceiptController {
 
     public void searchReceiptByCodeFromFireBase(String code, OnSuccessListener<QuerySnapshot> success, OnCompleteListener<QuerySnapshot> complete, OnFailureListener failure){
             getReferenceFireStore().
-                    whereEqualTo(CODE, code).//mayor que, ya que las fechas (la que buscamos de la DB) tienen hora, minuto y segundos.
+                    whereEqualTo(CODE, code).
                     get().
                     addOnSuccessListener(success).addOnCompleteListener(complete).
                     addOnFailureListener(failure);
+
+    }
+
+
+    public void searchReceiptFilteredFromFireBase(String status,String codeClient,Date ini, Date end,  OnSuccessListener<QuerySnapshot> success, OnCompleteListener<QuerySnapshot> complete, OnFailureListener failure){
+        Query query =getReferenceFireStore().
+                whereEqualTo(STATUS, status);
+        if(codeClient != null){
+            query= query.whereEqualTo(CODECLIENT, codeClient);
+        }
+
+        if(ini != null){
+            query= query.whereGreaterThanOrEqualTo(DATE, ini);
+        }
+
+        if(end != null){
+            query= query.whereLessThanOrEqualTo(DATE, end);
+        }
+
+       query.get().
+                addOnSuccessListener(success).addOnCompleteListener(complete).
+                addOnFailureListener(failure);
 
     }
 
