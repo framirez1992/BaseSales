@@ -385,6 +385,7 @@ public class ReceiptController {
 
         Print p = new Print(context,Print.PULGADAS.PULGADAS_2);
         CompanyController.getInstance(context).addCompanyToPrint(p);
+        Receipts receipt = getReceiptByCode(codeReceipt);
 
         p.addAlign(Print.PRINTER_ALIGN.ALIGN_CENTER);
         p.drawLine();
@@ -393,16 +394,18 @@ public class ReceiptController {
 
         p.addAlign(Print.PRINTER_ALIGN.ALIGN_LEFT);
 
-        double total = 0.0;
         for(SalesDetailModel sdm :SalesController.getInstance(context).getSaleDetailModels(codeReceipt)){
-            total+=Double.parseDouble(sdm.getTotal());
             p.drawText(sdm.getProductDescription());
-            p.drawText(Funciones.reservarCaracteres("Cant:"+sdm.getQuantity(),9)+Funciones.reservarCaracteres(sdm.getMeasureDescription(),10)+Funciones.reservarCaracteresAlinearDerecha(" $"+Funciones.formatDecimal(sdm.getTotal()),13));
+            p.drawText(Funciones.reservarCaracteres("Cant:"+sdm.getQuantity(),9)+Funciones.reservarCaracteres(sdm.getMeasureDescription(),10)+Funciones.reservarCaracteresAlinearDerecha(" $"+Funciones.formatMoney(Double.parseDouble(sdm.getTotal())),13));
         }
         p.drawLine();
 
         p.addAlign(Print.PRINTER_ALIGN.ALIGN_RIGHT);
-        p.drawText("Total:"+Funciones.formatDecimal(total), Print.TEXT_ALIGN.RIGHT);
+        p.drawText("SubTotal: $"+Funciones.formatMoney(receipt.getSubtotal()), Print.TEXT_ALIGN.RIGHT);
+        if(receipt.getDiscount() > 0){
+            p.drawText("Descuento: $"+Funciones.formatMoney(receipt.getDiscount()), Print.TEXT_ALIGN.RIGHT);
+        }
+        p.drawText("Total: $"+Funciones.formatMoney(receipt.getTotal()), Print.TEXT_ALIGN.RIGHT);
 
 
         p.printText("02:3D:D3:DB:D5:06");
@@ -462,7 +465,7 @@ public class ReceiptController {
         Header header=null;
         if(company!= null){
             Bitmap logo =Picasso.with(context).load(company.getLOGO()).get();
-            Image i = new Image(/*BitmapFactory.decodeResource(context.getResources(),R.drawable.optica)*/logo);
+            Image i = new Image(/*BitmapFactory.decodeResource(context.getResources(),R.drawable.optica)*/logo, 100f, 100f);
             header = new Header(company.getNAME(), company.getADDRESS(), Funciones.formatPhone(company.getPHONE()), company.getADDRESS2(), i);
         }else{
             Image i = new Image(BitmapFactory.decodeResource(context.getResources(),R.drawable.optica));
@@ -508,6 +511,16 @@ public class ReceiptController {
         cells.add(new TableCell(" ").noBorder());
         cells.add(new TableCell(" ").noBorder());
 
+
+        cells.add(new TableCell(" ").noBorder());
+        cells.add(new TableCell("SubTotal:").bold().right().noBorder());
+        cells.add(new TableCell("$"+Funciones.formatMoney(receipts.getSubtotal())).bold().right().noBorder());
+
+        if(receipts.getDiscount() > 0){
+            cells.add(new TableCell(" ").noBorder());
+            cells.add(new TableCell("Descuento:").bold().right().noBorder());
+            cells.add(new TableCell("$"+Funciones.formatMoney(receipts.getDiscount())).bold().right().noBorder());
+        }
 
         cells.add(new TableCell(" ").noBorder());
         cells.add(new TableCell("Total:").bold().right().noBorder());

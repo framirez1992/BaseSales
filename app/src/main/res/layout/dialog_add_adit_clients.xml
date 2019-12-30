@@ -54,7 +54,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="Document"
-                    android:layout_marginTop="10dp">
+                    android:layout_marginTop="10dp"
+                    android:visibility="gone">
                     <android.support.design.widget.TextInputEditText
                         android:id="@+id/etDocument"
                         android:layout_width="match_parent"
@@ -67,7 +68,7 @@
                 <android.support.design.widget.TextInputLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Name"
+                    android:hint="Nombre"
                     android:layout_marginTop="10dp">
                     <android.support.design.widget.TextInputEditText
                         android:id="@+id/etName"
@@ -79,14 +80,43 @@
                 <android.support.design.widget.TextInputLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Phone"
+                    android:hint="Telefono"
                     android:layout_marginTop="10dp">
                     <android.support.design.widget.TextInputEditText
                         android:id="@+id/etPhone"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"/>
+                        android:layout_height="wrap_content"
+                        android:inputType="number"/>
 
                 </android.support.design.widget.TextInputLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+                    <android.support.design.widget.TextInputLayout
+                        android:layout_width="200dp"
+                        android:layout_height="wrap_content"
+                        android:hint="Nacimiento"
+                        android:layout_marginTop="10dp">
+                        <android.support.design.widget.TextInputEditText
+                            android:id="@+id/etBirth"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="number"
+                            android:focusableInTouchMode="false"/>
+
+                    </android.support.design.widget.TextInputLayout>
+
+                    <ImageView
+                        android:layout_width="50dp"
+                        android:layout_height="50dp"
+                        android:src="@drawable/ic_date"
+                        android:layout_gravity="bottom"/>
+
+                </LinearLayout>
+
+
 
 
             </LinearLayout>

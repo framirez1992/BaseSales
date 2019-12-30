@@ -20,6 +20,8 @@ public class MaintenanceFragment extends Fragment {
     ImageView btnFamily, btnGroup, btnMeasures, btnProducts,btnFamilyInv, btnGroupInv, btnMeasuresInv, btnProductsInv,btnCompany,  btnUsers, btnUserRol/*, btnControls*/
     ,btnActualizationCenter, btnUsersControl, btnRolesControl, btnClients, btnPrinter;
     LinearLayout llMainScreen,llClients, llMaintenanceControls, llMaintenanceUsers, llMaintenanceProducts,llMaintenanceInventory,llMaintenanceCompany,  llConfiguration;
+
+    int REQUEST_PRINTER=1000;
     public MaintenanceFragment() {
         // Required empty public constructor
     }
@@ -150,7 +152,8 @@ public class MaintenanceFragment extends Fragment {
                     break;
                 case R.id.btnPrinter:
                     i = new Intent(getActivity(), com.example.bluetoothlibrary.BluetoothScan.class);
-                    break;
+                    startActivityForResult(i, REQUEST_PRINTER);
+                    return;
 
 
             }

@@ -29,10 +29,10 @@ import java.util.Date;
 public class ClientsController {
     public static final String TABLE_NAME ="CLIENTS";
     public static  String CODE = "code",DOCUMENT = "document",  NAME = "name" ,
-            PHONE = "phone",DATE = "date", MDATE = "mdate";
-    String[] columns = new String[]{CODE,DOCUMENT, NAME, PHONE, DATE, MDATE};
+            PHONE = "phone",DATA = "data", DATA2="data2", DATA3 = "data3", DATE = "date", MDATE = "mdate";
+    String[] columns = new String[]{CODE,DOCUMENT, NAME, PHONE,DATA, DATA2, DATA3,  DATE, MDATE};
     public static String QUERY_CREATE = "CREATE TABLE "+TABLE_NAME+"("
-            +CODE+" TEXT,"+DOCUMENT+" TEXT,  "+NAME+" TEXT, "+PHONE+" TEXT, "+DATE+" TEXT, "+MDATE+" TEXT)";
+            +CODE+" TEXT,"+DOCUMENT+" TEXT,  "+NAME+" TEXT, "+PHONE+" TEXT, "+DATA+" TEXT, "+DATA2+" TEXT, "+DATA3+" TEXT,  "+DATE+" TEXT, "+MDATE+" TEXT)";
     Context context;
     FirebaseFirestore db;
 
@@ -92,7 +92,10 @@ public class ClientsController {
         cv.put(CODE,c.getCODE() );
         cv.put(DOCUMENT,c.getDOCUMENT() );
         cv.put(NAME,c.getNAME());
-        cv.put(PHONE,c.getPHONE() );
+        cv.put(PHONE,c.getPHONE());
+        cv.put(DATA, c.getDATA());
+        cv.put(DATA2, c.getDATA2());
+        cv.put(DATA3, c.getDATA3());
         cv.put(DATE, Funciones.getFormatedDate((Date) c.getDATE()));
         cv.put(MDATE, Funciones.getFormatedDate((Date) c.getMDATE()));
 
@@ -106,6 +109,9 @@ public class ClientsController {
         cv.put(DOCUMENT,c.getDOCUMENT() );
         cv.put(NAME,c.getNAME());
         cv.put(PHONE,c.getPHONE() );
+        cv.put(DATA, c.getDATA());
+        cv.put(DATA2, c.getDATA2());
+        cv.put(DATA3, c.getDATA3());
         cv.put(MDATE, Funciones.getFormatedDate(c.getMDATE()));
 
         long result = DB.getInstance(context).getWritableDatabase().update(TABLE_NAME,cv,where, args);
@@ -176,7 +182,8 @@ public class ClientsController {
         where=((where != null)? "WHERE "+where:"");
         try {
 
-            String sql = "SELECT u."+CODE+" as CODE,u."+DOCUMENT+" as DOCUMENT, u."+NAME+" AS NAME, u."+PHONE+" AS PHONE, u."+MDATE+" AS MDATE " +
+            String sql = "SELECT u."+CODE+" as CODE,u."+DOCUMENT+" as DOCUMENT, u."+NAME+" AS NAME, u."+PHONE+" AS PHONE, " +
+                    "u."+DATA+" as DATA, u."+DATA2+" as DATA2, u."+DATA3+" as DATA3,  u."+MDATE+" AS MDATE " +
                     "FROM "+TABLE_NAME+" u " +
                     where;
             Cursor c = DB.getInstance(context).getReadableDatabase().rawQuery(sql, args);
@@ -185,6 +192,9 @@ public class ClientsController {
                         c.getString(c.getColumnIndex("DOCUMENT")),
                         c.getString(c.getColumnIndex("NAME")),
                         c.getString(c.getColumnIndex("PHONE")) ,
+                        c.getString(c.getColumnIndex("DATA")) ,
+                        c.getString(c.getColumnIndex("DATA2")) ,
+                        c.getString(c.getColumnIndex("DATA3")) ,
                         c.getString(c.getColumnIndex("MDATE")) != null));
             }
         }catch(Exception e){

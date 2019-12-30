@@ -13,6 +13,7 @@ import android.widget.TextView;
 import com.far.basesales.Adapters.Models.ClientRowModel;
 import com.far.basesales.Interfases.ListableActivity;
 import com.far.basesales.R;
+import com.far.basesales.Utils.Funciones;
 
 import java.util.ArrayList;
 
@@ -56,13 +57,14 @@ public class ClientEditionAdapter extends RecyclerView.Adapter<ClientEditionAdap
 
 
     public class ClientRowHolder extends RecyclerView.ViewHolder {
-        TextView tvDocument,  tvName, tvPhone;
+        TextView tvDocument,  tvName, tvPhone, tvBirth;
         ImageView imgMenu,imgTime ;
         public ClientRowHolder(View itemView) {
             super(itemView);
             tvDocument = itemView.findViewById(R.id.tvDocument);
             tvName = itemView.findViewById(R.id.tvName);
             tvPhone = itemView.findViewById(R.id.tvPhone);
+            tvBirth = itemView.findViewById(R.id.tvBirth);
             imgMenu = itemView.findViewById(R.id.imgMenu);
             imgTime = itemView.findViewById(R.id.imgTime);
         }
@@ -70,7 +72,8 @@ public class ClientEditionAdapter extends RecyclerView.Adapter<ClientEditionAdap
         public void fillData(ClientRowModel crm){
             tvDocument.setText(crm.getDocument());
             tvName.setText(crm.getName());
-            tvPhone.setText(crm.getPhone());
+            tvPhone.setText(Funciones.formatPhone(crm.getPhone()));
+            tvBirth.setText(crm.getData());
             imgTime.setVisibility((crm.isInserver())?View.INVISIBLE:View.VISIBLE);
         }
 

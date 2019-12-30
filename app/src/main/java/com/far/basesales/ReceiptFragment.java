@@ -342,7 +342,7 @@ public class ReceiptFragment extends Fragment implements DialogCaller {
     public void dialogClosed(Object o) {
         if(o instanceof Clients){
             Clients c = (Clients)o;
-            this.client = new ClientRowModel(c.getCODE(),c.getDOCUMENT(),c.getNAME(),c.getPHONE(),true);
+            this.client = new ClientRowModel(c.getCODE(),c.getDOCUMENT(),c.getNAME(),c.getPHONE(),c.getDATA(), c.getDATA2(), c.getDATA3(), true);
             etName.setText(client.getName());
             etDocument.setText(client.getDocument());
         }else if(o instanceof ClientRowModel){

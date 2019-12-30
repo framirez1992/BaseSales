@@ -217,8 +217,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 return;
             }
             Licenses lic = null;
-            licenseController.delete(null, null);
             if (querySnapshot != null && querySnapshot.getDocuments()!= null && querySnapshot.getDocuments().size() > 0) {
+                licenseController.delete(null, null);
+
                 for(DocumentSnapshot ds: querySnapshot){
                     lic = ds.toObject(Licenses.class);
                     if(lic.getCODE().equals(Funciones.getCodeLicense(MainActivity.this))){
@@ -238,9 +239,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 return;
             }
 
-            usersController.delete(null, null);
             Users u = null;
             if (querySnapshot != null && querySnapshot.getDocuments()!= null && querySnapshot.getDocuments().size() > 0) {
+                usersController.delete(null, null);
+
                 for(DocumentSnapshot doc: querySnapshot){
                     u = doc.toObject(Users.class);
                     if(u.getCODE().equals(Funciones.getCodeuserLogged(MainActivity.this))){
@@ -263,8 +265,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 return;
             }
             Devices devices =null;
-            devicesController.delete(null, null);
             if (querySnapshot != null && querySnapshot.getDocuments()!= null && querySnapshot.getDocuments().size() > 0) {
+                devicesController.delete(null, null);
+
                 for(DocumentSnapshot doc: querySnapshot){
                     devices = doc.toObject(Devices.class);
                     if(devices.getCODE().equals(Funciones.getPhoneID(MainActivity.this))) {
@@ -312,8 +315,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 return;
             }
 
-            userControlController.delete(null, null);
             if (querySnapshot != null && querySnapshot.getDocuments()!= null && querySnapshot.getDocuments().size() > 0) {
+                userControlController.delete(null, null);
+
                 for(DocumentSnapshot doc: querySnapshot){
                     UserControl uc = doc.toObject(UserControl.class);
                     userControlController.insert(uc);

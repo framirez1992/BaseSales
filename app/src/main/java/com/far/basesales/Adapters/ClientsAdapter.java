@@ -13,6 +13,7 @@ import android.widget.TextView;
 import com.far.basesales.Adapters.Models.ClientRowModel;
 import com.far.basesales.Interfases.ListableActivity;
 import com.far.basesales.R;
+import com.far.basesales.Utils.Funciones;
 
 import java.util.ArrayList;
 
@@ -68,31 +69,36 @@ public class ClientsAdapter extends RecyclerView.Adapter<ClientsAdapter.ClientRo
     }
 
     public class ClientRowHolder extends RecyclerView.ViewHolder {
-        TextView tvTitle1, tvTitle2, tvTitle3, tvDocument,  tvName, tvPhone;
+        TextView tvTitle1, tvTitle2, tvTitle3,tvTitleData,  tvDocument,  tvName, tvPhone, tvData;
         public ClientRowHolder(View itemView) {
             super(itemView);
             tvDocument = itemView.findViewById(R.id.tvDocument);
             tvName = itemView.findViewById(R.id.tvName);
             tvPhone = itemView.findViewById(R.id.tvPhone);
+            tvData = itemView.findViewById(R.id.tvData);
             tvTitle1 = itemView.findViewById(R.id.tvTitle1);
             tvTitle2 = itemView.findViewById(R.id.tvTitle2);
             tvTitle3 = itemView.findViewById(R.id.tvTitle3);
+            tvTitleData = itemView.findViewById(R.id.tvTitleData);
 
         }
 
         public void fillData(ClientRowModel crm){
             tvDocument.setText(crm.getDocument());
             tvName.setText(crm.getName());
-            tvPhone.setText(crm.getPhone());
+            tvPhone.setText(Funciones.formatPhone(crm.getPhone()));
+            tvData.setText(crm.getData());
         }
 
         public void setTextColor(int c){
             tvTitle1.setTextColor(c);
             tvTitle2.setTextColor(c);
             tvTitle3.setTextColor(c);
+            tvTitleData.setTextColor(c);
             tvDocument.setTextColor(c);
             tvName.setTextColor(c);
             tvPhone.setTextColor(c);
+            tvData.setTextColor(c);
         }
 
     }

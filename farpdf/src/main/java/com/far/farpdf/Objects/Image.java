@@ -17,12 +17,13 @@ public class Image {
     }
 
     public Image(Bitmap b){
-        this.width = 200f;
-        this.height = 200f;
+        this.width = 150f;
+        this.height = 150f;
         this.alignment = com.itextpdf.text.Image.LEFT;
         this.bitmap = b;
 
     }
+
 
     public Image center(){
         alignment = com.itextpdf.text.Image.MIDDLE;

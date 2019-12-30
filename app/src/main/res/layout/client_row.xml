@@ -25,7 +25,8 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal">
+                    android:orientation="horizontal"
+                    android:visibility="gone">
 
                     <TextView android:id="@+id/tvTitle1"
                         android:layout_width="wrap_content"
@@ -73,7 +74,8 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal">
+                    android:orientation="horizontal"
+                    android:visibility="visible">
 
                     <TextView android:id="@+id/tvTitle3"
                         android:layout_width="wrap_content"
@@ -93,6 +95,34 @@
                         android:textSize="16sp"
                         android:textColor="@color/text_view"/>
                 </LinearLayout>
+
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <TextView android:id="@+id/tvTitleData"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Nacimiento: "
+                        android:textStyle="bold"
+                        android:gravity="center_vertical"
+                        android:textSize="16sp"
+                        android:textColor="@color/text_view"/>
+                    <TextView android:id="@+id/tvData"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:text=""
+                        android:textStyle="bold"
+                        android:layout_weight="10"
+                        android:gravity="center_vertical"
+                        android:textSize="16sp"
+                        android:textColor="@color/text_view"/>
+                </LinearLayout>
+
+
+
 
             </LinearLayout>
         </LinearLayout>

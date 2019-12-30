@@ -1,5 +1,6 @@
 package com.far.basesales.Dialogs;
 
+import android.app.DatePickerDialog;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -9,6 +10,7 @@ import android.support.v4.app.DialogFragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.DatePicker;
 import android.widget.LinearLayout;
 
 import com.far.basesales.CloudFireStoreObjects.Clients;
@@ -19,6 +21,9 @@ import com.far.basesales.Utils.Funciones;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+
 public class ClientsDialogFragment extends DialogFragment implements OnFailureListener {
 
     DialogCaller dialogCaller;
@@ -26,7 +31,7 @@ public class ClientsDialogFragment extends DialogFragment implements OnFailureLi
     public String type;
 
     LinearLayout llSave;
-    TextInputEditText etName, etDocument, etPhone;
+    TextInputEditText etName, etDocument, etPhone, etBirth;
 
 
     ClientsController clientsController;
@@ -96,6 +101,14 @@ public class ClientsDialogFragment extends DialogFragment implements OnFailureLi
         etDocument = view.findViewById(R.id.etDocument);
         etName = view.findViewById(R.id.etName);
         etPhone = view.findViewById(R.id.etPhone);
+        etBirth = view.findViewById(R.id.etBirth);
+
+        etBirth.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showDatePicker();
+            }
+        });
 
         llSave.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -139,7 +152,13 @@ public class ClientsDialogFragment extends DialogFragment implements OnFailureLi
             String document = etDocument.getText().toString();
             String name = etName.getText().toString();
             String phone = etPhone.getText().toString();
-            final Clients pt = new Clients(code,document, name, phone);
+            String data = "";
+            String data2 = "";
+            String data3 = "";
+            if(!etBirth.getText().toString().trim().isEmpty()){
+                data = etBirth.getText().toString();
+            }
+            final Clients pt = new Clients(code,document, name, phone, data, data2, data3);
             clientsController.insert(pt);
 
             clientsController.sendToFireBase(pt, new OnSuccessListener() {
@@ -166,10 +185,20 @@ public class ClientsDialogFragment extends DialogFragment implements OnFailureLi
 
     public void EditProductType(){
         try {
+            String data = "";
+            String data2 = "";
+            String data3 = "";
+            if(!etBirth.getText().toString().trim().isEmpty()){
+                data = etBirth.getText().toString();
+            }
+
             tempObj.setDOCUMENT(etDocument.getText().toString());
             tempObj.setNAME(etName.getText().toString());
             tempObj.setMDATE(null);
             tempObj.setPHONE(etPhone.getText().toString());
+            tempObj.setDATA(data);
+            tempObj.setDATA2(data2);
+            tempObj.setDATA3(data3);
 
             clientsController.sendToFireBase(tempObj, new OnSuccessListener() {
                 @Override
@@ -192,13 +221,38 @@ public class ClientsDialogFragment extends DialogFragment implements OnFailureLi
     }
 
 
-
     public void setUpToEditProductType(){
         etDocument.setText(tempObj.getDOCUMENT());
         etName.setText(tempObj.getNAME());
         etPhone.setText(tempObj.getPHONE());
+        etBirth.setText(tempObj.getDATA()!= null? tempObj.getDATA(): "");
     }
 
+
+    public void showDatePicker(){
+        String dob = etBirth.getText().toString();
+        Calendar c = Calendar.getInstance();
+        if(!dob.trim().isEmpty()){
+            try{
+                SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+                c.setTimeInMillis(sdf.parse(dob).getTime());
+            }catch (Exception e){
+
+            }
+        }
+
+        DatePickerDialog a = new DatePickerDialog(getContext(), new DatePickerDialog.OnDateSetListener() {
+            @Override
+            public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
+                Calendar c = Calendar.getInstance();
+                SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+                c.set(Calendar.YEAR, year);c.set(Calendar.MONTH, month);c.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+                etBirth.setText(sdf.format(c.getTime()));
+
+            }
+        },c.get(Calendar.YEAR),c.get(Calendar.MONTH),c.get(c.DAY_OF_MONTH));
+        a.show();
+    }
 
 
     @Override

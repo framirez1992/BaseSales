@@ -11,15 +11,16 @@ import java.util.Date;
 import java.util.HashMap;
 
 public class Clients {
-    private String CODE,DOCUMENT, NAME,PHONE;
+    private String CODE,DOCUMENT, NAME,PHONE, DATA, DATA2, DATA3;
     private @ServerTimestamp
     Date DATE, MDATE;
 
     public Clients(){
 
     }
-    public Clients(String code,String document,  String name,  String phone){
+    public Clients(String code,String document,  String name,  String phone, String data, String data2, String data3){
         this.CODE = code; this.DOCUMENT = document; this.NAME = name;  this.PHONE = phone;
+        this.DATA = data; this.DATA2 = data2; this.DATA3 = data3;
     }
 
     public Clients(Cursor c){
@@ -27,6 +28,9 @@ public class Clients {
         this.DOCUMENT = c.getString(c.getColumnIndex(ClientsController.DOCUMENT));
         this.NAME = c.getString(c.getColumnIndex(ClientsController.NAME));
         this.PHONE = c.getString(c.getColumnIndex(ClientsController.PHONE));
+        this.DATA =  c.getString(c.getColumnIndex(ClientsController.DATA));
+        this.DATA2 =  c.getString(c.getColumnIndex(ClientsController.DATA2));
+        this.DATA3 =  c.getString(c.getColumnIndex(ClientsController.DATA3));
         this.DATE = Funciones.parseStringToDate(c.getString(c.getColumnIndex(ClientsController.DATE)));
         this.MDATE = Funciones.parseStringToDate(c.getString(c.getColumnIndex(ClientsController.MDATE)));
     }
@@ -36,6 +40,9 @@ public class Clients {
         map.put(ClientsController.DOCUMENT, DOCUMENT);
         map.put(ClientsController.NAME, NAME);
         map.put(ClientsController.PHONE, PHONE);
+        map.put(ClientsController.DATA, DATA);
+        map.put(ClientsController.DATA2, DATA2);
+        map.put(ClientsController.DATA3, DATA3);
         map.put(ClientsController.DATE, (DATE == null)? FieldValue.serverTimestamp():DATE);
         map.put(ClientsController.MDATE, (MDATE == null)? FieldValue.serverTimestamp():MDATE);
 
@@ -73,6 +80,30 @@ public class Clients {
 
     public void setPHONE(String PHONE) {
         this.PHONE = PHONE;
+    }
+
+    public String getDATA() {
+        return DATA;
+    }
+
+    public void setDATA(String DATA) {
+        this.DATA = DATA;
+    }
+
+    public String getDATA2() {
+        return DATA2;
+    }
+
+    public void setDATA2(String DATA2) {
+        this.DATA2 = DATA2;
+    }
+
+    public String getDATA3() {
+        return DATA3;
+    }
+
+    public void setDATA3(String DATA3) {
+        this.DATA3 = DATA3;
     }
 
     public Date getDATE() {
