@@ -651,6 +651,7 @@ public class Login extends AppCompatActivity implements OnFailureListener, FireB
                     UsersDevices ud = document.toObject(UsersDevices.class);
 
                     String lastLicenseCodeSaved = Funciones.getCodeLicense(Login.this);
+                    String lastSavedMacAddress = Funciones.getMacAddress(Login.this);
                     if(lastLicenseCodeSaved.isEmpty()){
                         Snackbar.make(findViewById(R.id.root), "Realize una carga inicial. No se encontro licencia", Snackbar.LENGTH_LONG).show();
                     }else{
@@ -658,6 +659,8 @@ public class Login extends AppCompatActivity implements OnFailureListener, FireB
                         Funciones.savePreferences(Login.this, CODES.PREFERENCE_LICENSE_CODE, lastLicenseCodeSaved);
                         Funciones.savePreferences(Login.this, CODES.PREFERENCE_USERSKEY_CODE, lastUser.getCODE());
                         Funciones.savePreferences(Login.this, CODES.PREFERENCE_USERSKEY_USERTYPE, lastUser.getROLE());
+
+                        Funciones.savePreferences(Login.this, CODES.PREFERENCE_BLUETOOTH_MAC_ADDRESS, lastSavedMacAddress);
                         ((TextView)findViewById(R.id.tvErrorMsg)).setText("");
 
                         UsersController.getInstance(Login.this).insert(lastUser);

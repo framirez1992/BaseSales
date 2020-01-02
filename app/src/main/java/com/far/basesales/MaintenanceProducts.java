@@ -2,6 +2,7 @@ package com.far.basesales;
 
 import android.app.Dialog;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
@@ -21,6 +22,7 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.far.basesales.Adapters.Models.ProductRowModel;
 import com.far.basesales.Adapters.ProductRowEditionAdapter;
@@ -34,11 +36,18 @@ import com.far.basesales.Controllers.ProductsSubTypesController;
 import com.far.basesales.Controllers.ProductsSubTypesInvController;
 import com.far.basesales.Controllers.ProductsTypesController;
 import com.far.basesales.Controllers.ProductsTypesInvController;
+import com.far.basesales.DataBase.DB;
 import com.far.basesales.Dialogs.ProductsDialogfragment;
 import com.far.basesales.Generic.KV;
+import com.far.basesales.Generic.KV2;
 import com.far.basesales.Globales.CODES;
+import com.far.basesales.Interfases.DialogCaller;
 import com.far.basesales.Interfases.ListableActivity;
 import com.far.basesales.Utils.Funciones;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestoreException;
@@ -48,7 +57,7 @@ import java.util.ArrayList;
 
 import javax.annotation.Nullable;
 
-public class MaintenanceProducts extends AppCompatActivity implements ListableActivity {
+public class MaintenanceProducts extends AppCompatActivity implements ListableActivity, DialogCaller {
 
     RecyclerView rvList;
     Spinner spnProductType, spnProductSubType;
@@ -194,7 +203,7 @@ public class MaintenanceProducts extends AppCompatActivity implements ListableAc
 
 
     public void setUpListeners(){
-        if(type.equals(CODES.ENTITY_TYPE_EXTRA_PRODUCTSFORSALE)) {
+      /*  if(type.equals(CODES.ENTITY_TYPE_EXTRA_PRODUCTSFORSALE)) {
             productsMeasureController.getReferenceFireStore().addSnapshotListener(MaintenanceProducts.this, new EventListener<QuerySnapshot>() {
                 @Override
                 public void onEvent(QuerySnapshot querySnapshot, FirebaseFirestoreException e) {
@@ -256,7 +265,7 @@ public class MaintenanceProducts extends AppCompatActivity implements ListableAc
                     refreshList();
                 }
             });
-        }
+        }*/
     }
     public void callAddDialog(boolean isNew){
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
@@ -265,7 +274,7 @@ public class MaintenanceProducts extends AppCompatActivity implements ListableAc
             ft.remove(prev);
         }
         ft.addToBackStack(null);
-        DialogFragment newFragment =  ProductsDialogfragment.newInstance(type, (isNew)?null:products);
+        DialogFragment newFragment =  ProductsDialogfragment.newInstance(type, (isNew)?null:products, this);
         // Create and show the dialog.
         newFragment.show(ft, "dialog");
     }
@@ -278,19 +287,51 @@ public class MaintenanceProducts extends AppCompatActivity implements ListableAc
         }
         final Dialog d = Funciones.getAlertDeleteAllDependencies(MaintenanceProducts.this,description,
                 (type.equals(CODES.ENTITY_TYPE_EXTRA_PRODUCTSFORSALE)?productsController.getDependencies(products.getCODE()):productsInvController.getDependencies(products.getCODE())));
-        CardView btnAceptar = d.findViewById(R.id.btnPositive);
+        final CardView btnAceptar = d.findViewById(R.id.btnPositive);
         btnAceptar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                d.findViewById(R.id.llProgress).setVisibility(View.VISIBLE);
+                btnAceptar.setEnabled(false);
+                d.findViewById(R.id.btnNegative).setEnabled(false);
+
                 if(products != null){
                     if(type.equals(CODES.ENTITY_TYPE_EXTRA_PRODUCTSFORSALE)){
-                        productsController.deleteFromFireBase(products);
+                        productsController.deleteFromFireBase(products, new OnCompleteListener() {
+                            @Override
+                            public void onComplete(@NonNull Task task) {
+                                if(task.getException() != null){
+                                    btnAceptar.setEnabled(true);
+                                    d.findViewById(R.id.btnNegative).setEnabled(true);
+                                    d.findViewById(R.id.llProgress).setVisibility(View.INVISIBLE);
+                                    Toast.makeText(MaintenanceProducts.this, task.getException().getMessage(), Toast.LENGTH_LONG).show();
+                                }
+                            }
+                        }, new OnSuccessListener() {
+                            @Override
+                            public void onSuccess(Object o) {
+                                for(KV2 data: ProductsController.getInstance(MaintenanceProducts.this).getDependencies(products.getCODE())){
+                                  String sql = "DELETE FROM "+data.getKey()+" WHERE "+data.getValue()+" = '"+data.getValue2()+"'";
+                                    DB.getInstance(MaintenanceProducts.this).getWritableDatabase().execSQL(sql);
+                                }
+                                ProductsController.getInstance(MaintenanceProducts.this).delete(products);
+                                refreshList();
+                                d.dismiss();
+                            }
+                        }, new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                btnAceptar.setEnabled(true);
+                                d.findViewById(R.id.btnNegative).setEnabled(true);
+                                d.findViewById(R.id.llProgress).setVisibility(View.INVISIBLE);
+                                Toast.makeText(MaintenanceProducts.this, e.getMessage(), Toast.LENGTH_LONG).show();
+                            }
+                        });
                     }else if(type.equals(CODES.ENTITY_TYPE_EXTRA_INVENTORY)){
                         productsInvController.deleteFromFireBase(products);
                     }
 
                 }
-                d.dismiss();
             }
         });
 
@@ -368,5 +409,10 @@ public class MaintenanceProducts extends AppCompatActivity implements ListableAc
             return false;
         }
     };
+
+    @Override
+    public void dialogClosed(Object o) {
+        refreshList();
+    }
 }
 

@@ -76,6 +76,9 @@ public class MeasureUnitsController {
         return result;
     }
 
+    public long update(MeasureUnits d){
+            return  update(d, CODE+" = ?", new String[]{d.getCODE()});
+    }
     public long update(MeasureUnits d, String where, String[] args){
         ContentValues cv = new ContentValues();
         cv.put(CODE,d.getCODE() );
@@ -84,6 +87,10 @@ public class MeasureUnitsController {
 
         long result = DB.getInstance(context).getWritableDatabase().update(TABLE_NAME,cv,where, args);
         return result;
+    }
+
+    public long delete(MeasureUnits mu){
+           return delete(CODE+" = ?", new String[]{mu.getCODE()});
     }
 
     public long delete(String where, String[] args){
@@ -125,21 +132,18 @@ public class MeasureUnitsController {
         }
     }
 
-    public void sendToFireBase(MeasureUnits mu){
-        try {
+    public void sendToFireBase(MeasureUnits mu , OnCompleteListener completeListener, OnSuccessListener successListener, OnFailureListener failureListener){
             WriteBatch lote = db.batch();
             lote.set(getReferenceFireStore().document(mu.getCODE()), mu.toMap());
-            lote.commit();
+            lote.commit().addOnCompleteListener(completeListener)
+                    .addOnSuccessListener(successListener)
+                    .addOnFailureListener(failureListener);
 
-        }catch(Exception e){
-            e.printStackTrace();
-        }
 
     }
 
-    public void deleteFromFireBase(MeasureUnits mu){
+    public void deleteFromFireBase(MeasureUnits mu, OnCompleteListener completeListener, OnSuccessListener successListener, OnFailureListener failureListener){
 
-        try {
             WriteBatch lote = db.batch();
             lote.delete(getReferenceFireStore().document(mu.getCODE()));
             for(KV2 data: getDependencies(mu.getCODE())){
@@ -148,15 +152,9 @@ public class MeasureUnitsController {
                 }
             }
 
-            lote.commit().addOnFailureListener(new OnFailureListener() {
-                @Override
-                public void onFailure(@NonNull Exception e) {
-                    e.printStackTrace();
-                }
-            });
-        }catch(Exception e){
-            e.printStackTrace();
-        }
+            lote.commit().addOnCompleteListener(completeListener)
+                    .addOnSuccessListener(successListener)
+                    .addOnFailureListener(failureListener);
     }
 
 

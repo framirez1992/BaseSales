@@ -43,6 +43,7 @@ public class MaintenanceClients extends AppCompatActivity implements ListableAct
 
     RecyclerView rvList;
     ArrayList<ClientRowModel> objects;
+    LinearLayout btnSave;
     ClientEditionAdapter adapter;
     ClientsController clientsController;
     Clients clients;

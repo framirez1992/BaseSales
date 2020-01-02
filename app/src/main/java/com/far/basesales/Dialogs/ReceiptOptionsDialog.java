@@ -22,6 +22,7 @@ import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import com.example.bluetoothlibrary.BluetoothScan;
 import com.far.basesales.CloudFireStoreObjects.Payment;
 import com.far.basesales.CloudFireStoreObjects.Receipts;
 import com.far.basesales.Controllers.PaymentController;
@@ -114,7 +115,12 @@ public class ReceiptOptionsDialog extends DialogFragment  {
         llPrint.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                execute(v);
+                if(!Funciones.getPreferences(activity, CODES.PREFERENCE_BLUETOOTH_MAC_ADDRESS).equals("")){
+                    execute(v);
+                }else{
+                    activity.startActivityForResult(new Intent(activity, BluetoothScan.class), CODES.REQUEST_BLUETOOTH_ACTIVITY);
+                }
+
             }
         });
 

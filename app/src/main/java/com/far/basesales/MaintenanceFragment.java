@@ -1,5 +1,6 @@
 package com.far.basesales;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -10,18 +11,20 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 
+import com.example.bluetoothlibrary.BluetoothScan;
 import com.far.basesales.Controllers.UserControlController;
 import com.far.basesales.Globales.CODES;
+import com.far.basesales.Utils.Funciones;
 
 
 public class MaintenanceFragment extends Fragment {
 
 
+    Activity parentActivity;
     ImageView btnFamily, btnGroup, btnMeasures, btnProducts,btnFamilyInv, btnGroupInv, btnMeasuresInv, btnProductsInv,btnCompany,  btnUsers, btnUserRol/*, btnControls*/
     ,btnActualizationCenter, btnUsersControl, btnRolesControl, btnClients, btnPrinter;
     LinearLayout llMainScreen,llClients, llMaintenanceControls, llMaintenanceUsers, llMaintenanceProducts,llMaintenanceInventory,llMaintenanceCompany,  llConfiguration;
 
-    int REQUEST_PRINTER=1000;
     public MaintenanceFragment() {
         // Required empty public constructor
     }
@@ -96,6 +99,19 @@ public class MaintenanceFragment extends Fragment {
 
     }
 
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(requestCode == CODES.REQUEST_BLUETOOTH_ACTIVITY && resultCode == Activity.RESULT_OK){
+            String macAdress = data.getExtras().getString(BluetoothScan.EXTRA_MAC_ADDRESS);
+            Funciones.savePreferences(parentActivity, CODES.PREFERENCE_BLUETOOTH_MAC_ADDRESS, macAdress);
+        }
+    }
+
+    public void setParentActivity(Activity activity){
+        this.parentActivity = activity;
+    }
+
     public View.OnClickListener imageClick = new View.OnClickListener() {
 
         @Override
@@ -152,7 +168,10 @@ public class MaintenanceFragment extends Fragment {
                     break;
                 case R.id.btnPrinter:
                     i = new Intent(getActivity(), com.example.bluetoothlibrary.BluetoothScan.class);
-                    startActivityForResult(i, REQUEST_PRINTER);
+                    if(!Funciones.getPreferences(getContext(), CODES.PREFERENCE_BLUETOOTH_MAC_ADDRESS).equals("")){
+                        i.putExtra(BluetoothScan.EXTRA_MAC_ADDRESS, Funciones.getPreferences(getContext(), CODES.PREFERENCE_BLUETOOTH_MAC_ADDRESS));
+                    }
+                    startActivityForResult(i, CODES.REQUEST_BLUETOOTH_ACTIVITY);
                     return;
 
 

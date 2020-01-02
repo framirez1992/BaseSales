@@ -16,27 +16,36 @@ import com.far.basesales.CloudFireStoreObjects.MeasureUnits;
 import com.far.basesales.Controllers.MeasureUnitsController;
 import com.far.basesales.Controllers.MeasureUnitsInvController;
 import com.far.basesales.Globales.CODES;
+import com.far.basesales.Interfases.DialogCaller;
 import com.far.basesales.R;
 import com.far.basesales.Utils.Funciones;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+
+import java.util.Date;
 
 
-public class MeasureUnitDialogFragment extends DialogFragment implements OnFailureListener {
+public class MeasureUnitDialogFragment extends DialogFragment implements OnCompleteListener, OnSuccessListener,  OnFailureListener {
 
+    DialogCaller dialogCaller;
     private MeasureUnits tempObj;
 
-    LinearLayout llSave;
+    LinearLayout llSave, llProgress;
     TextInputEditText etName;
 
+    MeasureUnits toInsertObject;
     MeasureUnitsController measureUnitsController;
     MeasureUnitsInvController measureUnitsInvController;
     String type;
 
-    public  static MeasureUnitDialogFragment newInstance(String type, MeasureUnits pt) {
+    public  static MeasureUnitDialogFragment newInstance(String type, MeasureUnits pt, DialogCaller dialogCaller) {
 
         MeasureUnitDialogFragment f = new MeasureUnitDialogFragment();
         f.type = type;
         f.tempObj = pt;
+        f.dialogCaller = dialogCaller;
 
         // Supply num input as an argument.
         Bundle args = new Bundle();
@@ -92,6 +101,7 @@ public class MeasureUnitDialogFragment extends DialogFragment implements OnFailu
 
 
     public void init(View view){
+        llProgress = view.findViewById(R.id.llProgress);
         llSave = view.findViewById(R.id.llSave);
         etName = view.findViewById(R.id.etName);
         ((EditText)view.findViewById(R.id.etOrden)).setVisibility(View.GONE);
@@ -100,6 +110,7 @@ public class MeasureUnitDialogFragment extends DialogFragment implements OnFailu
             @Override
             public void onClick(View v) {
                 llSave.setEnabled(false);
+                llProgress.setVisibility(View.VISIBLE);
                 if(tempObj == null){
                     Save();
                 }else{
@@ -128,23 +139,20 @@ public class MeasureUnitDialogFragment extends DialogFragment implements OnFailu
                 SaveMeasureUnit();
             }else{
                 llSave.setEnabled(true);
+                llProgress.setVisibility(View.INVISIBLE);
             }
     }
 
     public void SaveMeasureUnit(){
-        try {
             String code =Funciones.generateCode();
             String name = etName.getText().toString();
-            MeasureUnits pt = new MeasureUnits(code, name);
+            toInsertObject = new MeasureUnits(code, name);
             if(type.equals(CODES.ENTITY_TYPE_EXTRA_PRODUCTSFORSALE)){
-                measureUnitsController.sendToFireBase(pt);
+                measureUnitsController.sendToFireBase(toInsertObject, this, this, this);
             }else if(type.equals(CODES.ENTITY_TYPE_EXTRA_INVENTORY)){
-                measureUnitsInvController.sendToFireBase(pt);
+                measureUnitsInvController.sendToFireBase(toInsertObject);
             }
-            this.dismiss();
-        }catch(Exception e){
-            e.printStackTrace();
-        }
+            //this.dismiss();
 
 
     }
@@ -156,7 +164,7 @@ public class MeasureUnitDialogFragment extends DialogFragment implements OnFailu
             mu.setMDATE(null);
 
             if(type.equals(CODES.ENTITY_TYPE_EXTRA_PRODUCTSFORSALE)){
-                measureUnitsController.sendToFireBase(mu);
+                measureUnitsController.sendToFireBase(mu, this, this,this);
             }else if(type.equals(CODES.ENTITY_TYPE_EXTRA_INVENTORY)){
                 measureUnitsInvController.sendToFireBase(mu);
             }
@@ -178,5 +186,32 @@ public class MeasureUnitDialogFragment extends DialogFragment implements OnFailu
     @Override
     public void onFailure(@NonNull Exception e) {
         llSave.setEnabled(true);
+        llProgress.setVisibility(View.INVISIBLE);
+        Snackbar.make(getView(), e.getMessage(), Snackbar.LENGTH_LONG).show();
+    }
+
+    @Override
+    public void onComplete(@NonNull Task task) {
+        if(task.getException() != null){
+            llSave.setEnabled(true);
+            llProgress.setVisibility(View.INVISIBLE);
+            Snackbar.make(getView(), task.getException().getMessage(), Snackbar.LENGTH_LONG).show();
+        }
+    }
+
+    @Override
+    public void onSuccess(Object o) {
+        if(tempObj == null){
+            toInsertObject.setDATE(new Date());//Guardar fecha local mientras tanto se baja nuevamente del server
+            toInsertObject.setMDATE(new Date());
+            MeasureUnitsController.getInstance(getContext()).insert(toInsertObject);
+        }else{
+            tempObj.setMDATE(new Date());//Guardar fecha local mientras tanto se baja nuevamente del server
+            MeasureUnitsController.getInstance(getContext()).update(tempObj);
+        }
+
+
+        dialogCaller.dialogClosed(o);
+        dismiss();
     }
 }

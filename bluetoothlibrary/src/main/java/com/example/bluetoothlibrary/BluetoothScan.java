@@ -1,6 +1,7 @@
 package com.example.bluetoothlibrary;
 
 import android.Manifest;
+import android.app.Activity;
 import android.app.Dialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -16,6 +17,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Adapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -32,23 +34,30 @@ import java.util.UUID;
 
 public class BluetoothScan extends AppCompatActivity implements ListableActivity {
 
+    public static String EXTRA_MAC_ADDRESS = "macaddress";
     ListView rvDiscovery;
+    EditText etMacAddress;
     ArrayList<Item> list;
     ScanAdapter myAdapter;
     BluetoothAdapter myBluetoothAdapter;
     BluetoothSocket socket;
     public static final int REQUEST_ENABLE_BT=1;
     Dialog waitingToConect;
-    String macaddress="";
+    Item selectedItem;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_bluetooth_scan);
 
+        if(getIntent().getExtras()!= null && getIntent().getExtras().containsKey(EXTRA_MAC_ADDRESS)){
+            String value = getIntent().getExtras().getString(EXTRA_MAC_ADDRESS);
+            selectedItem = new Item(value, "");
+        }
+
         myBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         if(myBluetoothAdapter != null) {
             init();
-
         }else{
             Toast.makeText(BluetoothScan.this, "BlueTooth no disponible", Toast.LENGTH_LONG).show();
         }
@@ -57,9 +66,35 @@ public class BluetoothScan extends AppCompatActivity implements ListableActivity
 
     public void init(){
         rvDiscovery =  findViewById(R.id.rvDiscovery);
+        etMacAddress = findViewById(R.id.etMacAddress);
+
         list = new ArrayList<>();
         myAdapter = new ScanAdapter(BluetoothScan.this, this,0, list);
         rvDiscovery.setAdapter(myAdapter);
+
+        if(selectedItem != null){
+            etMacAddress.setText(selectedItem.getCode());
+        }
+
+        findViewById(R.id.btnSave).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(validate()){
+                    saveData();
+                }
+
+            }
+        });
+
+        findViewById(R.id.btnCancel).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent returnIntent = new Intent();
+                setResult(Activity.RESULT_CANCELED,returnIntent);
+                finish();
+            }
+        });
+
 
         findViewById(R.id.btnSearch).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -97,9 +132,9 @@ public class BluetoothScan extends AppCompatActivity implements ListableActivity
         super.onActivityResult(requestCode, resultCode, data);
         if(requestCode == REQUEST_ENABLE_BT && requestCode == RESULT_OK){
             scanBluetooth();
-        }else{
+        }/*else{
             finish();
-        }
+        }*/
     }
 
     @Override
@@ -108,6 +143,7 @@ public class BluetoothScan extends AppCompatActivity implements ListableActivity
         try {
             // Don't forget to unregister the ACTION_FOUND receiver.
             unregisterReceiver(myBroadcast);
+
         }catch (Exception e){
             e.printStackTrace();
         }
@@ -128,7 +164,7 @@ public class BluetoothScan extends AppCompatActivity implements ListableActivity
         Item i = (Item)o;
         BluetoothDevice myParingDevice = myBluetoothAdapter.getRemoteDevice(i.getCode());
 
-        if(myParingDevice.getAddress().toString().equals(macaddress) && myParingDevice.getBondState() == BluetoothDevice.BOND_BONDED){
+        if(selectedItem!= null && myParingDevice.getAddress().toString().equals(selectedItem.getCode()) && myParingDevice.getBondState() == BluetoothDevice.BOND_BONDED){
             Toast.makeText(BluetoothScan.this, "El dispositivo esta conectado", Toast.LENGTH_LONG).show();
         }else {
             //////////////////////////////////////////////////////////////////////////////
@@ -154,10 +190,13 @@ public class BluetoothScan extends AppCompatActivity implements ListableActivity
                         Thread.sleep(500);
                         if (socket.isConnected()) {
                             socket.getOutputStream().write("Configurado\n\n".getBytes());
-                            macaddress = i.getCode();
+                            //macaddress = i.getCode();
+                            selectedItem = i;
 
                             Thread.sleep(500);
 
+                        }else{
+                            selectedItem = null;
                         }
                         // el socket debe cerrarse y nulificarse siempre que se acabe de usar ya que si no se hace simpre estara caducado
                         // y sera inaccesible.
@@ -178,6 +217,9 @@ public class BluetoothScan extends AppCompatActivity implements ListableActivity
                         socket = null;
                     }catch (Exception e){e.printStackTrace();}
 
+                    if(selectedItem!= null){
+                        etMacAddress.setText(selectedItem.getCode());
+                    }
 
                     waitingToConect.dismiss();
                 }
@@ -212,6 +254,23 @@ public class BluetoothScan extends AppCompatActivity implements ListableActivity
         }
     }
 
+    public boolean validate(){
+        if(etMacAddress.getText().toString().trim().isEmpty()){
+            Toast.makeText(BluetoothScan.this, "Device Address Can't be empty", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        return true;
+    }
 
+    public void saveData(){
+        Intent returnIntent = new Intent();
+        returnIntent.putExtra(EXTRA_MAC_ADDRESS,selectedItem.getCode());
+        setResult(Activity.RESULT_OK,returnIntent);
+        finish();
+    }
 
+    @Override
+    public void onBackPressed() {
+
+    }
 }

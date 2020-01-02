@@ -1,6 +1,8 @@
 package com.far.basesales;
 
+import android.app.Activity;
 import android.app.Dialog;
+import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
@@ -8,10 +10,12 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 
+import com.example.bluetoothlibrary.BluetoothScan;
 import com.far.basesales.Adapters.Models.ReceiptRowModel;
 import com.far.basesales.CloudFireStoreObjects.Payment;
 import com.far.basesales.CloudFireStoreObjects.Receipts;
 import com.far.basesales.Controllers.Transaction;
+import com.far.basesales.Globales.CODES;
 import com.far.basesales.Interfases.ListableActivity;
 import com.far.basesales.Utils.Funciones;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -49,6 +53,16 @@ public class MainReceipt extends AppCompatActivity implements ListableActivity, 
         }
 
     }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(requestCode == CODES.REQUEST_BLUETOOTH_ACTIVITY && resultCode == Activity.RESULT_OK){
+            String macAdress = data.getExtras().getString(BluetoothScan.EXTRA_MAC_ADDRESS);
+            Funciones.savePreferences(MainReceipt.this, CODES.PREFERENCE_BLUETOOTH_MAC_ADDRESS, macAdress);
+        }
+    }
+
 
     public void showReceiptResume(){
         changeFragment(receiptResumeFragment, R.id.frame);

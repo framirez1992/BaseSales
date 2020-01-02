@@ -72,6 +72,10 @@ public class ProductsSubTypesController {
         return result;
     }
 
+    public long update(ProductsSubTypes pt){
+        return update(pt, CODE+" = ?", new String[]{pt.getCODE()});
+    }
+
     public long update(ProductsSubTypes pt, String where, String[] args){
         ContentValues cv = new ContentValues();
         cv.put(CODE,pt.getCODE() );
@@ -84,6 +88,9 @@ public class ProductsSubTypesController {
         return result;
     }
 
+    public long delete(ProductsSubTypes pst){
+        return delete(CODE+" = ?", new String[]{pst.getCODE()});
+    }
     public long delete(String where, String[] args){
         long result = DB.getInstance(context).getWritableDatabase().delete(TABLE_NAME,where, args);
         return result;
@@ -132,23 +139,21 @@ public class ProductsSubTypesController {
     }
 
 
-    public void sendToFireBase(ProductsSubTypes pst){
-        try {
+    public void sendToFireBase(ProductsSubTypes pst, OnCompleteListener completeListener, OnSuccessListener successListener, OnFailureListener failureListener){
             WriteBatch lote = db.batch();
             lote.set(getReferenceFireStore().document(pst.getCODE()), pst.toMap());
-            lote.commit();
-        }catch(Exception e){
-            e.printStackTrace();
-        }
+            lote.commit().addOnCompleteListener(completeListener)
+                    .addOnSuccessListener(successListener)
+                    .addOnFailureListener(failureListener);
+
     }
 
 
-    public void deleteFromFireBase(ProductsSubTypes pst){
-        try {
-            getReferenceFireStore().document(pst.getCODE()).delete();
-        }catch(Exception e){
-            e.printStackTrace();
-        }
+    public void deleteFromFireBase(ProductsSubTypes pst, OnCompleteListener completeListener, OnSuccessListener successListener, OnFailureListener failureListener){
+            getReferenceFireStore().document(pst.getCODE())
+                    .delete().addOnCompleteListener(completeListener)
+                    .addOnSuccessListener(successListener)
+                    .addOnFailureListener(failureListener);
     }
 
     public void getDataFromFireBase(String key, OnSuccessListener<QuerySnapshot> onSuccessListener,

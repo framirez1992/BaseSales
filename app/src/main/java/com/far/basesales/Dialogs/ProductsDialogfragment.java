@@ -32,21 +32,28 @@ import com.far.basesales.Controllers.ProductsTypesController;
 import com.far.basesales.Controllers.ProductsTypesInvController;
 import com.far.basesales.Generic.KV;
 import com.far.basesales.Globales.CODES;
+import com.far.basesales.Interfases.DialogCaller;
 import com.far.basesales.Interfases.ListableActivity;
 import com.far.basesales.R;
 import com.far.basesales.Utils.Funciones;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
+import java.util.Date;
 
 
-public class ProductsDialogfragment extends DialogFragment implements ListableActivity, OnFailureListener {
+public class ProductsDialogfragment extends DialogFragment implements ListableActivity, OnCompleteListener, OnSuccessListener,  OnFailureListener {
 
+    DialogCaller dialogCaller;
     private Products tempObj;
+    private Products toInsertObject;
+    private ArrayList<ProductsMeasure> toInsertProductMeasure;
 
-    LinearLayout llSave, llBack;
+    LinearLayout llSave, llBack, llProgress;
     TextInputEditText etCode, etName;
     Spinner spnFamily, spnGroup;
     RecyclerView rvMeasures;
@@ -67,12 +74,13 @@ public class ProductsDialogfragment extends DialogFragment implements ListableAc
     Dialog loadingDialg;
     Dialog errorDialog;
 
-    public  static ProductsDialogfragment newInstance(String type, Products pt) {
+    public  static ProductsDialogfragment newInstance(String type, Products pt, DialogCaller dialogCaller) {
 
 
         ProductsDialogfragment f = new ProductsDialogfragment();
         f.type = type;
         f.tempObj = pt;
+        f.dialogCaller = dialogCaller;
 
         // Supply num input as an argument.
         Bundle args = new Bundle();
@@ -128,6 +136,7 @@ public class ProductsDialogfragment extends DialogFragment implements ListableAc
 
 
     public void init(View view){
+        llProgress = view.findViewById(R.id.llProgress);
         llMainScreen = view.findViewById(R.id.llMainScreen);
         llMeasureScreen = view.findViewById(R.id.llMeasureScreen);
         llNext = view.findViewById(R.id.llNext);
@@ -186,13 +195,13 @@ public class ProductsDialogfragment extends DialogFragment implements ListableAc
             @Override
             public void onClick(View v) {
                 llSave.setEnabled(false);
+                llProgress.setVisibility(View.VISIBLE);
                 selected = ((ProductMeasureSelectionAdapter)rvMeasures.getAdapter()).getSelectedObjects();
                 if(tempObj == null){
                     Save();
                 }else{
                     Edit();
                 }
-                llSave.setEnabled(true);
             }
         });
 
@@ -269,6 +278,7 @@ public class ProductsDialogfragment extends DialogFragment implements ListableAc
             SaveProduct();
         }else{
             llSave.setEnabled(true);
+            llProgress.setVisibility(View.INVISIBLE);
         }
     }
 
@@ -277,6 +287,7 @@ public class ProductsDialogfragment extends DialogFragment implements ListableAc
             EditProduct();
         }else{
             llSave.setEnabled(true);
+            llProgress.setVisibility(View.INVISIBLE);
         }
     }
 
@@ -286,18 +297,18 @@ public class ProductsDialogfragment extends DialogFragment implements ListableAc
             String description = etName.getText().toString();
             String productType = ((KV)spnFamily.getSelectedItem()).getKey();
             String productSubType = ((KV)spnGroup.getSelectedItem()).getKey();
-            Products product = new Products(code, description, productType, productSubType, false);
+            toInsertObject = new Products(code, description, productType, productSubType, false);
 
-            ArrayList<ProductsMeasure> list = new ArrayList<>();
+            toInsertProductMeasure = new ArrayList<>();
             for(ProductMeasureRowModel ssrm: selected){
                 //String code, String codeProduct, String codeMeasure,double price,boolean range, double minPrice, double maxPrice, boolean enabled, String date, String mdate
-                list.add(new ProductsMeasure(Funciones.generateCode(), code, ssrm.getCodeMeasure(),ssrm.getAmount(),ssrm.isPriceRange(), ssrm.getMinPrice(),ssrm.getMaxPrice(),ssrm.isChecked(), null, null));
+                toInsertProductMeasure.add(new ProductsMeasure(Funciones.generateCode(), code, ssrm.getCodeMeasure(),ssrm.getAmount(),ssrm.isPriceRange(), ssrm.getMinPrice(),ssrm.getMaxPrice(),ssrm.isChecked(), null, null));
             }
 
             if(type.equals(CODES.ENTITY_TYPE_EXTRA_PRODUCTSFORSALE)){
-                productsController.sendToFireBase(product, list);
+                productsController.sendToFireBase(toInsertObject, toInsertProductMeasure, this, this, this);
             }else if(type.equals(CODES.ENTITY_TYPE_EXTRA_INVENTORY)){
-                productsInvController.sendToFireBase(product, list);
+                productsInvController.sendToFireBase(toInsertObject, toInsertProductMeasure);
             }
 
 
@@ -311,23 +322,23 @@ public class ProductsDialogfragment extends DialogFragment implements ListableAc
 
     public void EditProduct(){
         try {
-            Products products = ((Products)tempObj);
+            Products products = tempObj;
             products.setDESCRIPTION(etName.getText().toString());
             products.setTYPE(((KV)spnFamily.getSelectedItem()).getKey());
             products.setSUBTYPE(((KV)spnGroup.getSelectedItem()).getKey());
             products.setMDATE(null);
 
-            ArrayList<ProductsMeasure> list = new ArrayList<>();
+            toInsertProductMeasure = new ArrayList<>();
             for(ProductMeasureRowModel ssrm: selected){
                 //String code, String codeProduct, String codeMeasure,double price,boolean range, double minPrice, double maxPrice, boolean enabled, String date, String mdate
-                list.add(new ProductsMeasure(Funciones.generateCode(), products.getCODE(), ssrm.getCodeMeasure(),ssrm.getAmount(),
+                toInsertProductMeasure.add(new ProductsMeasure(Funciones.generateCode(), products.getCODE(), ssrm.getCodeMeasure(),ssrm.getAmount(),
                         ssrm.isPriceRange(),ssrm.getMinPrice(),ssrm.getMaxPrice() ,true, null, null));
             }
 
             if(type.equals(CODES.ENTITY_TYPE_EXTRA_PRODUCTSFORSALE)){
-                productsController.sendToFireBase(products, list);
+                productsController.sendToFireBase(products, toInsertProductMeasure, this, this, this);
             }else if(type.equals(CODES.ENTITY_TYPE_EXTRA_INVENTORY)){
-                productsInvController.sendToFireBase(products, list);
+                productsInvController.sendToFireBase(products, toInsertProductMeasure);
             }
 
             this.dismiss();
@@ -360,13 +371,6 @@ public class ProductsDialogfragment extends DialogFragment implements ListableAc
     }
 
 
-
-
-    @Override
-    public void onFailure(@NonNull Exception e) {
-        //Funciones.showNetworkErrorWithText(getView(), e.getMessage());
-        llSave.setEnabled(true);
-    }
 
     public void fillMeasures(){
 
@@ -502,4 +506,77 @@ public class ProductsDialogfragment extends DialogFragment implements ListableAc
         }
         return true;
     }
+
+    @Override
+    public void onComplete(@NonNull Task task) {
+        if(task.getException() != null){
+            llSave.setEnabled(true);
+            llProgress.setVisibility(View.INVISIBLE);
+            Snackbar.make(getView(), task.getException().getMessage(), Snackbar.LENGTH_LONG).show();
+        }
+    }
+
+    @Override
+    public void onSuccess(Object o) {
+
+        String notIn=" NOT IN ('1'";
+        String codeProduct ="";
+
+        if(tempObj == null){
+            codeProduct = toInsertObject.getCODE();
+            toInsertObject.setDATE(new Date());//Guardar fecha local mientras tanto se baja nuevamente del server
+            toInsertObject.setMDATE(new Date());
+            ProductsController.getInstance(getContext()).insert(toInsertObject);
+        }else{
+            codeProduct = tempObj.getCODE();
+            tempObj.setMDATE(new Date());//Guardar fecha local mientras tanto se baja nuevamente del server
+            ProductsController.getInstance(getContext()).update(tempObj);
+        }
+
+        if (toInsertProductMeasure != null && !toInsertProductMeasure.isEmpty()){
+
+            for(ProductsMeasure pm: toInsertProductMeasure){
+                String where = ProductsMeasureController.CODEMEASURE+" = ? AND "+ProductsMeasureController.CODEPRODUCT+" = ?";
+                String[]args = new String[]{pm.getCODEMEASURE(), pm.getCODEPRODUCT()};
+                ArrayList<ProductsMeasure> existingPM = ProductsMeasureController.getInstance(getContext()).getProductsMeasure(where, args);
+
+                if(existingPM.size() >0){//ACTUALIZAR
+                    pm.setCODE(existingPM.get(0).getCODE());//sustituye el codigo nuevo por el existente en la base de datos
+                    pm.setDATE(existingPM.get(0).getDATE());//permanecer la fecha de creacion.
+                    pm.setMDATE(null);
+
+                    //ACTUALIZAR LOCAL
+                    where = ProductsMeasureController.CODE+" = ?";
+                    ProductsMeasureController.getInstance(getActivity()).update(pm,where, new String[]{pm.getCODE()});
+                }else{//INSERTAR
+                    ProductsMeasureController.getInstance(getContext()).insert(pm);
+                }
+
+                notIn+=",'"+pm.getCODE()+"'";
+            }
+        }
+
+        notIn+=")";
+        String where = ProductsMeasureController.CODEPRODUCT+" = ? AND "+ProductsMeasureController.ENABLED+" = ? AND  "+ProductsMeasureController.CODE+notIn;
+        ArrayList<ProductsMeasure> toDisable = ProductsMeasureController.getInstance(getContext()).getProductsMeasure(where, new String[]{codeProduct, "1"});
+        for(ProductsMeasure pm: toDisable){
+            pm.setENABLED(false);
+            pm.setMDATE(null);
+            where = ProductsMeasureController.CODE+" = ?";
+            ProductsMeasureController.getInstance(getContext()).update(pm,where, new String[]{pm.getCODE()});
+        }
+
+
+        dialogCaller.dialogClosed(o);
+        dismiss();
+    }
+
+    @Override
+    public void onFailure(@NonNull Exception e) {
+
+        llSave.setEnabled(true);
+        llProgress.setVisibility(View.INVISIBLE);
+        Snackbar.make(getView(), e.getMessage(), Snackbar.LENGTH_LONG).show();
+    }
+
 }

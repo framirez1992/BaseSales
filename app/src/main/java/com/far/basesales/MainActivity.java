@@ -208,6 +208,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         return true;
     }
 
+
     public EventListener<QuerySnapshot> licenceListener =  new EventListener<QuerySnapshot>() {
         @Override
         public void onEvent(@Nullable QuerySnapshot querySnapshot, @Nullable FirebaseFirestoreException e) {
@@ -401,6 +402,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public void setInitialFragment(){
         if(usersController.isSuperUser() || usersController.isAdmin()) {//SU o Administrador
             fragmentMaintenance = new MaintenanceFragment();
+            fragmentMaintenance.setParentActivity(MainActivity.this);
             FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
             ft.replace(R.id.details, fragmentMaintenance);
             ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);

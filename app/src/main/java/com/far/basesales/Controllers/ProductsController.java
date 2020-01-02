@@ -13,6 +13,7 @@ import com.far.basesales.CloudFireStoreObjects.ProductsMeasure;
 import com.far.basesales.DataBase.CloudFireStoreDB;
 import com.far.basesales.DataBase.DB;
 import com.far.basesales.Generic.KV2;
+import com.far.basesales.Globales.CODES;
 import com.far.basesales.Globales.Tablas;
 import com.far.basesales.Utils.Funciones;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -81,6 +82,9 @@ public class ProductsController {
         return result;
     }
 
+    public long update(Products p){
+        return  update(p, CODE+" = ?", new String[]{p.getCODE()});
+    }
     public long update(Products p, String where, String[] args){
         ContentValues cv = new ContentValues();
         cv.put(CODE,p.getCODE() );
@@ -94,6 +98,9 @@ public class ProductsController {
         return result;
     }
 
+    public long delete(Products p){
+        return delete(CODE+" = ?", new String[]{p.getCODE()});
+    }
     public long delete(String where, String[] args){
         long result = DB.getInstance(context).getWritableDatabase().delete(TABLE_NAME,where, args);
         return result;
@@ -234,11 +241,10 @@ public class ProductsController {
         }
     }
 
-    public void sendToFireBase(Products product){
-        sendToFireBase(product, null);
+    public void sendToFireBase(Products product, OnCompleteListener completeListener, OnSuccessListener successListener, OnFailureListener failureListener){
+        sendToFireBase(product, null, completeListener, successListener, failureListener);
     }
-    public void sendToFireBase(Products product, ArrayList<ProductsMeasure> newMeasures){
-        try {
+    public void sendToFireBase(Products product, ArrayList<ProductsMeasure> newMeasures, OnCompleteListener completeListener, OnSuccessListener successListener, OnFailureListener failureListener){
             WriteBatch lote = db.batch();
 
             if(product.getMDATE() == null){
@@ -264,11 +270,11 @@ public class ProductsController {
                         lote.update(ProductsMeasureController.getInstance(context).getReferenceFireStore().document(pm.getCODE()), pm.toMap());
 
                         //ACTUALIZAR LOCAL
-                        where = ProductsMeasureController.CODE+" = ?";
-                        ProductsMeasureController.getInstance(context).update(pm,where, new String[]{pm.getCODE()});
+                        //where = ProductsMeasureController.CODE+" = ?";
+                        //ProductsMeasureController.getInstance(context).update(pm,where, new String[]{pm.getCODE()});
                     }else{//INSERTAR
                         lote.set(ProductsMeasureController.getInstance(context).getReferenceFireStore().document(pm.getCODE()), pm.toMap());
-                        ProductsMeasureController.getInstance(context).insert(pm);
+                        //ProductsMeasureController.getInstance(context).insert(pm);
                     }
 
                     notIn+=",'"+pm.getCODE()+"'";
@@ -282,25 +288,19 @@ public class ProductsController {
                 pm.setENABLED(false);
                 pm.setMDATE(null);
                 where = ProductsMeasureController.CODE+" = ?";
-                ProductsMeasureController.getInstance(context).update(pm,where, new String[]{pm.getCODE()});
+                //ProductsMeasureController.getInstance(context).update(pm,where, new String[]{pm.getCODE()});
 
                 lote.update(ProductsMeasureController.getInstance(context).getReferenceFireStore().document(pm.getCODE()), pm.toMap());
             }
 
-            lote.commit().addOnFailureListener(new OnFailureListener() {
-                @Override
-                public void onFailure(@NonNull Exception e) {
-                    e.printStackTrace();
-                }
-            });
-        }catch(Exception e){
-            e.printStackTrace();
-        }
+            lote.commit().addOnCompleteListener(completeListener)
+                    .addOnSuccessListener(successListener)
+                    .addOnFailureListener(failureListener);
+
 
     }
 
-    public void deleteFromFireBase(Products product){
-        try {
+    public void deleteFromFireBase(Products product, OnCompleteListener completeListener, OnSuccessListener onSuccessListener, OnFailureListener failureListener){
             WriteBatch lote = db.batch();
             lote.delete(getReferenceFireStore().document(product.getCODE()));
             for(KV2 data: getDependencies(product.getCODE())){
@@ -309,15 +309,9 @@ public class ProductsController {
                 }
             }
 
-            lote.commit().addOnFailureListener(new OnFailureListener() {
-                @Override
-                public void onFailure(@NonNull Exception e) {
-                    e.printStackTrace();
-                }
-            });
-        }catch(Exception e){
-            e.printStackTrace();
-        }
+            lote.commit().addOnCompleteListener(completeListener).
+                    addOnSuccessListener(onSuccessListener).
+                    addOnFailureListener(failureListener);
     }
 
 

@@ -1,6 +1,8 @@
 package com.far.basesales;
 
+import android.app.Activity;
 import android.app.Dialog;
+import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -30,6 +32,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.bluetoothlibrary.BluetoothScan;
 import com.far.basesales.Adapters.Models.ClientRowModel;
 import com.far.basesales.Adapters.Models.OrderDetailModel;
 import com.far.basesales.Adapters.Models.SimpleRowModel;
@@ -235,6 +238,16 @@ public class MainOrders extends AppCompatActivity implements ListableActivity/*,
         orderCode = savedInstanceState.getString(KEY_ORDERCODE);
         resumenOrderFragment.refreshList();
         resumenOrderFragment.refreshTotal();
+    }
+
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(requestCode == CODES.REQUEST_BLUETOOTH_ACTIVITY && resultCode == Activity.RESULT_OK){
+            String macAdress = data.getExtras().getString(BluetoothScan.EXTRA_MAC_ADDRESS);
+            Funciones.savePreferences(MainOrders.this, CODES.PREFERENCE_BLUETOOTH_MAC_ADDRESS, macAdress);
+        }
     }
 
     public void goToNewOrder(){

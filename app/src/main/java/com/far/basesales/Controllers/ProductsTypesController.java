@@ -191,24 +191,21 @@ public class ProductsTypesController {
 
     }
 
-    public void sendToFireBase(ProductsTypes pt){
-        try {
+    public void sendToFireBase(ProductsTypes pt, OnSuccessListener successListener, OnCompleteListener completeListener, OnFailureListener failureListener){
             WriteBatch lote = db.batch();
             lote.set(getReferenceFireStore().document(pt.getCODE()), pt.toMap());
-            lote.commit();
-        }catch(Exception e){
-            e.printStackTrace();
-        }
-
+            lote.commit().addOnSuccessListener(successListener)
+                    .addOnCompleteListener(completeListener)
+                    .addOnFailureListener(failureListener);
     }
 
 
-    public void deleteFromFireBase(ProductsTypes pt){
-        try {
-            getReferenceFireStore().document(pt.getCODE()).delete();
-        }catch(Exception e){
-            e.printStackTrace();
-        }
+    public void deleteFromFireBase(ProductsTypes pt, OnCompleteListener completeListener, OnSuccessListener successListener, OnFailureListener failureListener){
+            getReferenceFireStore()
+                    .document(pt.getCODE())
+                    .delete().addOnCompleteListener(completeListener)
+                    .addOnSuccessListener(successListener)
+                    .addOnFailureListener(failureListener);
     }
 
 

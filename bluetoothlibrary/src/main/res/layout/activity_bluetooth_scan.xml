@@ -6,20 +6,113 @@
     tools:context="com.example.bluetoothlibrary.BluetoothScan"
     android:orientation="vertical">
 
-    <Button android:id="@+id/btnSearch"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="SEARCH"/>
+        android:orientation="horizontal"
+        android:padding="30dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:text="Device Address: "
+            android:textSize="18sp"
+            android:gravity="center_vertical"
+            android:textStyle="bold"/>
+
+        <EditText android:id="@+id/etMacAddress"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="3"
+            android:layout_marginLeft="5dp"
+            android:defaultFocusHighlightEnabled="false"
+            android:focusableInTouchMode="false"/>
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1">
+
+        </LinearLayout>
+
+
+    </LinearLayout>
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_horizontal">
+
+        <LinearLayout android:id="@+id/btnSearch"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="10dp">
+            <ImageView
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:src="@drawable/ic_bluetooth_searching"
+                android:layout_gravity="center_vertical"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:text="Scan"
+                android:gravity="center_vertical"
+                android:textStyle="bold"/>
+        </LinearLayout>
+
+
+        <LinearLayout android:id="@+id/btnCancel"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:orientation="horizontal"
+            android:padding="10dp"
+            android:layout_marginLeft="20dp">
+            <ImageView
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:src="@drawable/ic_clear"
+                android:layout_gravity="center_vertical"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:text="Cancel"
+                android:gravity="center_vertical"
+                android:textStyle="bold"/>
+        </LinearLayout>
+
+
+        <LinearLayout android:id="@+id/btnSave"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:orientation="horizontal"
+            android:padding="10dp"
+            android:layout_marginLeft="20dp">
+            <ImageView
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:src="@drawable/ic_action_check_circle"
+                android:layout_gravity="center_vertical"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:text="Save"
+                android:gravity="center_vertical"
+                android:textStyle="bold"
+                android:paddingLeft="10dp"/>
+        </LinearLayout>
+
+
+
+    </LinearLayout>
+
 
     <Button android:id="@+id/getAllPaired"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="GET ALL PAIRED"/>
-
-    <Button android:id="@+id/btnClear"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="CLEAR"/>
+        android:text="GET ALL PAIRED"
+        android:visibility="gone"/>
 
     <ListView
         android:id="@+id/rvDiscovery"

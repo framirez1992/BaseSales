@@ -134,6 +134,8 @@ public class CODES {
 
     public static final String EXTRA_ADMIN_LICENSE = "EXTRA_ADMIN_LICENSE";
 
+    public static final String PREFERENCE_BLUETOOTH_MAC_ADDRESS="BLUETOOTH_MAC_ADDRESS";
+
     //////////////////////////////////
     ///  REPORTS KEYS            ////
     public static final String REPORTS_FILTER_KEY_VENTAS = "0";
@@ -160,5 +162,9 @@ public class CODES {
     public static final String CONTROL_SALES="CONTROL_SALES";
     public static final String CONTROL_RECEIPTS = "CONTROL_RECEIPTS";
     public static final String CONTROL_REPORTS ="CONTROL_REPORTS";
+
+
+    //REQUESTS CODES
+    public static  final int REQUEST_BLUETOOTH_ACTIVITY=1000;
 
 }

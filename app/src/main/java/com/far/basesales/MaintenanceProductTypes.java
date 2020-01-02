@@ -2,6 +2,7 @@ package com.far.basesales;
 
 import android.app.Dialog;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
@@ -20,6 +21,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.far.basesales.Adapters.Models.SimpleRowModel;
 import com.far.basesales.Adapters.SimpleRowEditionAdapter;
@@ -30,8 +32,13 @@ import com.far.basesales.Controllers.ProductsTypesController;
 import com.far.basesales.Controllers.ProductsTypesInvController;
 import com.far.basesales.Dialogs.ProductTypeDialogFragment;
 import com.far.basesales.Globales.CODES;
+import com.far.basesales.Interfases.DialogCaller;
 import com.far.basesales.Interfases.ListableActivity;
 import com.far.basesales.Utils.Funciones;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestoreException;
@@ -39,7 +46,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 
-public class MaintenanceProductTypes extends AppCompatActivity implements ListableActivity {
+public class MaintenanceProductTypes extends AppCompatActivity implements ListableActivity, DialogCaller {
 
     RecyclerView rvList;
     ArrayList<SimpleRowModel> objects;
@@ -140,7 +147,7 @@ public class MaintenanceProductTypes extends AppCompatActivity implements Listab
 
     public void setUpListeners(){
         if(type.equals(CODES.ENTITY_TYPE_EXTRA_PRODUCTSFORSALE)) {
-            productsTypesController.getReferenceFireStore().addSnapshotListener(MaintenanceProductTypes.this, new EventListener<QuerySnapshot>() {
+           /* productsTypesController.getReferenceFireStore().addSnapshotListener(MaintenanceProductTypes.this, new EventListener<QuerySnapshot>() {
                 @Override
                 public void onEvent(QuerySnapshot querySnapshot, FirebaseFirestoreException e) {
                     productsTypesController.delete(null, null);//limpia la tabla
@@ -153,9 +160,9 @@ public class MaintenanceProductTypes extends AppCompatActivity implements Listab
                     refreshList(lastSearch);
 
                 }
-            });
+            });*/
         }else if(type.equals(CODES.ENTITY_TYPE_EXTRA_INVENTORY)){
-            productsTypesInvController.getReferenceFireStore().addSnapshotListener(MaintenanceProductTypes.this, new EventListener<QuerySnapshot>() {
+           /* productsTypesInvController.getReferenceFireStore().addSnapshotListener(MaintenanceProductTypes.this, new EventListener<QuerySnapshot>() {
                 @Override
                 public void onEvent(QuerySnapshot querySnapshot, FirebaseFirestoreException e) {
                     productsTypesInvController.delete(null, null);//limpia la tabla
@@ -168,7 +175,7 @@ public class MaintenanceProductTypes extends AppCompatActivity implements Listab
                     refreshList(lastSearch);
 
                 }
-            });
+            });*/
         }
     }
     public void callAddDialog(boolean isNew){
@@ -180,9 +187,9 @@ public class MaintenanceProductTypes extends AppCompatActivity implements Listab
         ft.addToBackStack(null);
         DialogFragment newFragment = null;
         if(isNew){
-            newFragment = ProductTypeDialogFragment.newInstance(type,null);
+            newFragment = ProductTypeDialogFragment.newInstance(type,null, this);
         }else {
-            newFragment = ProductTypeDialogFragment.newInstance(type, productsType);
+            newFragment = ProductTypeDialogFragment.newInstance(type, productsType, this);
         }
 
         // Create and show the dialog.
@@ -198,12 +205,16 @@ public class MaintenanceProductTypes extends AppCompatActivity implements Listab
 
         String msg = "Esta seguro que desea eliminar \'"+description+"\' permanentemente?";
         final Dialog d = Funciones.getCustomDialog2Btn(this,getResources().getColor(R.color.red_700),"Delete", msg,R.drawable.delete,null, null);
-        CardView btnAceptar = d.findViewById(R.id.btnPositive);
-        CardView btnCancelar = d.findViewById(R.id.btnNegative);
+        final CardView btnAceptar = d.findViewById(R.id.btnPositive);
+        final CardView btnCancelar = d.findViewById(R.id.btnNegative);
 
         btnAceptar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                d.findViewById(R.id.llProgress).setVisibility(View.VISIBLE);
+                btnAceptar.setEnabled(false);
+                btnCancelar.setEnabled(false);
+
                 String msgDependency = getMsgDependency();
                 if(!msgDependency.isEmpty()) {
                     Funciones.showAlertDependencies(MaintenanceProductTypes.this, msgDependency);
@@ -213,13 +224,37 @@ public class MaintenanceProductTypes extends AppCompatActivity implements Listab
 
                 if(productsType != null){
                     if(type.equals(CODES.ENTITY_TYPE_EXTRA_PRODUCTSFORSALE)){
-                        productsTypesController.deleteFromFireBase(productsType);
+                        productsTypesController.deleteFromFireBase(productsType, new OnCompleteListener() {
+                            @Override
+                            public void onComplete(@NonNull Task task) {
+                                if(task.getException() != null){
+                                    btnAceptar.setEnabled(true);
+                                    btnCancelar.setEnabled(true);
+                                    d.findViewById(R.id.llProgress).setVisibility(View.INVISIBLE);
+                                    Toast.makeText(MaintenanceProductTypes.this, task.getException().getMessage(), Toast.LENGTH_LONG).show();
+                                }
+                            }
+                        }, new OnSuccessListener() {
+                            @Override
+                            public void onSuccess(Object o) {
+                                productsTypesController.delete(productsType);
+                                refreshList(lastSearch);
+                                d.dismiss();
+                            }
+                        }, new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                btnAceptar.setEnabled(true);
+                                btnCancelar.setEnabled(true);
+                                d.findViewById(R.id.llProgress).setVisibility(View.INVISIBLE);
+                                Toast.makeText(MaintenanceProductTypes.this, e.getMessage(), Toast.LENGTH_LONG).show();
+                            }
+                        });
                     }else if(type.equals(CODES.ENTITY_TYPE_EXTRA_INVENTORY)){
                         productsTypesInvController.deleteFromFireBase(productsType);
                     }
 
                 }
-                d.dismiss();
             }
         });
 
@@ -311,5 +346,10 @@ public class MaintenanceProductTypes extends AppCompatActivity implements Listab
 
         }
        return msgDependency;
+    }
+
+    @Override
+    public void dialogClosed(Object o) {
+        refreshList(lastSearch);
     }
 }
