@@ -1,6 +1,7 @@
 package com.far.basesales;
 
 import android.app.Dialog;
+import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
@@ -21,6 +22,7 @@ import android.widget.LinearLayout;
 import android.widget.SearchView;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.far.basesales.Adapters.ClientEditionAdapter;
 import com.far.basesales.Adapters.Models.ClientRowModel;
@@ -32,6 +34,10 @@ import com.far.basesales.Dialogs.ClientsDialogFragment;
 import com.far.basesales.Interfases.DialogCaller;
 import com.far.basesales.Interfases.ListableActivity;
 import com.far.basesales.Utils.Funciones;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestoreException;
@@ -160,13 +166,42 @@ public class MaintenanceClients extends AppCompatActivity implements ListableAct
 
         String msg = "Esta seguro que desea eliminar \'"+description+"\' permanentemente?";
         final Dialog d = Funciones.getCustomDialog2Btn(this,getResources().getColor(R.color.red_700),"Delete", msg,R.drawable.delete,null, null);
-        CardView btnAceptar = d.findViewById(R.id.btnPositive);
-        CardView btnCancelar = d.findViewById(R.id.btnNegative);
+        final CardView btnAceptar = d.findViewById(R.id.btnPositive);
+        final CardView btnCancelar = d.findViewById(R.id.btnNegative);
         btnAceptar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                d.findViewById(R.id.llProgress).setVisibility(View.VISIBLE);
+                btnAceptar.setEnabled(false);
+                btnCancelar.setEnabled(false);
+
                 if(clients != null){
-                    clientsController.deleteFromFireBase(clients);
+                    clientsController.deleteFromFireBase(clients, new OnCompleteListener() {
+                        @Override
+                        public void onComplete(@NonNull Task task) {
+                            if(task.getException() != null){
+                                btnAceptar.setEnabled(true);
+                                btnCancelar.setEnabled(true);
+                                d.findViewById(R.id.llProgress).setVisibility(View.INVISIBLE);
+                                Toast.makeText(MaintenanceClients.this, task.getException().getMessage(), Toast.LENGTH_LONG).show();
+                            }
+                        }
+                    }, new OnSuccessListener() {
+                        @Override
+                        public void onSuccess(Object o) {
+                            clientsController.delete(clients);
+                            refreshList();
+                            d.dismiss();
+                        }
+                    }, new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            btnAceptar.setEnabled(true);
+                            btnCancelar.setEnabled(true);
+                            d.findViewById(R.id.llProgress).setVisibility(View.INVISIBLE);
+                            Toast.makeText(MaintenanceClients.this, e.getMessage(), Toast.LENGTH_LONG).show();
+                        }
+                    });
                 }
                 d.dismiss();
             }
@@ -244,6 +279,6 @@ public class MaintenanceClients extends AppCompatActivity implements ListableAct
 
     @Override
     public void dialogClosed(Object o) {
-
+    refreshList();
     }
 }

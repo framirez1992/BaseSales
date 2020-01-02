@@ -58,33 +58,20 @@ public class ClientsController {
     }
 
 
-    public void sendToFireBase(Clients clients, OnSuccessListener onSuccessListener, OnFailureListener failure){
-        try {
+    public void sendToFireBase(Clients clients, OnCompleteListener completeListener, OnSuccessListener onSuccessListener, OnFailureListener failure){
             WriteBatch lote = db.batch();
             lote.set(getReferenceFireStore().document(clients.getCODE()), clients.toMap());
-            lote.commit().addOnSuccessListener(onSuccessListener).addOnFailureListener(failure);
-
-        }catch(Exception e){
-            e.printStackTrace();
-        }
-
+            lote.commit().addOnCompleteListener(completeListener)
+                    .addOnSuccessListener(onSuccessListener)
+                    .addOnFailureListener(failure);
     }
 
-    public void deleteFromFireBase(Clients clients){
-        try {
+    public void deleteFromFireBase(Clients clients , OnCompleteListener completeListener, OnSuccessListener onSuccessListener, OnFailureListener failure){
             WriteBatch lote = db.batch();
             lote.delete(getReferenceFireStore().document(clients.getCODE()));
-
-
-            lote.commit().addOnFailureListener(new OnFailureListener() {
-                @Override
-                public void onFailure(@NonNull Exception e) {
-                    e.printStackTrace();
-                }
-            });
-        }catch(Exception e){
-            e.printStackTrace();
-        }
+            lote.commit().addOnCompleteListener(completeListener)
+                    .addOnSuccessListener(onSuccessListener)
+                    .addOnFailureListener(failure);
     }
 
     public long insert(Clients c){
@@ -103,6 +90,9 @@ public class ClientsController {
         return result;
     }
 
+    public long update(Clients c){
+        return update(c,CODE+" = ?", new String[]{c.getCODE()});
+    }
     public long update(Clients c, String where, String[] args){
         ContentValues cv = new ContentValues();
         cv.put(CODE,c.getCODE() );
@@ -116,6 +106,10 @@ public class ClientsController {
 
         long result = DB.getInstance(context).getWritableDatabase().update(TABLE_NAME,cv,where, args);
         return result;
+    }
+
+    public long delete(Clients c){
+        return delete(CODE+" = ?", new String[]{c.getCODE()});
     }
 
     public long delete(String where, String[] args){

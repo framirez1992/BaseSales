@@ -18,19 +18,24 @@ import com.far.basesales.Controllers.ClientsController;
 import com.far.basesales.Interfases.DialogCaller;
 import com.far.basesales.R;
 import com.far.basesales.Utils.Funciones;
+import com.far.farpdf.Entities.Client;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 
-public class ClientsDialogFragment extends DialogFragment implements OnFailureListener {
+public class ClientsDialogFragment extends DialogFragment implements OnCompleteListener,  OnSuccessListener, OnFailureListener {
 
     DialogCaller dialogCaller;
     public Clients tempObj;
+    private Clients toInsertObject;
     public String type;
 
-    LinearLayout llSave;
+    LinearLayout llSave, llProgress;
     TextInputEditText etName, etDocument, etPhone, etBirth;
 
 
@@ -97,6 +102,7 @@ public class ClientsDialogFragment extends DialogFragment implements OnFailureLi
 
 
     public void init(View view){
+        llProgress = view.findViewById(R.id.llProgress);
         llSave = view.findViewById(R.id.llSave);
         etDocument = view.findViewById(R.id.etDocument);
         etName = view.findViewById(R.id.etName);
@@ -114,6 +120,7 @@ public class ClientsDialogFragment extends DialogFragment implements OnFailureLi
             @Override
             public void onClick(View v) {
                 llSave.setEnabled(false);
+                llProgress.setVisibility(View.VISIBLE);
                 if(tempObj == null){
                     Save();
                 }else{
@@ -142,6 +149,7 @@ public class ClientsDialogFragment extends DialogFragment implements OnFailureLi
             SaveClient();
         }else{
             llSave.setEnabled(true);
+            llProgress.setVisibility(View.INVISIBLE);
         }
 
     }
@@ -158,23 +166,10 @@ public class ClientsDialogFragment extends DialogFragment implements OnFailureLi
             if(!etBirth.getText().toString().trim().isEmpty()){
                 data = etBirth.getText().toString();
             }
-            final Clients pt = new Clients(code,document, name, phone, data, data2, data3);
-            clientsController.insert(pt);
+            toInsertObject = new Clients(code,document, name, phone, data, data2, data3);
+            //clientsController.insert(toInsertObject);
 
-            clientsController.sendToFireBase(pt, new OnSuccessListener() {
-                @Override
-                public void onSuccess(Object o) {
-                    llSave.setEnabled(true);
-                    dismiss();
-                    dialogCaller.dialogClosed(pt);
-                }
-            }, new OnFailureListener() {
-                @Override
-                public void onFailure(@NonNull Exception e) {
-                    llSave.setEnabled(true);
-                    Snackbar.make(getView(), e.getMessage(), Snackbar.LENGTH_SHORT).show();
-                }
-            });
+            clientsController.sendToFireBase(toInsertObject,this,  this, this);
 
         }catch(Exception e){
             e.printStackTrace();
@@ -200,18 +195,7 @@ public class ClientsDialogFragment extends DialogFragment implements OnFailureLi
             tempObj.setDATA2(data2);
             tempObj.setDATA3(data3);
 
-            clientsController.sendToFireBase(tempObj, new OnSuccessListener() {
-                @Override
-                public void onSuccess(Object o) {
-                    dismiss();
-                    dialogCaller.dialogClosed(tempObj);
-                }
-            }, new OnFailureListener() {
-                @Override
-                public void onFailure(@NonNull Exception e) {
-                    Snackbar.make(getView(), e.getMessage(), Snackbar.LENGTH_SHORT).show();
-                }
-            });
+            clientsController.sendToFireBase(tempObj, this, this, this);
 
         }catch(Exception e){
             e.printStackTrace();
@@ -258,5 +242,32 @@ public class ClientsDialogFragment extends DialogFragment implements OnFailureLi
     @Override
     public void onFailure(@NonNull Exception e) {
         llSave.setEnabled(true);
+        llProgress.setVisibility(View.INVISIBLE);
+        Snackbar.make(getView(), e.getMessage(), Snackbar.LENGTH_LONG).show();
+    }
+
+    @Override
+    public void onComplete(@NonNull Task task) {
+        if(task.getException() != null){
+            llSave.setEnabled(true);
+            llProgress.setVisibility(View.INVISIBLE);
+            Snackbar.make(getView(), task.getException().getMessage(), Snackbar.LENGTH_LONG).show();
+        }
+    }
+
+    @Override
+    public void onSuccess(Object o) {
+        if(tempObj == null){
+            toInsertObject.setDATE(new Date());//Guardar fecha local mientras tanto se baja nuevamente del server
+            toInsertObject.setMDATE(new Date());
+            ClientsController.getInstance(getContext()).insert(toInsertObject);
+            dialogCaller.dialogClosed(toInsertObject);
+        }else{
+            tempObj.setMDATE(new Date());//Guardar fecha local mientras tanto se baja nuevamente del server
+            ClientsController.getInstance(getContext()).update(tempObj);
+            dialogCaller.dialogClosed(tempObj);
+        }
+
+        dismiss();
     }
 }
