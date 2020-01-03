@@ -1,6 +1,7 @@
 package com.far.basesales;
 
 import android.app.Dialog;
+import android.app.Fragment;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
@@ -25,6 +26,7 @@ import com.far.basesales.CloudFireStoreObjects.ProductsControl;
 import com.far.basesales.CloudFireStoreObjects.UserControl;
 import com.far.basesales.CloudFireStoreObjects.Users;
 import com.far.basesales.CloudFireStoreObjects.UsersDevices;
+import com.far.basesales.Controllers.DayController;
 import com.far.basesales.Controllers.DevicesController;
 import com.far.basesales.Controllers.LicenseController;
 import com.far.basesales.Controllers.ProductsControlController;
@@ -43,6 +45,7 @@ import javax.annotation.Nullable;
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
     MaintenanceFragment fragmentMaintenance;
+    DayFragment dayFragment;
     LogoFragment logoFragment;
     LicenseController licenseController;
     UsersController usersController;
@@ -63,6 +66,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        fragmentMaintenance = new MaintenanceFragment();
+        fragmentMaintenance.setParentActivity(MainActivity.this);
+
+        logoFragment = new LogoFragment();
+
+        dayFragment = new DayFragment();
+        dayFragment.setParentActivity(MainActivity.this);
+
 
         licenseController = LicenseController.getInstance(MainActivity.this);
         devicesController = DevicesController.getInstance(MainActivity.this);
@@ -184,24 +196,36 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-        if (id == R.id.goMenu) {
-            goToOrders();
-        } /*else if (id == R.id.goPendingOrders) {
+        if(id == R.id.goDay || (( id == R.id.goMenu || id == R.id.goReceip) && DayController.getInstance(MainActivity.this).getCurrentOpenDay() == null)) {
+            showDayFragment();
+
+        }else{
+            if (id == R.id.goMenu) {
+                goToOrders();
+            } /*else if (id == R.id.goPendingOrders) {
             goToOrdersBoard();
         } else if (id == R.id.goReports) {
             goToReports();
 
         }*/ else if(id == R.id.goReceip){
-            goToReceipts();
-        }/*else if(id == R.id.goSavedReceipts){
+                goToReceipts();
+            }/*else if(id == R.id.goSavedReceipts){
             goToSavedReceipts();
         }else if(id == R.id.goConfiguration){
             //startActivity(new Intent(this, BluetoothScan.class));
         }*/ else if(id == R.id.logout){
-            logout();
-        }else  {
-            changeModule(id);
+                logout();
+            }else  {
+                if(usersController.isSuperUser() || usersController.isAdmin()) {//SU o Administrador
+                    showMaintenanceFragment();
+                }else {
+                    showLogoFragment();
+                }
+                changeModule(id);
+            }
+
         }
+
 
         drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
@@ -401,19 +425,31 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     public void setInitialFragment(){
         if(usersController.isSuperUser() || usersController.isAdmin()) {//SU o Administrador
-            fragmentMaintenance = new MaintenanceFragment();
-            fragmentMaintenance.setParentActivity(MainActivity.this);
-            FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-            ft.replace(R.id.details, fragmentMaintenance);
-            ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
-            ft.commit();
+            showMaintenanceFragment();
         }else {
-            logoFragment = new LogoFragment();
-            FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-            ft.replace(R.id.details, logoFragment);
-            ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
-            ft.commit();
+           showLogoFragment();
         }
+    }
+
+    public void showMaintenanceFragment(){
+        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+        ft.replace(R.id.details, fragmentMaintenance);
+        ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
+        ft.commit();
+    }
+
+    public void showLogoFragment(){
+        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+        ft.replace(R.id.details, logoFragment);
+        ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
+        ft.commit();
+    }
+
+    public void showDayFragment(){
+        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+        ft.replace(R.id.details, dayFragment);
+        ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
+        ft.commit();
     }
 
 

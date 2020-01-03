@@ -16,7 +16,23 @@
         </menu>
     </item>
 
-    <item android:title="Mantenimientos">
+
+
+    <item android:title="Dia">
+        <menu>
+
+            <item
+                android:id="@+id/goDay"
+                android:icon="@drawable/ic_calendar_today"
+                android:title="Inicio/Cierre" />
+        </menu>
+    </item>
+
+
+
+
+
+            <item android:title="Mantenimientos">
         <menu>
 
             <item

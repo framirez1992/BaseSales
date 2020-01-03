@@ -30,7 +30,9 @@ import com.far.basesales.CloudFireStoreObjects.MeasureUnits;
 import com.far.basesales.Controllers.LicenseController;
 import com.far.basesales.Controllers.MeasureUnitsController;
 import com.far.basesales.Controllers.MeasureUnitsInvController;
+import com.far.basesales.DataBase.DB;
 import com.far.basesales.Dialogs.MeasureUnitDialogFragment;
+import com.far.basesales.Generic.KV2;
 import com.far.basesales.Globales.CODES;
 import com.far.basesales.Interfases.DialogCaller;
 import com.far.basesales.Interfases.ListableActivity;
@@ -218,6 +220,10 @@ public class MaintenanceUnitMeasure extends AppCompatActivity implements Listabl
                         }, new OnSuccessListener() {
                             @Override
                             public void onSuccess(Object o) {
+                                for(KV2 data: MeasureUnitsController.getInstance(MaintenanceUnitMeasure.this).getDependencies(measureUnit.getCODE())){
+                                    String sql = "DELETE FROM "+data.getKey()+" WHERE "+data.getValue()+" = '"+data.getValue2()+"'";
+                                    DB.getInstance(MaintenanceUnitMeasure.this).getWritableDatabase().execSQL(sql);
+                                }
                                 measureUnitsController.delete(measureUnit);
                                 refreshList(lastSearch);
                                 d.dismiss();

@@ -57,11 +57,11 @@ public class ReceiptController {
     public static final String TABLE_NAME ="RECEIPTS";
     //public static final String TABLE_NAME_HISTORY ="RECEIPTS_HISTORY";
     public static  String CODE = "code",CODEUSER = "codeuser", CODESALE = "codesale",CODECLIENT="codeclient", STATUS = "status",  NCF = "ncf" ,SUBTOTAL="subtotal",TAXES = "taxes", DISCOUNT="discount", TOTAL = "total",PAIDAMOUNT="paidamount",
-            DATE = "date", MDATE = "mdate";
+            CODEDAY = "codeday", DATE = "date", MDATE = "mdate";
     public static String QUERY_CREATE = "CREATE TABLE "+TABLE_NAME+"("
-            +CODE+" TEXT,"+CODEUSER+" TEXT,"+CODESALE+" TEXT, "+CODECLIENT+" TEXT,  "+STATUS+" TEXT, "+NCF+" TEXT,"+SUBTOTAL+" NUMERIC,"+TAXES+" NUMERIC,"+DISCOUNT+" NUMERIC, "+TOTAL+", "+PAIDAMOUNT+" NUMERIC, " +
+            +CODE+" TEXT,"+CODEUSER+" TEXT,"+CODESALE+" TEXT, "+CODECLIENT+" TEXT,  "+STATUS+" TEXT, "+NCF+" TEXT,"+SUBTOTAL+" NUMERIC,"+TAXES+" NUMERIC,"+DISCOUNT+" NUMERIC, "+TOTAL+", "+PAIDAMOUNT+" NUMERIC, "+CODEDAY+" TEXT,  " +
             ""+DATE+" TEXT, "+MDATE+" TEXT)";
-    public static String[] columns = new String[]{CODE,CODEUSER,CODESALE, CODECLIENT, STATUS, NCF,SUBTOTAL,TAXES,DISCOUNT,TOTAL,PAIDAMOUNT,  DATE, MDATE};
+    public static String[] columns = new String[]{CODE,CODEUSER,CODESALE, CODECLIENT, STATUS, NCF,SUBTOTAL,TAXES,DISCOUNT,TOTAL,PAIDAMOUNT,CODEDAY,  DATE, MDATE};
     Context context;
     FirebaseFirestore db;
     private static ReceiptController instance;
@@ -99,6 +99,7 @@ public class ReceiptController {
         cv.put(DISCOUNT, r.getDiscount());
         cv.put(TOTAL, r.getTotal());
         cv.put(PAIDAMOUNT, r.getPaidamount());
+        cv.put(CODEDAY, r.getCodeday());
         cv.put(DATE, Funciones.getFormatedDate(r.getDate()));
         cv.put(MDATE, Funciones.getFormatedDate(r.getMdate()));
 
@@ -119,6 +120,7 @@ public class ReceiptController {
         cv.put(DISCOUNT, r.getDiscount());
         cv.put(TOTAL, r.getTotal());
         cv.put(PAIDAMOUNT, r.getPaidamount());
+        cv.put(CODEDAY, r.getCodeday());
         cv.put(DATE, Funciones.getFormatedDate(r.getDate()));
         cv.put(MDATE, Funciones.getFormatedDate(r.getMdate()));
 

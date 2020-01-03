@@ -5,8 +5,10 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import com.far.basesales.CloudFireStoreObjects.Day;
 import com.far.basesales.Controllers.ClientsController;
 import com.far.basesales.Controllers.CompanyController;
+import com.far.basesales.Controllers.DayController;
 import com.far.basesales.Controllers.DevicesController;
 import com.far.basesales.Controllers.LicenseController;
 import com.far.basesales.Controllers.MeasureUnitsController;
@@ -56,6 +58,7 @@ public class DB extends SQLiteOpenHelper {
 
             //db.execSQL(AreasController.QUERY_CREATE);
             //db.execSQL(AreasDetailController.QUERY_CREATE);
+            db.execSQL(DayController.QUERY_CREATE);
             db.execSQL(LicenseController.QUERY_CREATE);
             db.execSQL(UsersController.QUERY_CREATE);
             db.execSQL(UserTypesController.QUERY_CREATE);
@@ -115,7 +118,7 @@ public class DB extends SQLiteOpenHelper {
     public static String getWhereFormat(String[] campos){
         String result ="";
         for(int i = 0; i< campos.length; i++){
-            result+=(i == 0)?campos[i]+" = ? ":","+campos[i]+" = ?";
+            result+=(i == 0)?campos[i]+" = ? ":" AND "+campos[i]+" = ?";
         }
         return result;
     }

@@ -17,10 +17,10 @@ import java.util.ArrayList;
 
 public class TempOrdersController {
         public static String TABLE_NAME = Tablas.tempOrders;
-    public static String CODE = "code",STATUS = "status", SUBTOTAL="subtotal",TOTALTAXES="totaltaxes" ,TOTALDISCOUNT = "totaldiscount",TOTAL="total",CODEUSER = "codeuser",  CODERECEIPT = "codereceipt", DATE = "date",MDATE = "mdate" ;
-    String[]columns = new String[]{CODE,STATUS, DATE, MDATE, SUBTOTAL, TOTALTAXES,TOTALDISCOUNT, TOTAL , CODEUSER, CODERECEIPT};
+    public static String CODE = "code",STATUS = "status", SUBTOTAL="subtotal",TOTALTAXES="totaltaxes" ,TOTALDISCOUNT = "totaldiscount",TOTAL="total",CODEUSER = "codeuser",  CODERECEIPT = "codereceipt",CODEDAY = "codeday",  DATE = "date",MDATE = "mdate" ;
+    String[]columns = new String[]{CODE,STATUS, DATE, MDATE, SUBTOTAL, TOTALTAXES,TOTALDISCOUNT, TOTAL , CODEUSER, CODERECEIPT, CODEDAY};
     public static String QUERY_CREATE = "CREATE TABLE "+TABLE_NAME+" ("
-            +CODE+" TEXT,"+STATUS+" TEXT,"+SUBTOTAL+" DECIMAL(11, 3),"+TOTALTAXES+" DECIMAL(11, 3), "+TOTALDISCOUNT+" DECIMAL(11, 3), "+TOTAL+" DECIMAL(11, 3),  "+CODEUSER+" TEXT, "+CODERECEIPT+" TEXT, "+DATE+" TEXT,"+MDATE+" TEXT )";
+            +CODE+" TEXT,"+STATUS+" TEXT,"+SUBTOTAL+" DECIMAL(11, 3),"+TOTALTAXES+" DECIMAL(11, 3), "+TOTALDISCOUNT+" DECIMAL(11, 3), "+TOTAL+" DECIMAL(11, 3),  "+CODEUSER+" TEXT, "+CODERECEIPT+" TEXT, "+CODEDAY+" TEXT,  "+DATE+" TEXT,"+MDATE+" TEXT )";
 
     public static final String TABLE_NAME_DETAIL = Tablas.tempOrdersDetails;
     public static String DETAIL_CODE = "code",DETAIL_CODESALES = "codesales", DETAIL_CODEPRODUCT = "codeproduct",
@@ -58,6 +58,7 @@ public class TempOrdersController {
         cv.put(TOTAL,s.getTOTAL());
         cv.put(CODEUSER, s.getCODEUSER());
         cv.put(CODERECEIPT, s.getCODERECEIPT());
+        cv.put(CODEDAY, s.getCODEDAY());
         cv.put(DATE, Funciones.getFormatedDate(s.getDATE()));
         cv.put(MDATE,Funciones.getFormatedDate(s.getMDATE()));
 
@@ -75,6 +76,7 @@ public class TempOrdersController {
         cv.put(TOTAL,s.getTOTAL());
         cv.put(CODEUSER, s.getCODEUSER());
         cv.put(CODERECEIPT, s.getCODERECEIPT());
+        cv.put(CODEDAY, s.getCODEDAY());
         cv.put(DATE, Funciones.getFormatedDate(s.getDATE()));
         cv.put(MDATE,Funciones.getFormatedDate(s.getMDATE()));
 

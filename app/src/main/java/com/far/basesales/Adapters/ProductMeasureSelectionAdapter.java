@@ -1,4 +1,4 @@
-package com.far.basesales.Dialogs;
+package com.far.basesales.Adapters;
 
 import android.app.Activity;
 import android.content.Context;

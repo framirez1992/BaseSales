@@ -20,6 +20,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.far.basesales.Adapters.Models.ProductMeasureRowModel;
+import com.far.basesales.Adapters.ProductMeasureSelectionAdapter;
 import com.far.basesales.CloudFireStoreObjects.Products;
 import com.far.basesales.CloudFireStoreObjects.ProductsMeasure;
 import com.far.basesales.Controllers.MeasureUnitsController;

@@ -12,7 +12,7 @@ import java.util.HashMap;
 
 
 public class Receipts {
-    String code,codeuser,codesale,codeclient, ncf, status;
+    String code,codeuser,codesale,codeclient, ncf, status, codeday;
     double subtotal, taxes, discount, total, paidamount;
     private @ServerTimestamp
     Date date, mdate;
@@ -20,7 +20,7 @@ public class Receipts {
     public Receipts(){
 
     }
-    public Receipts(String code, String codeUser,String codesale, String codeclient,  String status, String ncf, double subtotal, double taxes, double discount, double total, double paidAmount){
+    public Receipts(String code, String codeUser,String codesale, String codeclient,  String status, String ncf, double subtotal, double taxes, double discount, double total, double paidAmount, String codeday){
         this.code = code;
         this.codeuser = codeUser;
         this.codesale = codesale;
@@ -32,6 +32,7 @@ public class Receipts {
         this.discount = discount;
         this.total = total;
         this.paidamount = paidAmount;
+        this.codeday = codeday;
     }
 
     public Receipts(Cursor c){
@@ -46,6 +47,7 @@ public class Receipts {
         this.discount = c.getDouble(c.getColumnIndex(ReceiptController.DISCOUNT));
         this.total = c.getDouble(c.getColumnIndex(ReceiptController.TOTAL));
         this.paidamount = c.getDouble(c.getColumnIndex(ReceiptController.PAIDAMOUNT));
+        this.codeday = c.getString(c.getColumnIndex(ReceiptController.CODEDAY));
         this.date = Funciones.parseStringToDate(c.getString(c.getColumnIndex(ReceiptController.DATE)));
         this.mdate = Funciones.parseStringToDate(c.getString(c.getColumnIndex(ReceiptController.MDATE)));
     }
@@ -65,6 +67,7 @@ public class Receipts {
         data.put(ReceiptController.DISCOUNT, discount);
         data.put(ReceiptController.TOTAL, total);
         data.put(ReceiptController.PAIDAMOUNT, paidamount);
+        data.put(ReceiptController.CODEDAY, codeday);
         data.put(ReceiptController.DATE, (date == null)? FieldValue.serverTimestamp(): date);
         data.put(ReceiptController.MDATE, (mdate == null)? FieldValue.serverTimestamp():mdate);
 
@@ -159,6 +162,14 @@ public class Receipts {
 
     public void setPaidamount(double paidamount) {
         this.paidamount = paidamount;
+    }
+
+    public String getCodeday() {
+        return codeday;
+    }
+
+    public void setCodeday(String codeday) {
+        this.codeday = codeday;
     }
 
     public Date getDate() {

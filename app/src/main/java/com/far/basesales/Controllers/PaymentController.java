@@ -31,10 +31,11 @@ import java.util.Date;
 public class PaymentController {
     public static final String TABLE_NAME ="PAYMENTS";
     public static  String CODE = "code",CODERECEIPT = "codereceipt",CODEUSER="codeuser", CODECLIENT="codeclient",  TYPE = "type" ,
-            SUBTOTAL = "subtotal",TAX="tax", DISCOUNT = "discount", TOTAL = "total", DATE = "date", MDATE = "mdate";
-    String[] columns = new String[]{CODE,CODERECEIPT,CODEUSER, CODECLIENT, TYPE, SUBTOTAL,TAX, DISCOUNT,TOTAL ,DATE, MDATE};
+            SUBTOTAL = "subtotal",TAX="tax", DISCOUNT = "discount", TOTAL = "total",CODEDAY = "codeday",  DATE = "date", MDATE = "mdate";
+    String[] columns = new String[]{CODE,CODERECEIPT,CODEUSER, CODECLIENT, TYPE, SUBTOTAL,TAX, DISCOUNT,TOTAL,CODEDAY, DATE, MDATE};
     public static String QUERY_CREATE = "CREATE TABLE "+TABLE_NAME+"("
-            +CODE+" TEXT,"+CODERECEIPT+" TEXT,"+CODEUSER+" TEXT, "+CODECLIENT+" TEXT, "+TYPE+" TEXT, "+SUBTOTAL+" NUMERIC,"+TAX+" NUMERIC,"+DISCOUNT+" NUMERIC, "+TOTAL+" NUMERIC, "+DATE+" TEXT, "+MDATE+" TEXT)";
+            +CODE+" TEXT,"+CODERECEIPT+" TEXT,"+CODEUSER+" TEXT, "+CODECLIENT+" TEXT, "+TYPE+" TEXT, "+SUBTOTAL+" NUMERIC,"+TAX+" NUMERIC,"+DISCOUNT+" NUMERIC, "+TOTAL+" NUMERIC," +
+            CODEDAY+" TEXT,  "+DATE+" TEXT, "+MDATE+" TEXT)";
     Context context;
     FirebaseFirestore db;
 
@@ -97,6 +98,7 @@ public class PaymentController {
         cv.put(TAX,p.getTAX());
         cv.put(DISCOUNT,p.getDISCOUNT() );
         cv.put(TOTAL,p.getTOTAL() );
+        cv.put(CODEDAY, p.getCODEDAY());
         cv.put(DATE, Funciones.getFormatedDate((Date) p.getDATE()));
         cv.put(MDATE, Funciones.getFormatedDate((Date) p.getMDATE()));
 
@@ -119,6 +121,7 @@ public class PaymentController {
         cv.put(TAX,p.getTAX());
         cv.put(DISCOUNT,p.getDISCOUNT() );
         cv.put(TOTAL,p.getTOTAL() );
+        cv.put(CODEDAY, p.getCODEDAY());
         cv.put(DATE, Funciones.getFormatedDate(p.getDATE()));
         cv.put(MDATE, Funciones.getFormatedDate(p.getMDATE()));
 

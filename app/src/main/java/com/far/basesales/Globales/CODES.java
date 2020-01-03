@@ -59,6 +59,12 @@ public class CODES {
     public static final String CODE_ICON_MESSAGE_CHECK = "3";*/
 
 
+   //////////////////////////////////////////////////////////////////
+    /////////////// DAY            //////////////////////////////////
+   public static final String CODE_DAY_STATUS_CLOSED = "0";//CERRADA
+    public static final String CODE_DAY_STATUS_OPEN = "1";//ABIERTA
+
+
 
     //PREFERENCES
     //CARGA INICIAL

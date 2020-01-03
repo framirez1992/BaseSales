@@ -12,6 +12,7 @@ import android.widget.TextView;
 import com.far.basesales.CloudFireStoreObjects.Users;
 import com.far.basesales.Controllers.ClientsController;
 import com.far.basesales.Controllers.CompanyController;
+import com.far.basesales.Controllers.DayController;
 import com.far.basesales.Controllers.MeasureUnitsController;
 import com.far.basesales.Controllers.MeasureUnitsInvController;
 import com.far.basesales.Controllers.PaymentController;
@@ -52,7 +53,8 @@ public class MainActualizationCenter extends AppCompatActivity implements OnSucc
     String[]Tables = {RolesController.TABLE_NAME, CompanyController.TABLE_NAME, ClientsController.TABLE_NAME,
             ProductsTypesController.TABLE_NAME, ProductsSubTypesController.TABLE_NAME, ProductsController.TABLE_NAME, ProductsMeasureController.TABLE_NAME, ProductsControlController.TABLE_NAME,
             ProductsTypesInvController.TABLE_NAME, ProductsSubTypesInvController.TABLE_NAME, ProductsInvController.TABLE_NAME, ProductsMeasureInvController.TABLE_NAME,
-            SalesController.TABLE_NAME,SalesController.TABLE_NAME_DETAIL, ReceiptController.TABLE_NAME, PaymentController.TABLE_NAME, MeasureUnitsController.TABLE_NAME, MeasureUnitsInvController.TABLE_NAME};
+            SalesController.TABLE_NAME,SalesController.TABLE_NAME_DETAIL, ReceiptController.TABLE_NAME, PaymentController.TABLE_NAME, MeasureUnitsController.TABLE_NAME, MeasureUnitsInvController.TABLE_NAME,
+            DayController.TABLE_NAME};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -107,6 +109,7 @@ public class MainActualizationCenter extends AppCompatActivity implements OnSucc
           // case 15:PaymentController.getInstance(MainActualizationCenter.this).searchChanges(this, this, this); break;//PETICION
            case 12:MeasureUnitsController.getInstance(MainActualizationCenter.this).searchChanges(true, this, this, this); break;//ALL
            case 13:MeasureUnitsInvController.getInstance(MainActualizationCenter.this).searchChanges(true, this, this, this); break;//ALL
+           case 14:DayController.getInstance(MainActualizationCenter.this).searchCurrentDayStartedFromFireBase( this, this, this); break;//ALL
           default:
               currentindex=0;
               tvMessage.setText("Finalizado Correctamente");
@@ -165,6 +168,7 @@ public class MainActualizationCenter extends AppCompatActivity implements OnSucc
             ///case 15:PaymentController.getInstance(MainActualizationCenter.this).consumeQuerySnapshot(querySnapshot); break;
             case 12:MeasureUnitsController.getInstance(MainActualizationCenter.this).consumeQuerySnapshot(true, querySnapshot); break;
             case 13:MeasureUnitsInvController.getInstance(MainActualizationCenter.this).consumeQuerySnapshot(true, querySnapshot); break;
+            case 14:DayController.getInstance(MainActualizationCenter.this).consumeQuerySnapshot(true, querySnapshot); break;
             default:break;
         }
         currentindex++;

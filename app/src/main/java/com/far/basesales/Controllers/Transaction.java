@@ -3,6 +3,7 @@ package com.far.basesales.Controllers;
 import android.content.Context;
 import android.support.annotation.NonNull;
 
+import com.far.basesales.CloudFireStoreObjects.Day;
 import com.far.basesales.CloudFireStoreObjects.Payment;
 import com.far.basesales.CloudFireStoreObjects.Receipts;
 import com.far.basesales.CloudFireStoreObjects.Sales;
@@ -35,8 +36,7 @@ public class Transaction {
     }
 
 
-    public void sendToFireBase(Sales sale, Receipts receipt, Payment payment, OnFailureListener failureListener, OnCompleteListener onCompleteListener, OnSuccessListener onSuccessListener){
-        try {
+    public void sendToFireBase(Sales sale, ArrayList<SalesDetails> salesDetails, Receipts receipt, Payment payment, Day day,  OnFailureListener failureListener, OnCompleteListener onCompleteListener, OnSuccessListener onSuccessListener){
             WriteBatch lote = db.batch();
 
             if (sale.getMDATE() == null) {
@@ -46,12 +46,12 @@ public class Transaction {
             }
 
 
-            for (SalesDetails salesDetails : SalesController.getInstance(context).getSalesDetailsByCodeSales(sale.getCODE())){
+            for (SalesDetails sd : salesDetails){
 
-            if (salesDetails.getMDATE() == null) {
-                lote.set(SalesController.getInstance(context).getReferenceDetailFireStore().document(salesDetails.getCODE()), salesDetails.toMap());
+            if (sd.getMDATE() == null) {
+                lote.set(SalesController.getInstance(context).getReferenceDetailFireStore().document(sd.getCODE()), sd.toMap());
             } else {
-                lote.update(SalesController.getInstance(context).getReferenceDetailFireStore().document(salesDetails.getCODE()), salesDetails.toMap());
+                lote.update(SalesController.getInstance(context).getReferenceDetailFireStore().document(sd.getCODE()), sd.toMap());
             }
 
         }
@@ -68,19 +68,17 @@ public class Transaction {
                 lote.update(PaymentController.getInstance(context).getReferenceFireStore().document(payment.getCODE()), payment.toMap());
             }
 
+            lote.set(DayController.getInstance(context).getReferenceFireStore().document(day.getCode()), day.toMap());
+
             lote.commit()
                     .addOnFailureListener(failureListener)
                     .addOnCompleteListener(onCompleteListener)
                     .addOnSuccessListener(onSuccessListener);
 
-        }catch(Exception e){
-            e.printStackTrace();
-        }
-
     }
 
 //ABONAR RECIBO
-    public void sendToFireBase(Receipts receipt, Payment payment, OnFailureListener failureListener, OnCompleteListener onCompleteListener, OnSuccessListener onSuccessListener){
+    public void sendToFireBase(Receipts receipt, Payment payment,Day day,  OnFailureListener failureListener, OnCompleteListener onCompleteListener, OnSuccessListener onSuccessListener){
         try {
             WriteBatch lote = db.batch();
 
@@ -95,6 +93,8 @@ public class Transaction {
             }else{
                 lote.update(PaymentController.getInstance(context).getReferenceFireStore().document(payment.getCODE()), payment.toMap());
             }
+
+            lote.set(DayController.getInstance(context).getReferenceFireStore().document(day.getCode()), day.toMap());
 
             lote.commit()
                     .addOnFailureListener(failureListener)

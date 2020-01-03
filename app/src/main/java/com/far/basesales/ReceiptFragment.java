@@ -28,11 +28,13 @@ import android.widget.TextView;
 
 import com.far.basesales.Adapters.Models.ClientRowModel;
 import com.far.basesales.CloudFireStoreObjects.Clients;
+import com.far.basesales.CloudFireStoreObjects.Day;
 import com.far.basesales.CloudFireStoreObjects.Payment;
 import com.far.basesales.CloudFireStoreObjects.Receipts;
 import com.far.basesales.CloudFireStoreObjects.Sales;
 import com.far.basesales.CloudFireStoreObjects.SalesDetails;
 import com.far.basesales.Controllers.ClientsController;
+import com.far.basesales.Controllers.DayController;
 import com.far.basesales.Controllers.PaymentController;
 import com.far.basesales.Controllers.ReceiptController;
 import com.far.basesales.Controllers.SalesController;
@@ -202,8 +204,11 @@ public class ReceiptFragment extends Fragment implements DialogCaller {
 
 
     public void createReceipt(){
+        Day day = DayController.getInstance(parentActivity).getCurrentOpenDay();
+
         Sales s = TempOrdersController.getInstance(parentActivity).getTempSale();
         s.setSTATUS(CODES.CODE_ORDER_STATUS_CLOSED);
+        s.setCODEDAY(day.getCode());
 
 
         double paidAmount = Double.parseDouble(etAmount.getText().toString().replace(",", ""));
@@ -214,21 +219,15 @@ public class ReceiptFragment extends Fragment implements DialogCaller {
 
         String receiptStatus = (receiptTotal > paidAmount)?CODES.CODE_RECEIPT_STATUS_OPEN:CODES.CODE_RECEIPT_STATUS_CLOSED;
         //String code, String codeUser,String codesale, String codeclient,  String status, String ncf, double subTotal, double taxes, double discount, double total, double paidAmount
-        Receipts r = new Receipts(Funciones.generateCode(), Funciones.getCodeuserLogged(parentActivity),s.getCODE(),client.getCode(),receiptStatus,"",receiptSubTotal,receiptTaxes,receiptManualDiscount,receiptTotal,paidAmount);
+        Receipts r = new Receipts(Funciones.generateCode(), Funciones.getCodeuserLogged(parentActivity),s.getCODE(),client.getCode(),receiptStatus,"",receiptSubTotal,receiptTaxes,receiptManualDiscount,receiptTotal,paidAmount, day.getCode());
 
         //String code, String codeReceipt,String codeUser, String codeClient, String type, double subTotal, double tax, double discount, double total
-        Payment p = new Payment(Funciones.generateCode(), r.getCode(), Funciones.getCodeuserLogged(parentActivity),client.getCode(), ((KV)spnPaymentType.getSelectedItem()).getKey(),0,0,0,paidAmount);
+        Payment p = new Payment(Funciones.generateCode(), r.getCode(), Funciones.getCodeuserLogged(parentActivity),client.getCode(), ((KV)spnPaymentType.getSelectedItem()).getKey(),0,0,0,paidAmount, day.getCode());
 
         s.setCODERECEIPT(r.getCode());
 
-        SalesController.getInstance(parentActivity).insert(s);
-        for(SalesDetails sd : TempOrdersController.getInstance(parentActivity).getTempSalesDetails(s)){
-            SalesController.getInstance(parentActivity).insert_Detail(sd);
-        }
-        ReceiptController.getInstance(parentActivity).insert(r);
-        PaymentController.getInstance(parentActivity).insert(p);
 
-        ((MainOrders)parentActivity).closeOrders(r,p,s);
+        ((MainOrders)parentActivity).closeOrders(r,p,s, TempOrdersController.getInstance(parentActivity).getTempSalesDetails(s));
 
     }
 

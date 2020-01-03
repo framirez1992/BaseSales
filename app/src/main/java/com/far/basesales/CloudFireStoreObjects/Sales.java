@@ -15,7 +15,7 @@ import java.util.List;
 
 @IgnoreExtraProperties
 public class Sales {
-    private String CODE, CODEUSER,  CODERECEIPT;
+    private String CODE, CODEUSER,  CODERECEIPT, CODEDAY;
     private int STATUS;
     private double TOTALTAXES, TOTALDISCOUNT, TOTAL;
     private @ServerTimestamp
@@ -26,9 +26,9 @@ public class Sales {
 
     }
 
-    public Sales(String code,String codeuser, double totalDiscount,double totalTaxes,  double total, int status,  String codeReceipt){
+    public Sales(String code,String codeuser, double totalDiscount,double totalTaxes,  double total, int status,  String codeReceipt, String codeDay){
         this.CODE = code; this.TOTALDISCOUNT = totalDiscount;this.TOTALTAXES = totalTaxes; this.TOTAL = total;
-        this.STATUS = status;this.CODEUSER = codeuser; this.CODERECEIPT = codeReceipt;
+        this.STATUS = status;this.CODEUSER = codeuser; this.CODERECEIPT = codeReceipt;this.CODEDAY = codeDay;
     }
     public Sales(Cursor c){
         this.CODE = c.getString(c.getColumnIndex(SalesController.CODE));
@@ -38,6 +38,7 @@ public class Sales {
         this.STATUS = c.getInt(c.getColumnIndex(SalesController.STATUS));
         this.CODEUSER = c.getString(c.getColumnIndex(SalesController.CODEUSER));
         this.CODERECEIPT = c.getString(c.getColumnIndex(SalesController.CODERECEIPT));
+        this.CODEDAY = c.getString(c.getColumnIndex(SalesController.CODEDAY));
         this.DATE = Funciones.parseStringToDate(c.getString(c.getColumnIndex(SalesController.DATE)));
         this.MDATE = Funciones.parseStringToDate(c.getString(c.getColumnIndex(SalesController.MDATE)));
     }
@@ -53,6 +54,7 @@ public class Sales {
         data.put(SalesController.STATUS, STATUS);
         data.put(SalesController.CODEUSER, CODEUSER);
         data.put(SalesController.CODERECEIPT, CODERECEIPT);
+        data.put(SalesController.CODEDAY, CODEDAY);
         data.put(SalesController.DATE, (DATE == null)? FieldValue.serverTimestamp(): DATE);
         data.put(SalesController.MDATE, (MDATE == null)? FieldValue.serverTimestamp():MDATE);
         if(salesdetails != null){
@@ -125,6 +127,14 @@ public class Sales {
 
     public void setCODERECEIPT(String CODERECEIPT) {
         this.CODERECEIPT = CODERECEIPT;
+    }
+
+    public String getCODEDAY() {
+        return CODEDAY;
+    }
+
+    public void setCODEDAY(String CODEDAY) {
+        this.CODEDAY = CODEDAY;
     }
 
     public double getTOTALTAXES() {

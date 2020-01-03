@@ -32,8 +32,9 @@ import java.util.Date;
 
 public class SalesController {
     public static final String TABLE_NAME = Tablas.generalUsersSales;
-    public static String CODE = "code",STATUS = "status", SUBTOTAL="subtotal",TOTALTAXES="totaltaxes" ,TOTALDISCOUNT = "totaldiscount",TOTAL="total",CODEUSER = "codeuser",  CODERECEIPT = "codereceipt", DATE = "date",MDATE = "mdate" ;
-    String[]columns = new String[]{CODE,STATUS, DATE, MDATE, SUBTOTAL, TOTALTAXES,TOTALDISCOUNT, TOTAL , CODEUSER, CODERECEIPT};
+    public static String CODE = "code",STATUS = "status", SUBTOTAL="subtotal",TOTALTAXES="totaltaxes" ,TOTALDISCOUNT = "totaldiscount",TOTAL="total",CODEUSER = "codeuser",  CODERECEIPT = "codereceipt",CODEDAY = "codeday",  DATE = "date",MDATE = "mdate" ;
+
+    String[]columns = new String[]{CODE,STATUS, DATE, MDATE, SUBTOTAL, TOTALTAXES,TOTALDISCOUNT, TOTAL , CODEUSER, CODERECEIPT, CODEDAY};
 
     public static final String TABLE_NAME_DETAIL = Tablas.generalUsersSalesDetails;
     public static String DETAIL_CODE = "code",DETAIL_CODESALES = "codesales", DETAIL_CODEPRODUCT = "codeproduct",
@@ -61,7 +62,7 @@ public class SalesController {
 
     public static String getQueryCreateHead(){
               String QUERY_CREATE = "CREATE TABLE "+TABLE_NAME+" ("
-                +CODE+" TEXT, "+CODEUSER+" TEXT,"+STATUS+" TEXT,"+SUBTOTAL+" DECIMAL(11, 3), "+TOTALTAXES+" DECIMAL(11, 3), "+TOTALDISCOUNT+" DECIMAL(11, 3),"+TOTAL+" DECIMAL(11, 3), " +CODERECEIPT+" TEXT, "+DATE+" TEXT,"+MDATE+" TEXT )";
+                +CODE+" TEXT, "+CODEUSER+" TEXT,"+STATUS+" TEXT,"+SUBTOTAL+" DECIMAL(11, 3), "+TOTALTAXES+" DECIMAL(11, 3), "+TOTALDISCOUNT+" DECIMAL(11, 3),"+TOTAL+" DECIMAL(11, 3), " +CODERECEIPT+" TEXT, "+CODEDAY+" TEXT,  "+DATE+" TEXT,"+MDATE+" TEXT )";
               return QUERY_CREATE;
     }
 
@@ -112,6 +113,7 @@ public class SalesController {
         cv.put(TOTAL,s.getTOTAL());
         cv.put(CODEUSER, s.getCODEUSER());
         cv.put(CODERECEIPT, s.getCODERECEIPT());
+        cv.put(CODEDAY, s.getCODEDAY());
         cv.put(DATE, Funciones.getFormatedDate(s.getDATE()));
         cv.put(MDATE,Funciones.getFormatedDate(s.getMDATE()));
 
@@ -128,6 +130,7 @@ public class SalesController {
         cv.put(TOTAL,s.getTOTAL());
         cv.put(CODEUSER, s.getCODEUSER());
         cv.put(CODERECEIPT, s.getCODERECEIPT());
+        cv.put(CODEDAY, s.getCODEDAY());
         cv.put(DATE, Funciones.getFormatedDate(s.getDATE()));
         cv.put(MDATE,Funciones.getFormatedDate(s.getMDATE()));
 

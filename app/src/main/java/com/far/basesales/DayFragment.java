@@ -1,0 +1,235 @@
+package com.far.basesales;
+
+
+import android.app.Activity;
+import android.app.DatePickerDialog;
+import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.design.widget.TextInputEditText;
+import android.support.v4.app.Fragment;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.DatePicker;
+import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import com.far.basesales.CloudFireStoreObjects.Day;
+import com.far.basesales.Controllers.DayController;
+import com.far.basesales.Globales.CODES;
+import com.far.basesales.Utils.Funciones;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.QuerySnapshot;
+
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+
+
+/**
+ * A simple {@link Fragment} subclass.
+ */
+public class DayFragment extends Fragment {
+
+    Activity parentActivity;
+    LinearLayout llLoading, llDayStart, llDayEnd;
+    TextInputEditText etInitialDateStart, etStart, etEnd;
+    TextView btnStartDay, btnEndDay;
+    EditText etSalesCount, etSalesAmount, etCashCount, etCashAmount, etCreditCount,etCreditAmount, etDiscount;
+
+    int lastDatePressed;
+
+    public DayFragment() {
+        // Required empty public constructor
+    }
+
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        // Inflate the layout for this fragment
+        return inflater.inflate(R.layout.fragment_day, container, false);
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        llLoading = view.findViewById(R.id.llLoading);
+        llDayStart = view.findViewById(R.id.llDayStart);
+        llDayEnd = view.findViewById(R.id.llDayEnd);
+
+
+        etInitialDateStart = view.findViewById(R.id.etInitialDateStart);
+        btnStartDay = view.findViewById(R.id.btnStartDay);
+
+        btnEndDay = view.findViewById(R.id.btnEndDay);
+        etStart = view.findViewById(R.id.etStart);
+        etEnd = view.findViewById(R.id.etEnd);
+        etSalesCount = view.findViewById(R.id.etSalesCount);
+        etSalesAmount = view.findViewById(R.id.etSalesAmount);
+        etCashCount = view.findViewById(R.id.etCashCount);
+        etCashAmount = view.findViewById(R.id.etCashAmount);
+        etCreditCount = view.findViewById(R.id.etCreditCount);
+        etCreditAmount = view.findViewById(R.id.etCreditAmount);
+        etDiscount = view.findViewById(R.id.etDiscount);
+
+        btnStartDay.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+            saveDay();
+            }
+        });
+
+        etInitialDateStart.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showDatePicker(v);
+            }
+        });
+
+        etEnd.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showDatePicker(v);
+            }
+        });
+
+
+
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        searchCurrentOpenDay();
+    }
+
+    public void setParentActivity(Activity activity){
+        this.parentActivity = activity;
+    }
+
+
+
+    public void searchCurrentOpenDay(){
+        DayController.getInstance(parentActivity).searchCurrentDayStartedFromFireBase(new OnSuccessListener<QuerySnapshot>() {
+            @Override
+            public void onSuccess(QuerySnapshot querySnapshot) {
+
+                Day day =  null;
+                if(querySnapshot!= null && !querySnapshot.isEmpty()){
+                    day = querySnapshot.getDocuments().get(0).toObject(Day.class);
+                }
+
+                llLoading.setVisibility(View.GONE);
+                if(day == null){
+                    llDayEnd.setVisibility(View.GONE);
+                    llDayStart.setVisibility(View.VISIBLE);
+                    etInitialDateStart.setText(Funciones.getFormatedDateRepDom(new Date()));
+
+                }else{
+                 initStartedDay(day);
+                }
+            }
+        }, new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if(task.getException()!= null){
+                    Toast.makeText(parentActivity, task.getException().getMessage(), Toast.LENGTH_LONG).show();
+                }
+            }
+        }, new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Toast.makeText(parentActivity, e.getMessage(), Toast.LENGTH_LONG).show();
+            }
+        });
+    }
+
+    public void initStartedDay(Day day){
+        llLoading.setVisibility(View.GONE);
+        llDayStart.setVisibility(View.GONE);
+        llDayEnd.setVisibility(View.VISIBLE);
+
+        etStart.setText(Funciones.getFormatedDateRepDom(day.getDatestart()));
+        etEnd.setText(Funciones.getFormatedDateRepDom(new Date()));
+        etSalesCount.setText(day.getSalescount()+"");
+        etSalesAmount.setText("$"+Funciones.formatMoney(day.getSalesamount()));
+        etCashCount.setText((int)day.getCashpaidcount()+"");
+        etCashAmount.setText("$"+Funciones.formatMoney(day.getCashpaidamount()));
+        etCreditCount.setText((int)day.getCreditpaidcount()+"");
+        etCreditAmount.setText("$"+Funciones.formatMoney(day.getCreditpaidamount()));
+        etDiscount.setText("$"+Funciones.formatMoney(day.getDiscountamount()));
+    }
+
+
+
+
+    public void showDatePicker(View v){
+        lastDatePressed = v.getId();
+
+        Calendar c = Calendar.getInstance();
+            try{
+               String date = new SimpleDateFormat("dd/MM/yyyy").format(c.getTime());
+            }catch (Exception e){
+
+            }
+
+        DatePickerDialog a = new DatePickerDialog(getContext(), new DatePickerDialog.OnDateSetListener() {
+            @Override
+            public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
+                Calendar c = Calendar.getInstance();
+                SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+                c.set(Calendar.YEAR, year);c.set(Calendar.MONTH, month);c.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+                if(lastDatePressed == etInitialDateStart.getId()){
+                    etInitialDateStart.setText(sdf.format(c.getTime()));
+                }else if(lastDatePressed == etStart.getId()){
+                    etStart.setText(sdf.format(c.getTime()));
+                }else if(lastDatePressed == etEnd.getId()){
+                    etEnd.setText(sdf.format(c.getTime()));
+                }
+
+            }
+        },c.get(Calendar.YEAR),c.get(Calendar.MONTH),c.get(c.DAY_OF_MONTH));
+        a.show();
+    }
+
+
+    public void saveDay(){
+        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+        Date dateStart = new Date();
+        try{
+            dateStart = sdf.parse(etInitialDateStart.getText().toString());
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
+        final Day d = new Day(Funciones.generateCode(), Funciones.getCodeuserLogged(parentActivity), dateStart, null, CODES.CODE_DAY_STATUS_OPEN,
+                0, 0.0, 0, 0.0, 0, 0.0, 0.0,0, 0.0,0, 0.0);
+        DayController.getInstance(parentActivity).sendToFireBase(d, new OnCompleteListener() {
+            @Override
+            public void onComplete(@NonNull Task task) {
+                if(task.getException()!= null){
+                    Toast.makeText(parentActivity, task.getException().getMessage(), Toast.LENGTH_LONG).show();
+                }
+            }
+        }, new OnSuccessListener() {
+            @Override
+            public void onSuccess(Object o) {
+            DayController.getInstance(parentActivity).insert(d);
+            initStartedDay(d);
+            }
+        }, new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                    Toast.makeText(parentActivity, e.getMessage(), Toast.LENGTH_LONG).show();
+            }
+        });
+    }
+
+}

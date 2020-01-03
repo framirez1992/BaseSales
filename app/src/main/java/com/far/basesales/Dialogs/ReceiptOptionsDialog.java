@@ -23,8 +23,10 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.example.bluetoothlibrary.BluetoothScan;
+import com.far.basesales.CloudFireStoreObjects.Day;
 import com.far.basesales.CloudFireStoreObjects.Payment;
 import com.far.basesales.CloudFireStoreObjects.Receipts;
+import com.far.basesales.Controllers.DayController;
 import com.far.basesales.Controllers.PaymentController;
 import com.far.basesales.Controllers.ReceiptController;
 import com.far.basesales.Controllers.Transaction;
@@ -416,13 +418,22 @@ public class ReceiptOptionsDialog extends DialogFragment  {
         receipts.setStatus(receiptStatus);
         receipts.setPaidamount(receipts.getPaidamount()+paymentAmount);
         receipts.setMdate(null);//para que lo envi con TIMESTAMP
+
+        final Day day = DayController.getInstance(activity).getCurrentOpenDay();
         //String code, String codeReceipt,String codeUser, String codeClient, String type, double subTotal, double tax, double discount, double total
-        Payment p = new Payment(Funciones.generateCode(), receipts.getCode(), Funciones.getCodeuserLogged(activity),receipts.getCodeclient(), paymentType,0,0,0,paymentAmount);
+        final Payment p = new Payment(Funciones.generateCode(), receipts.getCode(), Funciones.getCodeuserLogged(activity),receipts.getCodeclient(), paymentType,0,0,0,paymentAmount, day.getCode());
 
-        ReceiptController.getInstance(activity).update(receipts);
-        PaymentController.getInstance(activity).insert(p);
+        //day.setDiscountamount(day.getDiscountamount()+receipt.getDiscount());
+        if(p.getTYPE().equals(CODES.PAYMENTTYPE_CASH)){
+            day.setCashpaidamount(day.getCashpaidamount()+p.getTOTAL());
+            day.setCashpaidcount(day.getCashpaidcount()+1);
+        }else if(p.getTYPE().equals(CODES.PAYMENTTYPE_CREDIT)){
+            day.setCreditpaidamount(day.getCreditpaidamount()+p.getTOTAL());
+            day.setCreditpaidcount(day.getCreditpaidcount()+1);
+        }
 
-        Transaction.getInstance(activity).sendToFireBase(receipts, p,new OnFailureListener() {
+
+        Transaction.getInstance(activity).sendToFireBase(receipts, p,day, new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
 
@@ -435,6 +446,10 @@ public class ReceiptOptionsDialog extends DialogFragment  {
         }, new OnSuccessListener() {
             @Override
             public void onSuccess(Object o) {
+                ReceiptController.getInstance(activity).update(receipts);
+                PaymentController.getInstance(activity).insert(p);
+                DayController.getInstance(activity).update(day);
+
                 paymentDialog.dismiss();
                 paymentDialog=null;
                 if(activity instanceof  MainOrders){

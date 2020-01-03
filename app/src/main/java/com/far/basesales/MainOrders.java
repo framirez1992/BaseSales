@@ -36,14 +36,18 @@ import com.example.bluetoothlibrary.BluetoothScan;
 import com.far.basesales.Adapters.Models.ClientRowModel;
 import com.far.basesales.Adapters.Models.OrderDetailModel;
 import com.far.basesales.Adapters.Models.SimpleRowModel;
+import com.far.basesales.CloudFireStoreObjects.Day;
 import com.far.basesales.CloudFireStoreObjects.Payment;
 import com.far.basesales.CloudFireStoreObjects.Products;
 import com.far.basesales.CloudFireStoreObjects.ProductsMeasure;
 import com.far.basesales.CloudFireStoreObjects.Receipts;
 import com.far.basesales.CloudFireStoreObjects.Sales;
 import com.far.basesales.CloudFireStoreObjects.SalesDetails;
+import com.far.basesales.Controllers.DayController;
+import com.far.basesales.Controllers.PaymentController;
 import com.far.basesales.Controllers.ProductsController;
 import com.far.basesales.Controllers.ProductsMeasureController;
+import com.far.basesales.Controllers.ReceiptController;
 import com.far.basesales.Controllers.SalesController;
 import com.far.basesales.Controllers.TempOrdersController;
 import com.far.basesales.Controllers.Transaction;
@@ -62,6 +66,8 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QuerySnapshot;
+
+import java.util.ArrayList;
 
 
 public class MainOrders extends AppCompatActivity implements ListableActivity/*, ReceiptableActivity*/, NavigationView.OnNavigationItemSelectedListener, OnFailureListener, OnCompleteListener, OnSuccessListener<QuerySnapshot> {
@@ -83,6 +89,10 @@ public class MainOrders extends AppCompatActivity implements ListableActivity/*,
     //RelativeLayout rlNotifications;
 
     Receipts lastReceipt;
+    Payment lastPayment;
+    Sales lastSale;
+    ArrayList<SalesDetails> lastSalesDetails;
+    Day lastDay;
 
 
 
@@ -315,7 +325,7 @@ public class MainOrders extends AppCompatActivity implements ListableActivity/*,
         orderCode  = Funciones.generateCode();
         String codeUser = Funciones.getCodeuserLogged(MainOrders.this);
 //String code,String codeuser, double totalDiscount,double totalTaxes,  double total, int status,  String codeReceipt
-        Sales s = new Sales(orderCode,codeUser,0.0,0.0, 0.0, CODES.CODE_ORDER_STATUS_OPEN, null);
+        Sales s = new Sales(orderCode,codeUser,0.0,0.0, 0.0, CODES.CODE_ORDER_STATUS_OPEN, null, null);
         tempOrdersController.insert(s);//
     }
 
@@ -514,10 +524,28 @@ public class MainOrders extends AppCompatActivity implements ListableActivity/*,
         errorDialog.show();
     }
 
-    public void closeOrders(Receipts receipt, Payment payment, Sales sales){
+    public void closeOrders(Receipts receipt, Payment payment, Sales sales, ArrayList<SalesDetails> salesDetails){
+        Day day = DayController.getInstance(MainOrders.this).getCurrentOpenDay();
+        day.setSalescount(day.getSalescount()+1);
+        day.setSalesamount(day.getSalesamount()+sales.getTOTAL());
+        day.setDiscountamount(day.getDiscountamount()+receipt.getDiscount());
+        if(payment.getTYPE().equals(CODES.PAYMENTTYPE_CASH)){
+            day.setCashpaidamount(day.getCashpaidamount()+payment.getTOTAL());
+            day.setCashpaidcount(day.getCashpaidcount()+1);
+        }else if(payment.getTYPE().equals(CODES.PAYMENTTYPE_CREDIT)){
+            day.setCreditpaidamount(day.getCreditpaidamount()+payment.getTOTAL());
+            day.setCreditpaidcount(day.getCreditpaidcount()+1);
+        }
 
         lastReceipt = receipt;
-        Transaction.getInstance(MainOrders.this).sendToFireBase(sales,receipt,payment, this, this, this);
+        lastPayment = payment;
+        lastSale = sales;
+        lastSalesDetails = salesDetails;
+        lastDay = day;
+
+
+
+        Transaction.getInstance(MainOrders.this).sendToFireBase(sales,salesDetails, receipt,payment,day, this, this, this);
 
            /* ///////////////////////////////////////////////////////////////////
             ///////////   ENVIANDO AL HISTORICO     ///////////////////////////
@@ -553,6 +581,10 @@ public class MainOrders extends AppCompatActivity implements ListableActivity/*,
     public void onComplete(@NonNull Task task) {
         if(task.getException()!= null){
             lastReceipt = null;
+            lastPayment = null;
+            lastSale = null;
+            lastSalesDetails = null;
+            lastDay = null;
             closeLoadingDialog();
             showErrorDialog(task.getException().getMessage()+"\n"+task.getException().getLocalizedMessage());
         }
@@ -562,6 +594,11 @@ public class MainOrders extends AppCompatActivity implements ListableActivity/*,
     @Override
     public void onFailure(@NonNull Exception e) {
         lastReceipt = null;
+        lastPayment = null;
+        lastSale = null;
+        lastSalesDetails = null;
+        lastDay = null;
+
         closeLoadingDialog();
         if(errorDialog!= null && !errorDialog.isShowing()){
             showErrorDialog(e.getMessage()+"\n"+e.getLocalizedMessage());
@@ -570,6 +607,17 @@ public class MainOrders extends AppCompatActivity implements ListableActivity/*,
 
     @Override
     public void onSuccess(QuerySnapshot querySnapshot) {
+
+        SalesController.getInstance(MainOrders.this).insert(lastSale);
+        for(SalesDetails sd : lastSalesDetails){
+            SalesController.getInstance(MainOrders.this).insert_Detail(sd);
+        }
+        ReceiptController.getInstance(MainOrders.this).insert(lastReceipt);
+        PaymentController.getInstance(MainOrders.this).insert(lastPayment);
+        DayController.getInstance(MainOrders.this).update(lastDay);
+
+
+
         closeLoadingDialog();
         showPostPaymentConfirmation();
     }
