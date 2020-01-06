@@ -124,6 +124,9 @@ public class DayFragment extends Fragment {
                 Day day =  null;
                 if(querySnapshot!= null && !querySnapshot.isEmpty()){
                     day = querySnapshot.getDocuments().get(0).toObject(Day.class);
+                    if(DayController.getInstance(parentActivity).update(day) == 0){
+                        DayController.getInstance(parentActivity).insert(day);
+                    }
                 }
 
                 llLoading.setVisibility(View.GONE);

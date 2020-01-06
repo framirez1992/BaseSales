@@ -254,7 +254,7 @@ public class CompanyController {
             phone = companys.get(0).getPHONE();
         }
         p.addAlign(Print.PRINTER_ALIGN.ALIGN_CENTER);
-        p.addImage(R.drawable.ic_action_monetization_on);
+        //p.addImage(R.drawable.ic_action_monetization_on);
         p.drawText(name);
         p.drawText(direction);
         p.drawText(phone);

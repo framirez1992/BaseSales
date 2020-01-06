@@ -408,6 +408,8 @@ public class ReceiptController {
             p.drawText("Descuento: $"+Funciones.formatMoney(receipt.getDiscount()), Print.TEXT_ALIGN.RIGHT);
         }
         p.drawText("Total: $"+Funciones.formatMoney(receipt.getTotal()), Print.TEXT_ALIGN.RIGHT);
+        p.drawText(" ", Print.TEXT_ALIGN.RIGHT);
+        p.drawText(" ", Print.TEXT_ALIGN.RIGHT);
 
 
         p.printText(Funciones.getMacAddress(context));
