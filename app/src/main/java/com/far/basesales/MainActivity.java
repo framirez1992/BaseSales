@@ -26,6 +26,7 @@ import com.far.basesales.CloudFireStoreObjects.ProductsControl;
 import com.far.basesales.CloudFireStoreObjects.UserControl;
 import com.far.basesales.CloudFireStoreObjects.Users;
 import com.far.basesales.CloudFireStoreObjects.UsersDevices;
+import com.far.basesales.Controllers.ClientsController;
 import com.far.basesales.Controllers.DayController;
 import com.far.basesales.Controllers.DevicesController;
 import com.far.basesales.Controllers.LicenseController;
@@ -39,6 +40,8 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QuerySnapshot;
+
+import java.util.Calendar;
 
 import javax.annotation.Nullable;
 
@@ -157,6 +160,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     protected void onResume() {
         super.onResume();
+        searchBirthDays();
         //licenseController.setLastUpdateToFireBase();//Actualiza la licencia
     }
 
@@ -528,6 +532,17 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         Window window = d.getWindow();
         window.setLayout(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
         window.setBackgroundDrawableResource(android.R.color.transparent);
+    }
+
+
+    public void searchBirthDays(){
+        if(ClientsController.getInstance(MainActivity.this).getBirthDayClients(Calendar.getInstance()).size() > 0){
+            findViewById(R.id.rlBirthDays).setVisibility(View.VISIBLE);
+            ((TextView)findViewById(R.id.tvBdNumber)).setText(ClientsController.getInstance(MainActivity.this).getBirthDayClients(Calendar.getInstance()).size()+"");
+
+        }else{
+            findViewById(R.id.rlBirthDays).setVisibility(View.GONE);
+        }
     }
 
 }

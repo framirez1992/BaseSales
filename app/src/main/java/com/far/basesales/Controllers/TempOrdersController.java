@@ -23,13 +23,13 @@ public class TempOrdersController {
             +CODE+" TEXT,"+STATUS+" TEXT,"+SUBTOTAL+" DECIMAL(11, 3),"+TOTALTAXES+" DECIMAL(11, 3), "+TOTALDISCOUNT+" DECIMAL(11, 3), "+TOTAL+" DECIMAL(11, 3),  "+CODEUSER+" TEXT, "+CODERECEIPT+" TEXT, "+CODEDAY+" TEXT,  "+DATE+" TEXT,"+MDATE+" TEXT )";
 
     public static final String TABLE_NAME_DETAIL = Tablas.tempOrdersDetails;
-    public static String DETAIL_CODE = "code",DETAIL_CODESALES = "codesales", DETAIL_CODEPRODUCT = "codeproduct",
+    public static String DETAIL_CODE = "code",DETAIL_CODESALES = "codesales",DETAIL_CODEUSER = "codeuser", DETAIL_CODEPRODUCT = "codeproduct",
             DETAIL_DISCOUNT = "discount", DETAIL_POSITION = "position", DETAIL_PRICE = "price",DETAIL_MANUALPRICE = "manualprice", DETAIL_TAX = "tax",
-            DETAIL_QUANTITY = "quantity", DETAIL_CODEUND = "codeund", DETAIL_DATE="date", DETAIL_MDATE="mdate";
-    String[]columnsDetails = new String[]{DETAIL_CODE,DETAIL_CODESALES, DETAIL_CODEPRODUCT,DETAIL_CODEUND,DETAIL_DISCOUNT,DETAIL_POSITION,DETAIL_QUANTITY,DETAIL_PRICE,DETAIL_MANUALPRICE, DETAIL_TAX, DATE, MDATE};
+            DETAIL_QUANTITY = "quantity", DETAIL_CODEUND = "codeund",DETAIL_CODEDAY = "codeday",  DETAIL_DATE="date", DETAIL_MDATE="mdate";
+    String[]columnsDetails = new String[]{DETAIL_CODE,DETAIL_CODESALES,DETAIL_CODEUSER, DETAIL_CODEPRODUCT,DETAIL_CODEUND,DETAIL_DISCOUNT,DETAIL_POSITION,DETAIL_QUANTITY,DETAIL_PRICE,DETAIL_MANUALPRICE, DETAIL_TAX,DETAIL_CODEDAY, DATE, MDATE};
     public static String QUERY_CREATE_DETAIL = "CREATE TABLE "+TABLE_NAME_DETAIL+" ("
-            +DETAIL_CODE+" TEXT,"+DETAIL_CODESALES+" TEXT, "+DETAIL_CODEPRODUCT+" TEXT, "+DETAIL_DISCOUNT+" DECIMAL(11,3), "+DETAIL_POSITION+" INTEGER, "
-            +DETAIL_PRICE+" DECIMAL(11, 3), "+DETAIL_MANUALPRICE+" DECIMAL(11, 3),  "+DETAIL_QUANTITY+" DOUBLE, "+DETAIL_TAX+" DECIMAL(11,3), "+DETAIL_CODEUND+" TEXT, " +
+            +DETAIL_CODE+" TEXT,"+DETAIL_CODESALES+" TEXT, "+DETAIL_CODEUSER+" TEXT, "+DETAIL_CODEPRODUCT+" TEXT, "+DETAIL_DISCOUNT+" DECIMAL(11,3), "+DETAIL_POSITION+" INTEGER, "
+            +DETAIL_PRICE+" DECIMAL(11, 3), "+DETAIL_MANUALPRICE+" DECIMAL(11, 3),  "+DETAIL_QUANTITY+" DOUBLE, "+DETAIL_TAX+" DECIMAL(11,3), "+DETAIL_CODEUND+" TEXT,"+CODEDAY+" TEXT,  " +
             DETAIL_DATE+" TEXT, "+DETAIL_MDATE+" TEXT)";
 
     Context context;
@@ -97,6 +97,7 @@ public class TempOrdersController {
         ContentValues cv = new ContentValues();
         cv.put(DETAIL_CODE,sd.getCODE());
         cv.put(DETAIL_CODESALES, sd.getCODESALES());
+        cv.put(DETAIL_CODEUSER, sd.getCODEUSER());
         cv.put(DETAIL_CODEPRODUCT,sd.getCODEPRODUCT());
         cv.put(DETAIL_DISCOUNT,sd.getDISCOUNT());
         cv.put(DETAIL_POSITION,sd.getPOSITION());
@@ -105,6 +106,7 @@ public class TempOrdersController {
         cv.put(DETAIL_QUANTITY,sd.getQUANTITY());
         cv.put(DETAIL_TAX,sd.getTAX());
         cv.put(DETAIL_CODEUND, sd.getCODEUND());
+        cv.put(DETAIL_CODEDAY, sd.getCODEDAY());
         cv.put(DETAIL_DATE, Funciones.getFormatedDate(sd.getDATE()));
         cv.put(DETAIL_MDATE, Funciones.getFormatedDate(sd.getMDATE()));
 
@@ -118,6 +120,7 @@ public class TempOrdersController {
         ContentValues cv = new ContentValues();
         cv.put(DETAIL_CODE,sd.getCODE());
         cv.put(DETAIL_CODESALES, sd.getCODESALES());
+        cv.put(DETAIL_CODEUSER, sd.getCODEUSER());
         cv.put(DETAIL_CODEPRODUCT,sd.getCODEPRODUCT());
         cv.put(DETAIL_DISCOUNT,sd.getDISCOUNT());
         cv.put(DETAIL_POSITION,sd.getPOSITION());
@@ -126,6 +129,7 @@ public class TempOrdersController {
         cv.put(DETAIL_QUANTITY,sd.getQUANTITY());
         cv.put(DETAIL_TAX,sd.getTAX());
         cv.put(DETAIL_CODEUND, sd.getCODEUND());
+        cv.put(DETAIL_CODEDAY, sd.getCODEDAY());
         cv.put(DETAIL_MDATE, Funciones.getFormatedDate(sd.getMDATE()));
 
         String where = DETAIL_CODE+"= ?  AND "+DETAIL_CODEPRODUCT+"= ? AND "+DETAIL_CODEUND+" = ?";

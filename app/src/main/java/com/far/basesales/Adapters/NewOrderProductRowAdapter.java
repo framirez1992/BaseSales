@@ -219,7 +219,7 @@ public class NewOrderProductRowAdapter extends RecyclerView.Adapter<NewOrderProd
         double manualPrice = opm.getManualPrice().isEmpty()?0:Double.parseDouble(opm.getManualPrice());
         double discount = 0;
         //String code,String codeSales, String codeProduct, String codeUnd,int position,double quantity,double price, double discount, double tax
-        SalesDetails sd = new SalesDetails(code,codeSale, codeProduct, codeUnd, position, quantity, price,manualPrice, discount, tax);
+        SalesDetails sd = new SalesDetails(code,codeSale,Funciones.getCodeuserLogged(activity), codeProduct, codeUnd, position, quantity, price,manualPrice, discount, tax, "");
         TempOrdersController.getInstance(activity).insert_Detail(sd);
         ((MainOrders)activity).refreshResume();
 

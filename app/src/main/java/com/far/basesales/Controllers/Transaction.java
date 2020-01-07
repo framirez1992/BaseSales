@@ -9,9 +9,12 @@ import com.far.basesales.CloudFireStoreObjects.Receipts;
 import com.far.basesales.CloudFireStoreObjects.Sales;
 import com.far.basesales.CloudFireStoreObjects.SalesDetails;
 import com.far.basesales.DataBase.DB;
+import com.far.basesales.Globales.CODES;
+import com.far.basesales.Utils.Funciones;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.WriteBatch;
 
@@ -105,5 +108,44 @@ public class Transaction {
             e.printStackTrace();
         }
 
+    }
+
+    //elimina todos los sales, receipts y payments cuyos recibos ya hayan sido saldados.
+    public void deleteDataFromFireBase(OnCompleteListener onCompleteListener, OnSuccessListener onSuccessListener, OnFailureListener failureListener){
+        WriteBatch lote = db.batch();
+        for(Receipts r: ReceiptController.getInstance(context).getReceipts(new String[]{ReceiptController.STATUS, ReceiptController.CODEUSER}, new String[]{CODES.CODE_RECEIPT_STATUS_CLOSED, Funciones.getCodeuserLogged(context)}, null)){
+            lote.delete(ReceiptController.getInstance(context).getDocumentReference(r));
+
+            for(Sales s: SalesController.getInstance(context).getSales(SalesController.CODERECEIPT+" = ?", new String[]{r.getCode()})){
+                lote.delete(SalesController.getInstance(context).getDocumentReference(s));
+
+                for(SalesDetails sd: SalesController.getInstance(context).getSalesDetailsByCodeSales(s.getCODE())){
+                    lote.delete(SalesController.getInstance(context).getDocumentReference(sd));
+                }
+            }
+
+            for(Payment p: PaymentController.getInstance(context).getPayments(PaymentController.CODERECEIPT+" = ?", new String[]{r.getCode()}, null)){
+                lote.delete(PaymentController.getInstance(context).getDocumentReference(p));
+            }
+        }
+
+        lote.commit()
+                .addOnFailureListener(failureListener)
+                .addOnCompleteListener(onCompleteListener)
+                .addOnSuccessListener(onSuccessListener);
+    }
+
+    public void deleteLocalData(){
+        for(Receipts r: ReceiptController.getInstance(context).getReceipts(new String[]{ReceiptController.STATUS, ReceiptController.CODEUSER}, new String[]{CODES.CODE_RECEIPT_STATUS_CLOSED, Funciones.getCodeuserLogged(context)}, null)){
+            ReceiptController.getInstance(context).delete(ReceiptController.CODE+" = ?", new String[]{r.getCode()});
+
+            for(Sales s: SalesController.getInstance(context).getSales(SalesController.CODERECEIPT+" = ?", new String[]{r.getCode()})){
+                SalesController.getInstance(context).deleteHeadDetail(s);
+            }
+
+            for(Payment p: PaymentController.getInstance(context).getPayments(PaymentController.CODERECEIPT+" = ?", new String[]{r.getCode()}, null)){
+                PaymentController.getInstance(context).delete(PaymentController.CODERECEIPT+" = ?", new String[]{p.getCODE()});
+            }
+        }
     }
 }

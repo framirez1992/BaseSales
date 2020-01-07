@@ -210,6 +210,11 @@ public class ReceiptFragment extends Fragment implements DialogCaller {
         s.setSTATUS(CODES.CODE_ORDER_STATUS_CLOSED);
         s.setCODEDAY(day.getCode());
 
+        ArrayList<SalesDetails> salesDetails = TempOrdersController.getInstance(parentActivity).getTempSalesDetails(s);
+        for(SalesDetails sd: salesDetails){
+            sd.setCODEDAY(day.getCode());
+        }
+
 
         double paidAmount = Double.parseDouble(etAmount.getText().toString().replace(",", ""));
         double receiptSubTotal = s.getTOTAL();
@@ -227,7 +232,7 @@ public class ReceiptFragment extends Fragment implements DialogCaller {
         s.setCODERECEIPT(r.getCode());
 
 
-        ((MainOrders)parentActivity).closeOrders(r,p,s, TempOrdersController.getInstance(parentActivity).getTempSalesDetails(s));
+        ((MainOrders)parentActivity).closeOrders(r,p,s, salesDetails);
 
     }
 

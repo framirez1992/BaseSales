@@ -455,7 +455,7 @@ public class ReceiptOptionsDialog extends DialogFragment  {
                 if(activity instanceof  MainOrders){
                     ((MainOrders)activity).newOrderAndRefresh();
                 }else if(activity instanceof MainReceipt){
-                    ((MainReceipt)activity).refreshPayments();
+                    ((MainReceipt)activity).refreshReceiptsResume();
                 }
 
             }

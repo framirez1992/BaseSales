@@ -24,6 +24,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.WriteBatch;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 
 public class ClientsController {
@@ -197,6 +198,19 @@ public class ClientsController {
 
         return result;
 
+    }
+
+    public ArrayList<Clients> getBirthDayClients(Calendar c){
+        String month = String.valueOf(c.get(Calendar.MONTH)+1);
+        String day = String.valueOf(c.get(Calendar.DAY_OF_MONTH));
+        if(month.length()==1){
+            month="0"+month;
+        }
+
+        if(day.length()==1){
+            day="0"+day;
+        }
+       return getClients(DATA+" like ?", new String[]{(day+"/"+month+"%")}, null);
     }
 
 

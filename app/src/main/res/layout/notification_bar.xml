@@ -107,6 +107,37 @@
             </RelativeLayout>
 
 
+            <RelativeLayout android:id="@+id/rlBirthDays"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:visibility="gone">
+
+                <ImageView android:id="@+id/imgCake"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:src="@drawable/ic_action_cake"
+                    android:tint="@color/white"/>
+
+                <android.support.v7.widget.CardView
+                    android:id="@+id/cvBd"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    app:cardCornerRadius="15dp"
+                    android:layout_alignBottom="@+id/imgCake"
+                    android:layout_alignRight="@+id/imgCake"
+                    android:backgroundTint="@color/red_700">
+
+                    <TextView android:id="@+id/tvBdNumber"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:gravity="center"
+                        android:text="0"
+                        android:textStyle="bold"
+                        android:textColor="@android:color/white"/>
+                </android.support.v7.widget.CardView>
+            </RelativeLayout>
+
         </LinearLayout>
 
 </android.support.v7.widget.CardView>

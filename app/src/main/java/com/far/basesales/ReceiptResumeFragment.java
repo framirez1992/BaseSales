@@ -180,25 +180,34 @@ public class ReceiptResumeFragment extends Fragment {
 
     public void refresh(){
         if(model != null){
-            tvCode.setText(model.getCode());
-            tvDate.setText(Funciones.getFormatedDateRepDomHour(Funciones.parseStringToDate(model.getDate())));
-            tvClientName.setText(model.getClientName());
-            tvDocument.setText(model.getClientDocument());
-            tvPhone.setText(model.getClientPhone());
-            tvSubTotal.setText("$"+Funciones.formatMoney(model.getSubTotal()));
-            tvDiscount.setText("$"+Funciones.formatMoney(model.getDiscount()));
-            tvTotal.setText("$"+Funciones.formatMoney(model.getTotal()));
-            tvTotalPayment.setText("$"+Funciones.formatMoney(model.getPaid()));
-
-            String status ="UNKNOWN";
-            if(model.getStatus().equals(CODES.CODE_RECEIPT_STATUS_CLOSED)){
-                status = "Pagado";
-            }else if(model.getStatus().equals(CODES.CODE_RECEIPT_STATUS_OPEN)){
-                status = "Abierto";
-            }
-            tvStatus.setText(status);
+            refreshReceiptData();
             search(false);
         }
+    }
+
+    public void refreshReceiptData(){
+        tvCode.setText(model.getCode());
+        tvDate.setText(Funciones.getFormatedDateRepDomHour(Funciones.parseStringToDate(model.getDate())));
+        tvClientName.setText(model.getClientName());
+        tvDocument.setText(model.getClientDocument());
+        tvPhone.setText(model.getClientPhone());
+        tvSubTotal.setText("$"+Funciones.formatMoney(model.getSubTotal()));
+        tvDiscount.setText("$"+Funciones.formatMoney(model.getDiscount()));
+        tvTotal.setText("$"+Funciones.formatMoney(model.getTotal()));
+        tvTotalPayment.setText("$"+Funciones.formatMoney(model.getPaid()));
+
+        String status ="UNKNOWN";
+        if(model.getStatus().equals(CODES.CODE_RECEIPT_STATUS_CLOSED)){
+            status = "Pagado";
+        }else if(model.getStatus().equals(CODES.CODE_RECEIPT_STATUS_OPEN)){
+            status = "Abierto";
+        }
+        tvStatus.setText(status);
+    }
+
+    public void refreshModel(){
+        setModel(ReceiptController.getInstance(parentActivity).getReceiptRMByCode(model.getCode()));
+        refreshReceiptData();
     }
 
 

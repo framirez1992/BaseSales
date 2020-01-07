@@ -41,6 +41,7 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentChange;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
@@ -278,6 +279,11 @@ public class ReceiptController {
 
     }
 
+    public  ReceiptRowModel getReceiptRMByCode(String codeReceipt){
+        ArrayList<ReceiptRowModel> models = getReceiptsRM("r."+CODE+" = ?", new String[]{codeReceipt});
+        return models.size()>0?models.get(0):null;
+    }
+
 
     /**
      * obtiene la fecha mas alta guardada en la base de datos local en la tabla.
@@ -362,6 +368,14 @@ public class ReceiptController {
     }
 
 
+    public void searchAllReceiptsFromFireBase(OnSuccessListener<QuerySnapshot> success, OnCompleteListener<QuerySnapshot> complete, OnFailureListener failure){
+        getReferenceFireStore().whereEqualTo(CODEUSER, Funciones.getCodeuserLogged(context)).
+                get().
+                addOnSuccessListener(success).addOnCompleteListener(complete).
+                addOnFailureListener(failure);
+
+    }
+
     public void searchReceiptFilteredFromFireBase(String status,String codeClient,Date ini, Date end,  OnSuccessListener<QuerySnapshot> success, OnCompleteListener<QuerySnapshot> complete, OnFailureListener failure){
         Query query =getReferenceFireStore().
                 whereEqualTo(STATUS, status);
@@ -383,12 +397,25 @@ public class ReceiptController {
 
     }
 
+    public DocumentReference getDocumentReference(Receipts receipts){
+          return getReferenceFireStore().document(receipts.getCode());
+    }
+
     public  String printReceipt(String codeReceipt)throws Exception{
 
         Print p = new Print(context,Print.PULGADAS.PULGADAS_2);
         CompanyController.getInstance(context).addCompanyToPrint(p);
         Receipts receipt = getReceiptByCode(codeReceipt);
+        Clients c = ClientsController.getInstance(context).getClientByCode(receipt.getCodeclient());
+        Users u = UsersController.getInstance(context).getUserByCode(receipt.getCodeuser());
 
+        p.drawText(" ");
+        p.drawText("Fecha: "+new SimpleDateFormat("dd-MM-yyyy HH:mm:ss a").format(receipt.getDate()));
+        p.drawText("No: "+receipt.getCode());
+        p.drawText(" ");
+        p.drawText("Vendedor: "+u.getUSERNAME());
+        p.drawText("Cliente:  "+c.getNAME());
+        p.drawText(" ");
         p.addAlign(Print.PRINTER_ALIGN.ALIGN_CENTER);
         p.drawLine();
         p.drawText("Detalle");
@@ -407,7 +434,10 @@ public class ReceiptController {
         if(receipt.getDiscount() > 0){
             p.drawText("Descuento: $"+Funciones.formatMoney(receipt.getDiscount()), Print.TEXT_ALIGN.RIGHT);
         }
-        p.drawText("Total: $"+Funciones.formatMoney(receipt.getTotal()), Print.TEXT_ALIGN.RIGHT);
+        p.drawText("Total a pagar: $"+Funciones.formatMoney(receipt.getTotal()), Print.TEXT_ALIGN.RIGHT);
+        p.drawText("Total pagado: $"+Funciones.formatMoney(receipt.getPaidamount()), Print.TEXT_ALIGN.RIGHT);
+        p.drawText("Pendiente: $"+Funciones.formatMoney(receipt.getTotal()-receipt.getPaidamount()), Print.TEXT_ALIGN.RIGHT);
+
         p.drawText(" ", Print.TEXT_ALIGN.RIGHT);
         p.drawText(" ", Print.TEXT_ALIGN.RIGHT);
 
@@ -527,8 +557,19 @@ public class ReceiptController {
         }
 
         cells.add(new TableCell(" ").noBorder());
-        cells.add(new TableCell("Total:").bold().right().noBorder());
+        cells.add(new TableCell("Total a Pagar:").bold().right().noBorder());
         cells.add(new TableCell("$"+Funciones.formatMoney(receipts.getTotal())).bold().right().noBorder());
+
+        cells.add(new TableCell(" ").noBorder());
+        cells.add(new TableCell("Total Pagado:").bold().right().noBorder());
+        cells.add(new TableCell("$"+Funciones.formatMoney(receipts.getPaidamount())).bold().right().noBorder());
+
+        if(receipts.getTotal() - receipts.getPaidamount() > 0){
+            cells.add(new TableCell(" ").noBorder());
+            cells.add(new TableCell("Pendiente:").bold().right().noBorder());
+            cells.add(new TableCell("$"+Funciones.formatMoney(receipts.getTotal() - receipts.getPaidamount())).bold().right().noBorder());
+        }
+
 
         cells.add(new TableCell(" ").noBorder());
         cells.add(new TableCell(" ").right().noBorder());

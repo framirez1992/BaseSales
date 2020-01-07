@@ -14,6 +14,7 @@ import com.example.bluetoothlibrary.BluetoothScan;
 import com.far.basesales.Adapters.Models.ReceiptRowModel;
 import com.far.basesales.CloudFireStoreObjects.Payment;
 import com.far.basesales.CloudFireStoreObjects.Receipts;
+import com.far.basesales.Controllers.ReceiptController;
 import com.far.basesales.Controllers.Transaction;
 import com.far.basesales.Globales.CODES;
 import com.far.basesales.Interfases.ListableActivity;
@@ -108,7 +109,8 @@ public class MainReceipt extends AppCompatActivity implements ListableActivity, 
         errorDialog.show();
     }
 
-   public void refreshPayments(){
+   public void refreshReceiptsResume(){
+        receiptResumeFragment.refreshModel();
         receiptResumeFragment.searchPayments(false);
    }
 

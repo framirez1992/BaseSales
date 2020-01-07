@@ -22,6 +22,7 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentChange;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -37,10 +38,10 @@ public class SalesController {
     String[]columns = new String[]{CODE,STATUS, DATE, MDATE, SUBTOTAL, TOTALTAXES,TOTALDISCOUNT, TOTAL , CODEUSER, CODERECEIPT, CODEDAY};
 
     public static final String TABLE_NAME_DETAIL = Tablas.generalUsersSalesDetails;
-    public static String DETAIL_CODE = "code",DETAIL_CODESALES = "codesales", DETAIL_CODEPRODUCT = "codeproduct",
+    public static String DETAIL_CODE = "code",DETAIL_CODESALES = "codesales",DETAIL_CODEUSER = "codeuser", DETAIL_CODEPRODUCT = "codeproduct",
             DETAIL_DISCOUNT = "discount", DETAIL_POSITION = "position", DETAIL_PRICE = "price", DETAIL_MANUALPRICE = "manualprice", DETAIL_TAX = "tax",
-            DETAIL_QUANTITY = "quantity", DETAIL_CODEUND = "codeund", DETAIL_DATE="date", DETAIL_MDATE="mdate";
-    String[]columnsDetails = new String[]{DETAIL_CODE,DETAIL_CODESALES, DETAIL_CODEPRODUCT,DETAIL_CODEUND,DETAIL_DISCOUNT,DETAIL_POSITION,DETAIL_QUANTITY,DETAIL_PRICE,DETAIL_MANUALPRICE, DETAIL_TAX, DATE, MDATE};
+            DETAIL_QUANTITY = "quantity", DETAIL_CODEUND = "codeund",DETAIL_CODEDAY = "codeday",  DETAIL_DATE="date", DETAIL_MDATE="mdate";
+    String[]columnsDetails = new String[]{DETAIL_CODE,DETAIL_CODESALES,DETAIL_CODEUSER,  DETAIL_CODEPRODUCT,DETAIL_CODEUND,DETAIL_DISCOUNT,DETAIL_POSITION,DETAIL_QUANTITY,DETAIL_PRICE,DETAIL_MANUALPRICE, DETAIL_TAX,DETAIL_CODEDAY,  DATE, MDATE};
 
 
     Context context;
@@ -68,8 +69,8 @@ public class SalesController {
 
     public static String getQueryCreateDetail(){
               String QUERY_CREATE_DETAIL = "CREATE TABLE "+TABLE_NAME_DETAIL+" ("
-                +DETAIL_CODE+" TEXT, "+DETAIL_CODESALES+" TEXT, "+DETAIL_CODEPRODUCT+" TEXT, "+DETAIL_POSITION+" INTEGER, "
-                +DETAIL_QUANTITY+" DOUBLE, "+DETAIL_CODEUND+" TEXT,"+DETAIL_PRICE+" DECIMAL(11, 3), "+DETAIL_MANUALPRICE+" DECIMAL(11, 3), "+DETAIL_DISCOUNT+" DECIMAL(11,3), "+DETAIL_TAX+"  DECIMAL(11,3), " +
+                +DETAIL_CODE+" TEXT, "+DETAIL_CODESALES+" TEXT, "+DETAIL_CODEUSER+" TEXT,  "+DETAIL_CODEPRODUCT+" TEXT, "+DETAIL_POSITION+" INTEGER, "
+                +DETAIL_QUANTITY+" DOUBLE, "+DETAIL_CODEUND+" TEXT,"+DETAIL_PRICE+" DECIMAL(11, 3), "+DETAIL_MANUALPRICE+" DECIMAL(11, 3), "+DETAIL_DISCOUNT+" DECIMAL(11,3), "+DETAIL_TAX+"  DECIMAL(11,3),"+DETAIL_CODEDAY+" TEXT,  " +
                 DETAIL_DATE+" TEXT, "+DETAIL_MDATE+" TEXT)";
               return QUERY_CREATE_DETAIL;
 
@@ -168,6 +169,7 @@ public class SalesController {
         ContentValues cv = new ContentValues();
         cv.put(DETAIL_CODE,sd.getCODE());
         cv.put(DETAIL_CODESALES, sd.getCODESALES());
+        cv.put(DETAIL_CODEUSER, sd.getCODEUSER());
         cv.put(DETAIL_CODEPRODUCT,sd.getCODEPRODUCT());
         cv.put(DETAIL_DISCOUNT,sd.getDISCOUNT());
         cv.put(DETAIL_POSITION,sd.getPOSITION());
@@ -176,6 +178,7 @@ public class SalesController {
         cv.put(DETAIL_QUANTITY,sd.getQUANTITY());
         cv.put(DETAIL_TAX,sd.getTAX());
         cv.put(DETAIL_CODEUND, sd.getCODEUND());
+        cv.put(DETAIL_CODEDAY, sd.getCODEDAY());
         cv.put(DETAIL_DATE, Funciones.getFormatedDate(sd.getDATE()));
         cv.put(DETAIL_MDATE, Funciones.getFormatedDate(sd.getMDATE()));
 
@@ -187,6 +190,7 @@ public class SalesController {
         ContentValues cv = new ContentValues();
         cv.put(DETAIL_CODE,sd.getCODE());
         cv.put(DETAIL_CODESALES, sd.getCODESALES());
+        cv.put(DETAIL_CODEUSER, sd.getCODEUSER());
         cv.put(DETAIL_CODEPRODUCT,sd.getCODEPRODUCT());
         cv.put(DETAIL_DISCOUNT,sd.getDISCOUNT());
         cv.put(DETAIL_POSITION,sd.getPOSITION());
@@ -195,6 +199,7 @@ public class SalesController {
         cv.put(DETAIL_QUANTITY,sd.getQUANTITY());
         cv.put(DETAIL_TAX,sd.getTAX());
         cv.put(DETAIL_CODEUND, sd.getCODEUND());
+        cv.put(DETAIL_CODEDAY, sd.getCODEDAY());
         cv.put(DETAIL_MDATE, Funciones.getFormatedDate(sd.getMDATE()));
 
         String where = DETAIL_CODE+"= ?  AND "+DETAIL_CODEPRODUCT+"= ? AND "+DETAIL_CODEUND+" = ?";
@@ -868,6 +873,22 @@ public class SalesController {
 
     }
 
+    public void searchAllSalesFromFireBase(OnSuccessListener<QuerySnapshot> success, OnCompleteListener<QuerySnapshot> complete, OnFailureListener failure){
+        getReferenceFireStore().whereEqualTo(CODEUSER, Funciones.getCodeuserLogged(context)).
+                get().
+                addOnSuccessListener(success).addOnCompleteListener(complete).
+                addOnFailureListener(failure);
+
+    }
+
+    public void searchAllSalesDetailFromFireBase(OnSuccessListener<QuerySnapshot> success, OnCompleteListener<QuerySnapshot> complete, OnFailureListener failure){
+        getReferenceDetailFireStore().whereEqualTo(CODEUSER, Funciones.getCodeuserLogged(context)).
+                get().
+                addOnSuccessListener(success).addOnCompleteListener(complete).
+                addOnFailureListener(failure);
+
+    }
+
 
 
     public void consumeQuerySnapshot(QuerySnapshot querySnapshot){
@@ -892,6 +913,17 @@ public class SalesController {
             }
         }
 
+    }
+
+
+    public DocumentReference getDocumentReference(Sales s){
+
+        return getReferenceFireStore().document(s.getCODE());
+    }
+
+    public DocumentReference getDocumentReference(SalesDetails s){
+
+        return getReferenceDetailFireStore().document(s.getCODE());
     }
 
     public ArrayList<SalesDetailModel> getSaleDetailModels(String codeReceipt){

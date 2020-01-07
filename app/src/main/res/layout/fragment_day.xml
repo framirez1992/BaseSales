@@ -332,6 +332,33 @@
                 android:textSize="18sp"/>
 
         </android.support.v7.widget.CardView>
+
+
+
+        <LinearLayout android:id="@+id/llLoadingCloseDay"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:padding="20dp"
+            android:visibility="invisible">
+            <ProgressBar
+                android:layout_width="50dp"
+                android:layout_height="50dp" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:gravity="center_vertical"
+                android:text="Cerrando el dia..."/>
+        </LinearLayout>
+
+        <TextView android:id="@+id/tvErrorMsg"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:textColor="@color/red_700"
+            android:visibility="invisible"/>
+
     </LinearLayout>
 
     </LinearLayout>

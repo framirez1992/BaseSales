@@ -6,6 +6,7 @@ import android.app.DatePickerDialog;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.Snackbar;
 import android.support.design.widget.TextInputEditText;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -19,6 +20,10 @@ import android.widget.Toast;
 
 import com.far.basesales.CloudFireStoreObjects.Day;
 import com.far.basesales.Controllers.DayController;
+import com.far.basesales.Controllers.PaymentController;
+import com.far.basesales.Controllers.ReceiptController;
+import com.far.basesales.Controllers.SalesController;
+import com.far.basesales.Controllers.Transaction;
 import com.far.basesales.Globales.CODES;
 import com.far.basesales.Utils.Funciones;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -35,15 +40,16 @@ import java.util.Date;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class DayFragment extends Fragment {
+public class DayFragment extends Fragment implements OnCompleteListener, OnSuccessListener<QuerySnapshot>, OnFailureListener {
 
     Activity parentActivity;
-    LinearLayout llLoading, llDayStart, llDayEnd;
+    LinearLayout llLoading, llDayStart, llDayEnd, llLoadingCloseDay;
     TextInputEditText etInitialDateStart, etStart, etEnd;
-    TextView btnStartDay, btnEndDay;
+    TextView btnStartDay, btnEndDay, tvErrorMsg;
     EditText etSalesCount, etSalesAmount, etCashCount, etCashAmount, etCreditCount,etCreditAmount, etDiscount;
 
     int lastDatePressed;
+    int lastFireBaseaction = 0;
 
     public DayFragment() {
         // Required empty public constructor
@@ -63,6 +69,8 @@ public class DayFragment extends Fragment {
         llLoading = view.findViewById(R.id.llLoading);
         llDayStart = view.findViewById(R.id.llDayStart);
         llDayEnd = view.findViewById(R.id.llDayEnd);
+        llLoadingCloseDay = view.findViewById(R.id.llLoadingCloseDay);
+        tvErrorMsg = view.findViewById(R.id.tvErrorMsg);
 
 
         etInitialDateStart = view.findViewById(R.id.etInitialDateStart);
@@ -83,6 +91,17 @@ public class DayFragment extends Fragment {
             @Override
             public void onClick(View v) {
             saveDay();
+            }
+        });
+        btnEndDay.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(DayController.getInstance(parentActivity).getCurrentOpenDay()!= null){
+                    lastFireBaseaction = 1;
+                    showWaitingCloseDay();
+                    dissableCloseDayButtons();
+                    execute();
+                }
             }
         });
 
@@ -131,10 +150,7 @@ public class DayFragment extends Fragment {
 
                 llLoading.setVisibility(View.GONE);
                 if(day == null){
-                    llDayEnd.setVisibility(View.GONE);
-                    llDayStart.setVisibility(View.VISIBLE);
-                    etInitialDateStart.setText(Funciones.getFormatedDateRepDom(new Date()));
-
+                  initNewDay();
                 }else{
                  initStartedDay(day);
                 }
@@ -152,6 +168,12 @@ public class DayFragment extends Fragment {
                 Toast.makeText(parentActivity, e.getMessage(), Toast.LENGTH_LONG).show();
             }
         });
+    }
+
+    public void initNewDay(){
+        llDayEnd.setVisibility(View.GONE);
+        llDayStart.setVisibility(View.VISIBLE);
+        etInitialDateStart.setText(Funciones.getFormatedDateRepDom(new Date()));
     }
 
     public void initStartedDay(Day day){
@@ -233,6 +255,90 @@ public class DayFragment extends Fragment {
                     Toast.makeText(parentActivity, e.getMessage(), Toast.LENGTH_LONG).show();
             }
         });
+    }
+
+    public void execute(){
+        switch (lastFireBaseaction){
+            case 1:SalesController.getInstance(parentActivity).searchAllSalesFromFireBase( this, this, this); break;
+            case 2: SalesController.getInstance(parentActivity).searchAllSalesDetailFromFireBase(this, this, this); break;
+            case 3: ReceiptController.getInstance(parentActivity).searchAllReceiptsFromFireBase( this, this, this); break;
+            case 4: PaymentController.getInstance(parentActivity).searchAllPaymentsFromFireBase( this, this, this); break;
+            case 5: Transaction.getInstance(parentActivity).deleteDataFromFireBase(this, this, this); break;
+            case 6:
+                Day day = DayController.getInstance(parentActivity).getCurrentOpenDay();
+                day.setStatus(CODES.CODE_DAY_STATUS_CLOSED);
+                day.setMdate(null);
+                DayController.getInstance(parentActivity).sendToFireBase(day, this, this, this);
+                break;
+            case 7:
+                hideWaitingCloseDay();
+                setErrorText("");
+                enableCloseDayButtons();
+                initNewDay();
+                lastFireBaseaction = 0;
+                break;
+            default:break;
+        }
+    }
+
+
+    @Override
+    public void onComplete(@NonNull Task task) {
+    if(task.getException() != null){
+        hideWaitingCloseDay();
+        setErrorText(task.getException().getMessage());
+        enableCloseDayButtons();
+    }
+
+    }
+
+    @Override
+    public void onFailure(@NonNull Exception e) {
+        hideWaitingCloseDay();
+        setErrorText(e.getMessage());
+        enableCloseDayButtons();
+    }
+
+
+    @Override
+    public void onSuccess(QuerySnapshot querySnapshot) {
+        //if(lastFireBaseaction > 0){
+            switch (lastFireBaseaction){
+                case 1: SalesController.getInstance(parentActivity).consumeQuerySnapshot(querySnapshot); break;
+                case 2: SalesController.getInstance(parentActivity).consumeQuerySnapshotDetail(querySnapshot); break;
+                case 3: ReceiptController.getInstance(parentActivity).consumeQuerySnapshot(querySnapshot); break;
+                case 4: PaymentController.getInstance(parentActivity).consumeQuerySnapshot(querySnapshot); break;
+                case 5: Transaction.getInstance(parentActivity).deleteLocalData();break;
+                case 6: DayController.getInstance(parentActivity).delete(null, null); break;//LOCALMENTE
+                default:break;
+            }
+            lastFireBaseaction++;
+            execute();
+     //   }
+
+    }
+
+    public void enableCloseDayButtons(){
+        etStart.setEnabled(true);
+        etEnd.setEnabled(true);
+        btnEndDay.setEnabled(true);
+    }
+
+    public void dissableCloseDayButtons(){
+        etStart.setEnabled(false);
+        etEnd.setEnabled(false);
+        btnEndDay.setEnabled(false);
+    }
+
+    public void showWaitingCloseDay(){
+        llLoadingCloseDay.setVisibility(View.VISIBLE);
+    }
+    public void hideWaitingCloseDay(){
+        llLoadingCloseDay.setVisibility(View.INVISIBLE);
+    }
+
+    public void setErrorText(String msg){
+        tvErrorMsg.setText(msg);
     }
 
 }
