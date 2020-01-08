@@ -16,17 +16,24 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:node="replace">
-        <activity android:name=".MaintenanceCompany"
-            android:screenOrientation="portrait"></activity>
-        <activity android:name=".AdminLicenseUsersControl"
+        <activity android:name=".MainReports"></activity>
+        <activity
+            android:name=".MaintenanceCompany"
             android:screenOrientation="portrait" />
-        <activity android:name=".AdminLicenseUserDevice"
+        <activity
+            android:name=".AdminLicenseUsersControl"
             android:screenOrientation="portrait" />
-        <activity android:name=".AdminLicenseUsers"
-            android:screenOrientation="portrait"/>
-        <activity android:name=".AdminLicenseDevices"
+        <activity
+            android:name=".AdminLicenseUserDevice"
             android:screenOrientation="portrait" />
-        <activity android:name=".AdminLicenseTokens"
+        <activity
+            android:name=".AdminLicenseUsers"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".AdminLicenseDevices"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".AdminLicenseTokens"
             android:screenOrientation="portrait" />
         <activity
             android:name=".MainReceipt"
@@ -40,16 +47,19 @@
             android:name=".MainOrders"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar" />
-        <activity android:name=".MaintenanceClients"
+        <activity
+            android:name=".MaintenanceClients"
             android:screenOrientation="portrait" />
-        <activity android:name=".AdminConfiguration"
+        <activity
+            android:name=".AdminConfiguration"
             android:screenOrientation="portrait" />
 
         <meta-data
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
 
-        <activity android:name=".Login"
+        <activity
+            android:name=".Login"
             android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -59,23 +69,31 @@
         </activity>
         <activity
             android:name=".MainActivity"
-            android:theme="@style/AppTheme.NoActionBar"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".MaintenanceProductTypes"
             android:screenOrientation="portrait" />
-        <activity android:name=".MaintenanceProductTypes"
+        <activity
+            android:name=".MaintenanceUnitMeasure"
             android:screenOrientation="portrait" />
-        <activity android:name=".MaintenanceUnitMeasure"
+        <activity
+            android:name=".MaintenanceUsers"
             android:screenOrientation="portrait" />
-        <activity android:name=".MaintenanceUsers"
+        <activity
+            android:name=".MaintenanceUserTypes"
             android:screenOrientation="portrait" />
-        <activity android:name=".MaintenanceUserTypes"
+        <activity
+            android:name=".MaintenanceProductSubTypes"
             android:screenOrientation="portrait" />
-        <activity android:name=".MaintenanceProductSubTypes"
+        <activity
+            android:name=".MaintenanceProducts"
             android:screenOrientation="portrait" />
-        <activity android:name=".MaintenanceProducts"
+        <activity
+            android:name=".MaintenanceUsersControl"
             android:screenOrientation="portrait" />
-        <activity android:name=".MaintenanceUsersControl"
-            android:screenOrientation="portrait" />
-        <activity android:name=".MainAssignation"
+        <activity
+            android:name=".MainAssignation"
             android:screenOrientation="portrait" />
         <activity android:name="com.example.bluetoothlibrary.BluetoothScan" />
     </application>

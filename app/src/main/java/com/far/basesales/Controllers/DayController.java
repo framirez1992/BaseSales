@@ -135,6 +135,24 @@ public class DayController{
         return result;
     }
 
+    public ArrayList<Day> getDays(String where, String[]args, String campoOrderBy){
+
+        ArrayList<Day> result = new ArrayList<>();
+        if(campoOrderBy == null){
+            campoOrderBy=DATE;
+        }
+        try {
+            Cursor c =  DB.getInstance(context).getReadableDatabase().query(TABLE_NAME, columns, where, args, null, null, campoOrderBy);
+            while (c.moveToNext()){
+                result.add(new Day(c));
+            }
+            c.close();
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return result;
+    }
+
     public Day getDayByCode(String code){
         ArrayList<Day> array = getDays(new String[]{CODE}, new String[]{code}, null);
         return array.size()>0?array.get(0):null;
@@ -244,6 +262,15 @@ public class DayController{
     }
 
 
+    public void searchDaysRangeFromFireBase(Date dateIni, Date dateEnd, OnSuccessListener<QuerySnapshot> success, OnCompleteListener<QuerySnapshot> complete, OnFailureListener failure){
+        Query query =getReferenceFireStore().whereEqualTo(STATUS, CODES.CODE_DAY_STATUS_CLOSED).
+                whereGreaterThanOrEqualTo(DATESTART, dateIni).whereLessThanOrEqualTo(DATESTART, dateEnd);
+
+        query.get().
+                addOnSuccessListener(success).addOnCompleteListener(complete).
+                addOnFailureListener(failure);
+
+    }
 
 
 

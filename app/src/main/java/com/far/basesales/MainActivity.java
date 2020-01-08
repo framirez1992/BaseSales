@@ -218,10 +218,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 goToOrders();
             } /*else if (id == R.id.goPendingOrders) {
             goToOrdersBoard();
-        } else if (id == R.id.goReports) {
+        }*/ else if (id == R.id.goReports) {
             goToReports();
 
-        }*/ else if(id == R.id.goReceip){
+        } else if(id == R.id.goReceip){
                 goToReceipts();
             }/*else if(id == R.id.goSavedReceipts){
             goToSavedReceipts();
@@ -415,7 +415,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         mantenimientoControles.setVisible(false);
         crearOrdenes.setVisible(false);
         facturar.setVisible(false);
-        reportes.setVisible(false);
+        reportes.setVisible(true);
 
         //if(UserControlController.getInstance(MainActivity.this).createOrders()){
             nav.getMenu().findItem(R.id.goMenu).setVisible(true);
@@ -521,6 +521,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         startActivity(new Intent(MainActivity.this, MainReceipt.class));
     }
 
+    public void goToReports(){
+        startActivity(new Intent(MainActivity.this, MainReports.class));
+    }
     public void logout(){
         final Dialog d =Funciones.getCustomDialog2Btn(MainActivity.this, getResources().getColor(R.color.colorPrimary), "Logout", "Esta seguro que desea cerrar la sesion?", R.drawable.ic_power, new View.OnClickListener() {
             @Override
