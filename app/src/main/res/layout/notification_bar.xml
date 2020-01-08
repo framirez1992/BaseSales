@@ -114,8 +114,8 @@
                 android:visibility="gone">
 
                 <ImageView android:id="@+id/imgCake"
-                    android:layout_width="50dp"
-                    android:layout_height="50dp"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
                     android:src="@drawable/ic_action_cake"
                     android:tint="@color/white"/>
 

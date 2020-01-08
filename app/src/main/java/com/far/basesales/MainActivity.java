@@ -1,10 +1,11 @@
 package com.far.basesales;
 
 import android.app.Dialog;
-import android.app.Fragment;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
+import android.support.v4.app.DialogFragment;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -34,7 +35,9 @@ import com.far.basesales.Controllers.ProductsControlController;
 import com.far.basesales.Controllers.UserControlController;
 import com.far.basesales.Controllers.UsersController;
 import com.far.basesales.Controllers.UsersDevicesController;
+import com.far.basesales.Dialogs.BirthDayDialog;
 import com.far.basesales.Globales.CODES;
+import com.far.basesales.Interfases.DialogCaller;
 import com.far.basesales.Utils.Funciones;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
@@ -45,7 +48,7 @@ import java.util.Calendar;
 
 import javax.annotation.Nullable;
 
-public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, DialogCaller {
 
     MaintenanceFragment fragmentMaintenance;
     DayFragment dayFragment;
@@ -111,6 +114,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 }catch(Exception e){
                     e.printStackTrace();
                 }
+            }
+        });
+
+        findViewById(R.id.rlBirthDays).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                callBirthDialog();
             }
         });
 
@@ -535,6 +545,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
 
+
+
     public void searchBirthDays(){
         if(ClientsController.getInstance(MainActivity.this).getBirthDayClients(Calendar.getInstance()).size() > 0){
             findViewById(R.id.rlBirthDays).setVisibility(View.VISIBLE);
@@ -545,4 +557,20 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
+    public void callBirthDialog(){
+        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+        Fragment prev = getSupportFragmentManager().findFragmentByTag("dialogBD");
+        if (prev != null) {
+            ft.remove(prev);
+        }
+        ft.addToBackStack(null);
+        DialogFragment newFragment =  BirthDayDialog.newInstance(this, this);
+        // Create and show the dialog.
+        newFragment.show(ft, "dialogBD");
+    }
+
+    @Override
+    public void dialogClosed(Object o) {
+
+    }
 }
