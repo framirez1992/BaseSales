@@ -153,6 +153,35 @@ public class DayController{
         return result;
     }
 
+    /**
+     * Returna un Objecto Day Totalizado de todos los Day con status 0
+     * @return
+     */
+    public Day getGeneralDay(String year, String month){
+        Day d = new Day();
+        String date = year+month;
+        //, ,, ,,
+    String sql = "SELECT SUM("+SALESCOUNT+") as SALESCOUNT, SUM("+SALESAMOUNT+") as SALESAMOUNT,  " +
+            "SUM("+CASHPAIDCOUNT+") as CASHPAIDCOUNT, SUM("+CASHPAIDAMOUNT+") as CASHPAIDAMOUNT," +
+            "SUM("+CREDITPAIDCOUNT+") as CREDITPAIDCOUNT, SUM("+CREDITPAIDAMOUNT+") as CREDITPAIDAMOUNT, " +
+            "SUM("+DISCOUNTAMOUNT+") as DISCOUNTAMOUNT " +
+            "FROM "+TABLE_NAME+" " +
+            "WHERE "+STATUS+" = ? AND   SUBSTR("+DATESTART+", 1,6) = ?";
+    Cursor c = DB.getInstance(context).getReadableDatabase().rawQuery(sql, new String[]{CODES.CODE_DAY_STATUS_CLOSED, date});
+    if(c.moveToFirst()){
+        d.setSalescount(c.getInt(c.getColumnIndex("SALESCOUNT")));
+        d.setSalesamount(c.getDouble(c.getColumnIndex("SALESAMOUNT")));
+        d.setCashpaidcount(c.getInt(c.getColumnIndex("CASHPAIDCOUNT")));
+        d.setCashpaidamount(c.getDouble(c.getColumnIndex("CASHPAIDAMOUNT")));
+        d.setCreditpaidcount(c.getInt(c.getColumnIndex("CREDITPAIDCOUNT")));
+        d.setCreditpaidamount(c.getDouble(c.getColumnIndex("CREDITPAIDAMOUNT")));
+        d.setDiscountamount(c.getDouble(c.getColumnIndex("DISCOUNTAMOUNT")));
+    }c.close();
+    return d;
+
+    }
+
+
     public Day getDayByCode(String code){
         ArrayList<Day> array = getDays(new String[]{CODE}, new String[]{code}, null);
         return array.size()>0?array.get(0):null;

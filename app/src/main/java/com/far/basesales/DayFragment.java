@@ -265,8 +265,14 @@ public class DayFragment extends Fragment implements OnCompleteListener, OnSucce
             case 4: PaymentController.getInstance(parentActivity).searchAllPaymentsFromFireBase( this, this, this); break;
             case 5: Transaction.getInstance(parentActivity).deleteDataFromFireBase(this, this, this); break;
             case 6:
+                Date dateEnd = new Date();
+                try {
+                    dateEnd = new SimpleDateFormat("dd/MM/yyyy").parse(etEnd.getText().toString());
+                }catch (Exception e){e.getMessage();}
+
                 Day day = DayController.getInstance(parentActivity).getCurrentOpenDay();
                 day.setStatus(CODES.CODE_DAY_STATUS_CLOSED);
+                day.setDateend(dateEnd);
                 day.setMdate(null);
                 DayController.getInstance(parentActivity).sendToFireBase(day, this, this, this);
                 break;

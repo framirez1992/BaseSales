@@ -30,6 +30,7 @@ import com.far.basesales.CloudFireStoreObjects.Licenses;
 import com.far.basesales.CloudFireStoreObjects.Token;
 import com.far.basesales.CloudFireStoreObjects.Users;
 import com.far.basesales.CloudFireStoreObjects.UsersDevices;
+import com.far.basesales.Controllers.DayController;
 import com.far.basesales.Controllers.DevicesController;
 import com.far.basesales.Controllers.LicenseController;
 import com.far.basesales.Controllers.TokenController;
@@ -161,7 +162,6 @@ public class Login extends AppCompatActivity implements OnFailureListener, FireB
         btnLogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
                     if (Funciones.getPreferences(Login.this, CODES.PREFERENCE_LOGIN_BLOQUED).equals("1")) {
                         AlertDialog a = new AlertDialog.Builder(Login.this).create();
                         a.setTitle("Alerta");

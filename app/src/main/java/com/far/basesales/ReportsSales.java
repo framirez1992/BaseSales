@@ -27,6 +27,8 @@ import com.far.basesales.CloudFireStoreObjects.Licenses;
 import com.far.basesales.Controllers.DayController;
 import com.far.basesales.Controllers.LicenseController;
 import com.far.basesales.Generic.KV;
+import com.far.basesales.Globales.CODES;
+import com.far.basesales.Utils.Funciones;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -47,6 +49,8 @@ public class ReportsSales extends Fragment implements OnCompleteListener, OnSucc
     Activity parentActivity;
     Spinner spnMonth, spnYear;
     CardView btnSearch;
+    TextView tvSalesTotalAmount, tvSalesTotalDiscount, tvSalesNetAmount, tvSalesCashAmount, tvCreditAmount;
+
     RecyclerView rvList;
     ProgressBar pb;
     CardView cvGeneral, cvDetalle;
@@ -80,6 +84,12 @@ public class ReportsSales extends Fragment implements OnCompleteListener, OnSucc
         cvDetalle = view.findViewById(R.id.cvDetalle);
         rlList = view.findViewById(R.id.rlList);
         llGeneral = view.findViewById(R.id.llGeneral);
+        tvSalesTotalAmount = view.findViewById(R.id.tvSalesTotalAmount);
+        tvSalesTotalDiscount = view.findViewById(R.id.tvSalesTotalDiscount);
+        tvSalesNetAmount = view.findViewById(R.id.tvSalesNetAmount);
+        tvSalesCashAmount = view.findViewById(R.id.tvSalesCashAmount);
+        tvCreditAmount = view.findViewById(R.id.tvCreditAmount);
+
 
         btnSearch.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -102,9 +112,7 @@ public class ReportsSales extends Fragment implements OnCompleteListener, OnSucc
             }
         });
 
-        lastOption = cvGeneral.getId();
-        llGeneral.setVisibility(View.VISIBLE);
-        rlList.setVisibility(View.GONE);
+        changeList(cvGeneral);
 
         fillSpnMonth();
         fillSpnYear();
@@ -230,22 +238,35 @@ public class ReportsSales extends Fragment implements OnCompleteListener, OnSucc
         ((TextView)((CardView) v).getChildAt(0)).setTextColor(getResources().getColor(R.color.colorPrimaryDark));
 
 
-        rlList.setVisibility(v.getId()== R.id.cvDetalle?View.VISIBLE:View.INVISIBLE);
-        llGeneral.setVisibility(v.getId()== R.id.cvGeneral?View.VISIBLE:View.INVISIBLE);
+        rlList.setVisibility(v.getId()== R.id.cvDetalle?View.VISIBLE:View.GONE);
+        llGeneral.setVisibility(v.getId()== R.id.cvGeneral?View.VISIBLE:View.GONE);
 
     }
 
 
     public void refreshData() {
+
+        String year = ((KV)spnYear.getSelectedItem()).getKey();
+        String month = ((KV)spnMonth.getSelectedItem()).getKey();
+        String date = year+month;
+
+        Day generalDay = DayController.getInstance(parentActivity).getGeneralDay(year, month);
+        tvSalesTotalAmount.setText(Funciones.formatMoney(generalDay.getSalesamount()));
+        tvSalesTotalDiscount.setText(Funciones.formatMoney(generalDay.getDiscountamount()));
+        tvSalesNetAmount.setText(Funciones.formatMoney(generalDay.getSalesamount() - generalDay.getDiscountamount()));
+        tvSalesCashAmount.setText(Funciones.formatMoney(generalDay.getCashpaidamount()));
+        tvCreditAmount.setText(Funciones.formatMoney(generalDay.getCreditpaidamount()));
+
+
         pb.setVisibility(View.GONE);
         enableAll();
-        String date = ((KV)spnYear.getSelectedItem()).getKey()+"-"+((KV)spnMonth.getSelectedItem()).getKey();
 
-        DayAdapter adapter = new DayAdapter(parentActivity, DayController.getInstance(parentActivity).getDays("strftime('%Y-%m',"+DayController.DATESTART+") like ?", new String[]{date}, null));
+        DayAdapter adapter = new DayAdapter(parentActivity, DayController.getInstance(parentActivity).getDays(DayController.STATUS+" = ? AND  SUBSTR("+DayController.DATESTART+", 1,6) = ?", new String[]{CODES.CODE_DAY_STATUS_CLOSED, date}, null));
         rvList.setAdapter(adapter);
         rvList.getAdapter().notifyDataSetChanged();
         rvList.invalidate();
     }
+
 
 
 }

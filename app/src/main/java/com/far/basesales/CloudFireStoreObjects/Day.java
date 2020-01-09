@@ -12,8 +12,8 @@ import java.util.HashMap;
 
 public class Day {
     String code,codeuser, status;
-    int cashsalescount, creditsalescount, salescount;
-    double cashsalesamount, creditsalesamount, discountamount, salesamount,  cashpaidcount, cashpaidamount, creditpaidcount, creditpaidamount;
+    int cashsalescount, creditsalescount, salescount,  cashpaidcount, creditpaidcount;
+    double cashsalesamount, creditsalesamount, discountamount, salesamount, cashpaidamount, creditpaidamount;
     private @ServerTimestamp
     Date datestart, dateend,  date, mdate;
 
@@ -186,19 +186,19 @@ public class Day {
         this.creditpaidamount = creditpaidamount;
     }
 
-    public double getCashpaidcount() {
+    public int getCashpaidcount() {
         return cashpaidcount;
     }
 
-    public void setCashpaidcount(double cashpaidcount) {
+    public void setCashpaidcount(int cashpaidcount) {
         this.cashpaidcount = cashpaidcount;
     }
 
-    public double getCreditpaidcount() {
+    public int getCreditpaidcount() {
         return creditpaidcount;
     }
 
-    public void setCreditpaidcount(double creditpaidcount) {
+    public void setCreditpaidcount(int creditpaidcount) {
         this.creditpaidcount = creditpaidcount;
     }
 

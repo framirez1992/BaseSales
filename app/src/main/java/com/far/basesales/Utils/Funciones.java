@@ -75,6 +75,9 @@ public class Funciones {
     }
 
     public static String getFormatedDateRepDom(Date date){
+        if(date == null){
+            return "NO DATE";
+        }
         SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
         return sdf.format(date);
     }

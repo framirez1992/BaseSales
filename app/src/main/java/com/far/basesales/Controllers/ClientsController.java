@@ -215,6 +215,7 @@ public class ClientsController {
 
 
 
+
     public void searchChanges(boolean all, OnSuccessListener<QuerySnapshot> success, OnCompleteListener<QuerySnapshot> complete, OnFailureListener failure){
 
         Date mdate = all?null: DB.getLastMDateSaved(context, TABLE_NAME);
