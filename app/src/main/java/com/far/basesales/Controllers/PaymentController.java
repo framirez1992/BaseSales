@@ -232,10 +232,10 @@ public class PaymentController {
     }
 
 
-    public void searchAllPaymentsFromFireBase(OnSuccessListener<QuerySnapshot> success, OnCompleteListener<QuerySnapshot> complete, OnFailureListener failure){
+    public void searchAllPaymentsFromFireBase(OnSuccessListener<QuerySnapshot> success,  OnFailureListener failure){
         getReferenceFireStore().whereEqualTo(CODEUSER, Funciones.getCodeuserLogged(context)).
                 get().
-                addOnSuccessListener(success).addOnCompleteListener(complete).
+                addOnSuccessListener(success).
                 addOnFailureListener(failure);
 
     }

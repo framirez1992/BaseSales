@@ -548,8 +548,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
 
-
-
     public void searchBirthDays(){
         if(ClientsController.getInstance(MainActivity.this).getBirthDayClients(Calendar.getInstance()).size() > 0){
             findViewById(R.id.rlBirthDays).setVisibility(View.VISIBLE);

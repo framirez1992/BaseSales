@@ -324,6 +324,14 @@ public class ReceiptController {
     }
 
 
+    public void searchReceiptFromFireBase(String code, OnSuccessListener<QuerySnapshot> success,  OnFailureListener failure){
+            getReferenceFireStore().
+                    whereEqualTo(CODE, code).
+                    get().
+                    addOnSuccessListener(success).
+                    addOnFailureListener(failure);
+
+    }
 
     public void searchChanges(OnSuccessListener<QuerySnapshot> success, OnCompleteListener<QuerySnapshot> complete, OnFailureListener failure){
 
@@ -368,10 +376,10 @@ public class ReceiptController {
     }
 
 
-    public void searchAllReceiptsFromFireBase(OnSuccessListener<QuerySnapshot> success, OnCompleteListener<QuerySnapshot> complete, OnFailureListener failure){
+    public void searchAllReceiptsFromFireBase(OnSuccessListener<QuerySnapshot> success,  OnFailureListener failure){
         getReferenceFireStore().whereEqualTo(CODEUSER, Funciones.getCodeuserLogged(context)).
                 get().
-                addOnSuccessListener(success).addOnCompleteListener(complete).
+                addOnSuccessListener(success).
                 addOnFailureListener(failure);
 
     }

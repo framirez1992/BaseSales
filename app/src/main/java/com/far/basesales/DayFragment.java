@@ -40,7 +40,7 @@ import java.util.Date;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class DayFragment extends Fragment implements OnCompleteListener, OnSuccessListener<QuerySnapshot>, OnFailureListener {
+public class DayFragment extends Fragment implements  OnSuccessListener<QuerySnapshot>, OnFailureListener {
 
     Activity parentActivity;
     LinearLayout llLoading, llDayStart, llDayEnd, llLoadingCloseDay;
@@ -155,12 +155,36 @@ public class DayFragment extends Fragment implements OnCompleteListener, OnSucce
                  initStartedDay(day);
                 }
             }
-        }, new OnCompleteListener<QuerySnapshot>() {
+        }, new OnFailureListener() {
             @Override
-            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                if(task.getException()!= null){
-                    Toast.makeText(parentActivity, task.getException().getMessage(), Toast.LENGTH_LONG).show();
+            public void onFailure(@NonNull Exception e) {
+                Toast.makeText(parentActivity, e.getMessage(), Toast.LENGTH_LONG).show();
+            }
+        });
+    }
+
+
+    public void searchCurrentCloseDay(Day day){
+        DayController.getInstance(parentActivity).searchDayFromFireBase(day.getCode(), new OnSuccessListener<QuerySnapshot>() {
+            @Override
+            public void onSuccess(QuerySnapshot querySnapshot) {
+
+                Day day =  null;
+                if(querySnapshot!= null && !querySnapshot.isEmpty()){
+                    day = querySnapshot.getDocuments().get(0).toObject(Day.class);
+                    if(day.getStatus().equals(CODES.CODE_DAY_STATUS_CLOSED)){
+                        DayController.getInstance(parentActivity).delete(DayController.CODE+" = ?", new String[]{day.getCode()});
+                    }
                 }
+                if(day == null){
+                    Toast.makeText(parentActivity, "Error intentando cerrar el dia. Intente nuevamente", Toast.LENGTH_LONG).show();
+                }else{
+                    hideWaitingCloseDay();
+                    setErrorText("");
+                    enableCloseDayButtons();
+                    initNewDay();
+                }
+                lastFireBaseaction = 0;
             }
         }, new OnFailureListener() {
             @Override
@@ -168,6 +192,7 @@ public class DayFragment extends Fragment implements OnCompleteListener, OnSucce
                 Toast.makeText(parentActivity, e.getMessage(), Toast.LENGTH_LONG).show();
             }
         });
+
     }
 
     public void initNewDay(){
@@ -234,36 +259,25 @@ public class DayFragment extends Fragment implements OnCompleteListener, OnSucce
             e.printStackTrace();
         }
 
-        final Day d = new Day(Funciones.generateCode(), Funciones.getCodeuserLogged(parentActivity), dateStart, null, CODES.CODE_DAY_STATUS_OPEN,
+        Day day = new Day(Funciones.generateCode(), Funciones.getCodeuserLogged(parentActivity), dateStart, null, CODES.CODE_DAY_STATUS_OPEN,
                 0, 0.0, 0, 0.0, 0, 0.0, 0.0,0, 0.0,0, 0.0);
-        DayController.getInstance(parentActivity).sendToFireBase(d, new OnCompleteListener() {
-            @Override
-            public void onComplete(@NonNull Task task) {
-                if(task.getException()!= null){
-                    Toast.makeText(parentActivity, task.getException().getMessage(), Toast.LENGTH_LONG).show();
-                }
-            }
-        }, new OnSuccessListener() {
-            @Override
-            public void onSuccess(Object o) {
-            DayController.getInstance(parentActivity).insert(d);
-            initStartedDay(d);
-            }
-        }, new OnFailureListener() {
+
+        DayController.getInstance(parentActivity).sendToFireBase(day,  new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
                     Toast.makeText(parentActivity, e.getMessage(), Toast.LENGTH_LONG).show();
             }
         });
+        searchCurrentOpenDay();
     }
 
     public void execute(){
         switch (lastFireBaseaction){
-            case 1:SalesController.getInstance(parentActivity).searchAllSalesFromFireBase( this, this, this); break;
-            case 2: SalesController.getInstance(parentActivity).searchAllSalesDetailFromFireBase(this, this, this); break;
-            case 3: ReceiptController.getInstance(parentActivity).searchAllReceiptsFromFireBase( this, this, this); break;
-            case 4: PaymentController.getInstance(parentActivity).searchAllPaymentsFromFireBase( this, this, this); break;
-            case 5: Transaction.getInstance(parentActivity).deleteDataFromFireBase(this, this, this); break;
+            case 1:SalesController.getInstance(parentActivity).searchAllSalesFromFireBase( this, this); break;
+            case 2: SalesController.getInstance(parentActivity).searchAllSalesDetailFromFireBase(this, this); break;
+            case 3: ReceiptController.getInstance(parentActivity).searchAllReceiptsFromFireBase( this, this); break;
+            case 4: PaymentController.getInstance(parentActivity).searchAllPaymentsFromFireBase( this, this); break;
+            case 5: Transaction.getInstance(parentActivity).deleteDataFromFireBase(this, this); break;
             case 6:
                 Date dateEnd = new Date();
                 try {
@@ -274,29 +288,13 @@ public class DayFragment extends Fragment implements OnCompleteListener, OnSucce
                 day.setStatus(CODES.CODE_DAY_STATUS_CLOSED);
                 day.setDateend(dateEnd);
                 day.setMdate(null);
-                DayController.getInstance(parentActivity).sendToFireBase(day, this, this, this);
-                break;
-            case 7:
-                hideWaitingCloseDay();
-                setErrorText("");
-                enableCloseDayButtons();
-                initNewDay();
-                lastFireBaseaction = 0;
+                DayController.getInstance(parentActivity).sendToFireBase(day, this);
+                searchCurrentCloseDay(day);
                 break;
             default:break;
         }
     }
 
-
-    @Override
-    public void onComplete(@NonNull Task task) {
-    if(task.getException() != null){
-        hideWaitingCloseDay();
-        setErrorText(task.getException().getMessage());
-        enableCloseDayButtons();
-    }
-
-    }
 
     @Override
     public void onFailure(@NonNull Exception e) {
@@ -315,7 +313,6 @@ public class DayFragment extends Fragment implements OnCompleteListener, OnSucce
                 case 3: ReceiptController.getInstance(parentActivity).consumeQuerySnapshot(querySnapshot); break;
                 case 4: PaymentController.getInstance(parentActivity).consumeQuerySnapshot(querySnapshot); break;
                 case 5: Transaction.getInstance(parentActivity).deleteLocalData();break;
-                case 6: DayController.getInstance(parentActivity).delete(null, null); break;//LOCALMENTE
                 default:break;
             }
             lastFireBaseaction++;

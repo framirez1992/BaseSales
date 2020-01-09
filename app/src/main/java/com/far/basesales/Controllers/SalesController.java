@@ -873,18 +873,18 @@ public class SalesController {
 
     }
 
-    public void searchAllSalesFromFireBase(OnSuccessListener<QuerySnapshot> success, OnCompleteListener<QuerySnapshot> complete, OnFailureListener failure){
+    public void searchAllSalesFromFireBase(OnSuccessListener<QuerySnapshot> success, OnFailureListener failure){
         getReferenceFireStore().whereEqualTo(CODEUSER, Funciones.getCodeuserLogged(context)).
                 get().
-                addOnSuccessListener(success).addOnCompleteListener(complete).
+                addOnSuccessListener(success).
                 addOnFailureListener(failure);
 
     }
 
-    public void searchAllSalesDetailFromFireBase(OnSuccessListener<QuerySnapshot> success, OnCompleteListener<QuerySnapshot> complete, OnFailureListener failure){
+    public void searchAllSalesDetailFromFireBase(OnSuccessListener<QuerySnapshot> success, OnFailureListener failure){
         getReferenceDetailFireStore().whereEqualTo(CODEUSER, Funciones.getCodeuserLogged(context)).
                 get().
-                addOnSuccessListener(success).addOnCompleteListener(complete).
+                addOnSuccessListener(success).
                 addOnFailureListener(failure);
 
     }

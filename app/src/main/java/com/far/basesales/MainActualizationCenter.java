@@ -109,7 +109,7 @@ public class MainActualizationCenter extends AppCompatActivity implements OnSucc
           // case 15:PaymentController.getInstance(MainActualizationCenter.this).searchChanges(this, this, this); break;//PETICION
            case 12:MeasureUnitsController.getInstance(MainActualizationCenter.this).searchChanges(true, this, this, this); break;//ALL
            case 13:MeasureUnitsInvController.getInstance(MainActualizationCenter.this).searchChanges(true, this, this, this); break;//ALL
-           case 14:DayController.getInstance(MainActualizationCenter.this).searchCurrentDayStartedFromFireBase( this, this, this); break;//ALL
+           case 14:DayController.getInstance(MainActualizationCenter.this).searchCurrentDayStartedFromFireBase( this, this); break;//ALL
           default:
               currentindex=0;
               tvMessage.setText("Finalizado Correctamente");

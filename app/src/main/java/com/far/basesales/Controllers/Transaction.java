@@ -39,7 +39,7 @@ public class Transaction {
     }
 
 
-    public void sendToFireBase(Sales sale, ArrayList<SalesDetails> salesDetails, Receipts receipt, Payment payment, Day day,  OnFailureListener failureListener, OnCompleteListener onCompleteListener, OnSuccessListener onSuccessListener){
+    public void sendToFireBase(Sales sale, ArrayList<SalesDetails> salesDetails, Receipts receipt, Payment payment, Day day,  OnFailureListener failureListener){
             WriteBatch lote = db.batch();
 
             if (sale.getMDATE() == null) {
@@ -74,9 +74,7 @@ public class Transaction {
             lote.set(DayController.getInstance(context).getReferenceFireStore().document(day.getCode()), day.toMap());
 
             lote.commit()
-                    .addOnFailureListener(failureListener)
-                    .addOnCompleteListener(onCompleteListener)
-                    .addOnSuccessListener(onSuccessListener);
+                    .addOnFailureListener(failureListener);
 
     }
 
@@ -111,7 +109,7 @@ public class Transaction {
     }
 
     //elimina todos los sales, receipts y payments cuyos recibos ya hayan sido saldados.
-    public void deleteDataFromFireBase(OnCompleteListener onCompleteListener, OnSuccessListener onSuccessListener, OnFailureListener failureListener){
+    public void deleteDataFromFireBase( OnSuccessListener onSuccessListener, OnFailureListener failureListener){
         WriteBatch lote = db.batch();
         for(Receipts r: ReceiptController.getInstance(context).getReceipts(new String[]{ReceiptController.STATUS, ReceiptController.CODEUSER}, new String[]{CODES.CODE_RECEIPT_STATUS_CLOSED, Funciones.getCodeuserLogged(context)}, null)){
             lote.delete(ReceiptController.getInstance(context).getDocumentReference(r));
@@ -131,7 +129,6 @@ public class Transaction {
 
         lote.commit()
                 .addOnFailureListener(failureListener)
-                .addOnCompleteListener(onCompleteListener)
                 .addOnSuccessListener(onSuccessListener);
     }
 

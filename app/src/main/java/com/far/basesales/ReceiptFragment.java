@@ -49,6 +49,8 @@ import com.far.basesales.Utils.Funciones;
 import com.far.farpdf.Entities.Client;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 
 
 /**
@@ -204,15 +206,18 @@ public class ReceiptFragment extends Fragment implements DialogCaller {
 
 
     public void createReceipt(){
+
         Day day = DayController.getInstance(parentActivity).getCurrentOpenDay();
 
         Sales s = TempOrdersController.getInstance(parentActivity).getTempSale();
         s.setSTATUS(CODES.CODE_ORDER_STATUS_CLOSED);
         s.setCODEDAY(day.getCode());
+        s.setDATE(/*day.getDatestart()*/new Date());
 
         ArrayList<SalesDetails> salesDetails = TempOrdersController.getInstance(parentActivity).getTempSalesDetails(s);
         for(SalesDetails sd: salesDetails){
             sd.setCODEDAY(day.getCode());
+            sd.setDATE(/*day.getDatestart()*/new Date());
         }
 
 
@@ -225,9 +230,10 @@ public class ReceiptFragment extends Fragment implements DialogCaller {
         String receiptStatus = (receiptTotal > paidAmount)?CODES.CODE_RECEIPT_STATUS_OPEN:CODES.CODE_RECEIPT_STATUS_CLOSED;
         //String code, String codeUser,String codesale, String codeclient,  String status, String ncf, double subTotal, double taxes, double discount, double total, double paidAmount
         Receipts r = new Receipts(Funciones.generateCode(), Funciones.getCodeuserLogged(parentActivity),s.getCODE(),client.getCode(),receiptStatus,"",receiptSubTotal,receiptTaxes,receiptManualDiscount,receiptTotal,paidAmount, day.getCode());
-
+        r.setDate(/*day.getDatestart()*/new Date());
         //String code, String codeReceipt,String codeUser, String codeClient, String type, double subTotal, double tax, double discount, double total
         Payment p = new Payment(Funciones.generateCode(), r.getCode(), Funciones.getCodeuserLogged(parentActivity),client.getCode(), ((KV)spnPaymentType.getSelectedItem()).getKey(),0,0,0,paidAmount, day.getCode());
+        p.setDATE(/*day.getDatestart()*/new Date());
 
         s.setCODERECEIPT(r.getCode());
 

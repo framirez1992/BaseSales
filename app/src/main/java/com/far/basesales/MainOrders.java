@@ -70,7 +70,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 import java.util.ArrayList;
 
 
-public class MainOrders extends AppCompatActivity implements ListableActivity/*, ReceiptableActivity*/, NavigationView.OnNavigationItemSelectedListener, OnFailureListener, OnCompleteListener, OnSuccessListener<QuerySnapshot> {
+public class MainOrders extends AppCompatActivity implements ListableActivity, NavigationView.OnNavigationItemSelectedListener, OnFailureListener,  OnSuccessListener<QuerySnapshot> {
 
     SalesController salesController;
     ProductsMeasureController productsMeasureController;
@@ -545,51 +545,46 @@ public class MainOrders extends AppCompatActivity implements ListableActivity/*,
 
 
 
-        Transaction.getInstance(MainOrders.this).sendToFireBase(sales,salesDetails, receipt,payment,day, this, this, this);
+        Transaction.getInstance(MainOrders.this).sendToFireBase(sales, salesDetails, receipt, payment, day, this);
+        ReceiptController.getInstance(MainOrders.this).searchReceiptFromFireBase(receipt.getCode(), new OnSuccessListener<QuerySnapshot>() {
+            @Override
+            public void onSuccess(QuerySnapshot querySnapshot) {
+                Receipts r = null;
+                if(querySnapshot!= null && querySnapshot.size() > 0){
+                    r = querySnapshot.getDocuments().get(0).toObject(Receipts.class);
+                }
 
-           /* ///////////////////////////////////////////////////////////////////
-            ///////////   ENVIANDO AL HISTORICO     ///////////////////////////
-
-            SalesHistoryController.getInstance(MainOrders.this).sendToHistory(sales);
-            ///////////////////////////////////////////////////////////////////
-
-            ///////////////////////////////////////////////////////////////////
-            //////   ELIMINANDO DE LA TABLA SALES Y SALES_DETAIL EN FIREBASE //
-            //SalesController.getInstance(MainOrders.this).massiveDelete(sales);  Por ahora sube solo al historico
-            //////////////////////////////////////////////////////////////////
-
-            ///////////////////////////////////////////////////////////////////
-            //////////  ELIMINANDOLA EN EL MOVIL   ///////////////////////////
-            SalesController.getInstance(MainOrders.this).deleteHeadDetail(sales);//esto es porque la lista se actualizara antes de que el server retorne la actualizacion.
-            //////////////////////////////////////////////////////////////////
-
-
-            //////////////////////////////////////////////////////////////////////
-            //////////   SEND RECEIPT TO FIREBASE  //////////////////////////////
-            ReceiptController.getInstance(MainOrders.this).sendToFireBase(receipt);
-            //////////////////////////////////////////////////////////////////////
-
-            //////////////////////////////////////////////////////////////////////
-            /////////   SEND PAYMENT TO FIREBASE   ///////////////////////////////
-            PaymentController.getInstance(MainOrders.this).sendToFireBase(payment);
-            ///////////////////////////////////////////////////////////////////////*/
+                if(r != null){
+                    SalesController.getInstance(MainOrders.this).insert(lastSale);
+                    for(SalesDetails sd : lastSalesDetails){
+                        SalesController.getInstance(MainOrders.this).insert_Detail(sd);
+                    }
+                    ReceiptController.getInstance(MainOrders.this).insert(lastReceipt);
+                    PaymentController.getInstance(MainOrders.this).insert(lastPayment);
+                    DayController.getInstance(MainOrders.this).update(lastDay);
 
 
-    }
 
-    @Override
-    public void onComplete(@NonNull Task task) {
-        if(task.getException()!= null){
-            lastReceipt = null;
-            lastPayment = null;
-            lastSale = null;
-            lastSalesDetails = null;
-            lastDay = null;
-            closeLoadingDialog();
-            showErrorDialog(task.getException().getMessage()+"\n"+task.getException().getLocalizedMessage());
-        }
+                    closeLoadingDialog();
+                    showPostPaymentConfirmation();
+                }else{
+                    closeLoadingDialog();
+                    if(errorDialog!= null && !errorDialog.isShowing()){
+                        showErrorDialog("El Recibo no pudo ser guardado. Intente nuevamente");
+                    }
+                }
+
+                lastReceipt = null;
+                lastPayment = null;
+                lastSale = null;
+                lastSalesDetails = null;
+                lastDay = null;
+            }
+        }, this);
+
 
     }
+
 
     @Override
     public void onFailure(@NonNull Exception e) {
@@ -608,18 +603,6 @@ public class MainOrders extends AppCompatActivity implements ListableActivity/*,
     @Override
     public void onSuccess(QuerySnapshot querySnapshot) {
 
-        SalesController.getInstance(MainOrders.this).insert(lastSale);
-        for(SalesDetails sd : lastSalesDetails){
-            SalesController.getInstance(MainOrders.this).insert_Detail(sd);
-        }
-        ReceiptController.getInstance(MainOrders.this).insert(lastReceipt);
-        PaymentController.getInstance(MainOrders.this).insert(lastPayment);
-        DayController.getInstance(MainOrders.this).update(lastDay);
-
-
-
-        closeLoadingDialog();
-        showPostPaymentConfirmation();
     }
 
     public void newOrderAndRefresh(){

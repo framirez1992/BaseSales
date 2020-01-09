@@ -226,7 +226,7 @@ public class DayController{
         }
     }
 
-    public void sendToFireBase(Day day, OnCompleteListener completeListener, OnSuccessListener successListener, OnFailureListener failureListener){
+    public void sendToFireBase(Day day, OnFailureListener failureListener){
             WriteBatch lote = db.batch();
             if (day.getMdate() == null) {
                 lote.set(getReferenceFireStore().document(day.getCode()), day.toMap());
@@ -234,14 +234,21 @@ public class DayController{
                 lote.update(getReferenceFireStore().document(day.getCode()), day.toMap());
             }
 
-            lote.commit().addOnCompleteListener(completeListener)
-                    .addOnSuccessListener(successListener)
+            lote.commit()
                     .addOnFailureListener(failureListener);
     }
 
 
 
 
+    public void searchDayFromFireBase(String code, OnSuccessListener<QuerySnapshot> success, OnFailureListener failure){
+
+            getReferenceFireStore().
+                    whereEqualTo(CODE, code).
+                    get().addOnSuccessListener(success).
+                    addOnFailureListener(failure);
+
+    }
 
 
     public void searchChanges(OnSuccessListener<QuerySnapshot> success, OnCompleteListener<QuerySnapshot> complete, OnFailureListener failure){
@@ -280,12 +287,12 @@ public class DayController{
 
 
 
-    public void searchCurrentDayStartedFromFireBase(OnSuccessListener<QuerySnapshot> success, OnCompleteListener<QuerySnapshot> complete, OnFailureListener failure){
+    public void searchCurrentDayStartedFromFireBase(OnSuccessListener<QuerySnapshot> success, OnFailureListener failure){
         Query query =getReferenceFireStore().
                 whereEqualTo(CODEUSER, Funciones.getCodeuserLogged(context)).whereEqualTo(STATUS, CODES.CODE_DAY_STATUS_OPEN);
 
         query.get().
-                addOnSuccessListener(success).addOnCompleteListener(complete).
+                addOnSuccessListener(success).
                 addOnFailureListener(failure);
 
     }
