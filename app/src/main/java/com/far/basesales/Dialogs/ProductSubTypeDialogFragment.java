@@ -26,10 +26,11 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.Date;
 
-public class ProductSubTypeDialogFragment extends DialogFragment implements OnCompleteListener, OnSuccessListener,  OnFailureListener {
+public class ProductSubTypeDialogFragment extends DialogFragment implements   OnFailureListener {
 
     DialogCaller dialogCaller;
     ProductsSubTypes tempObj;
@@ -173,8 +174,26 @@ public class ProductSubTypeDialogFragment extends DialogFragment implements OnCo
             String codeProductType = ((KV)spnFamilia.getSelectedItem()).getKey();
             int orden = (etOrden.getText().toString().trim().equals(""))?9999:Integer.parseInt(etOrden.getText().toString());
             toInsertObject = new ProductsSubTypes(code,codeProductType,name, orden);
+            toInsertObject.setDATE(new Date());
+            toInsertObject.setMDATE(new Date());
             if(type.equals(CODES.ENTITY_TYPE_EXTRA_PRODUCTSFORSALE)){
-                productsSubTypesController.sendToFireBase(toInsertObject, this, this, this);
+                productsSubTypesController.sendToFireBase(toInsertObject, this);
+                productsSubTypesController.searchProductSubTypeFromFireBase(toInsertObject.getCODE(), new OnSuccessListener<QuerySnapshot>() {
+                    @Override
+                    public void onSuccess(QuerySnapshot querySnapshot) {
+                        ProductsSubTypes pst = null;
+                        if(querySnapshot != null && querySnapshot.getDocuments().size() > 0){
+                            pst = querySnapshot.getDocuments().get(0).toObject(ProductsSubTypes.class);
+                        }
+                        if(pst != null){
+                            ProductsSubTypesController.getInstance(getContext()).insert(pst);
+                            dialogCaller.dialogClosed(pst);
+                            dismiss();
+                        }else{
+                        failure("Error guardando grupo. Intente nuevamente");
+                        }
+                    }
+                }, this);
             }else if(type.equals(CODES.ENTITY_TYPE_EXTRA_INVENTORY)){
                 productsSubTypesInvController.sendToFireBase(toInsertObject);
             }
@@ -187,10 +206,28 @@ public class ProductSubTypeDialogFragment extends DialogFragment implements OnCo
             int orden = (etOrden.getText().toString().trim().equals(""))?9999:Integer.parseInt(etOrden.getText().toString());
             pst.setDESCRIPTION(etName.getText().toString());
             pst.setCODETYPE(((KV)spnFamilia.getSelectedItem()).getKey());
-            pst.setMDATE(null);
+            pst.setMDATE(new Date());
             pst.setORDEN(orden);
             if(type.equals(CODES.ENTITY_TYPE_EXTRA_PRODUCTSFORSALE)){
-            productsSubTypesController.sendToFireBase(pst, this, this, this);
+            productsSubTypesController.sendToFireBase(pst, this);
+            productsSubTypesController.searchProductSubTypeFromFireBase(pst.getCODE(), new OnSuccessListener<QuerySnapshot>() {
+                @Override
+                public void onSuccess(QuerySnapshot querySnapshot) {
+                    ProductsSubTypes pst = null;
+                    if(querySnapshot != null && querySnapshot.getDocuments().size() > 0){
+                        pst = querySnapshot.getDocuments().get(0).toObject(ProductsSubTypes.class);
+                    }
+                    if(pst != null){
+                        ProductsSubTypesController.getInstance(getContext()).update(tempObj);
+                        dialogCaller.dialogClosed(pst);
+                        dismiss();
+                    }else{
+                        failure("Error editando grupo. Intente nuevamente");
+                    }
+
+                }
+            }, this);
+
             }else if(type.equals(CODES.ENTITY_TYPE_EXTRA_INVENTORY)){
              productsSubTypesInvController.sendToFireBase(pst);
             }
@@ -218,34 +255,12 @@ public class ProductSubTypeDialogFragment extends DialogFragment implements OnCo
 
     @Override
     public void onFailure(@NonNull Exception e) {
+        failure(e.getMessage());
+    }
+
+    public void failure(String msg){
         llSave.setEnabled(true);
         llProgress.setVisibility(View.INVISIBLE);
-        Snackbar.make(getView(), e.getMessage(), Snackbar.LENGTH_LONG).show();
-    }
-
-    @Override
-    public void onComplete(@NonNull Task task) {
-        if(task.getException() != null){
-            llSave.setEnabled(true);
-            llProgress.setVisibility(View.INVISIBLE);
-            Snackbar.make(getView(), task.getException().getMessage(), Snackbar.LENGTH_LONG).show();
-        }
-
-    }
-
-    @Override
-    public void onSuccess(Object o) {
-        if(tempObj == null){
-            toInsertObject.setDATE(new Date());//Guardar fecha local mientras tanto se baja nuevamente del server
-            toInsertObject.setMDATE(new Date());
-            ProductsSubTypesController.getInstance(getContext()).insert(toInsertObject);
-        }else{
-            tempObj.setMDATE(new Date());//Guardar fecha local mientras tanto se baja nuevamente del server
-            ProductsSubTypesController.getInstance(getContext()).update(tempObj);
-        }
-
-
-        dialogCaller.dialogClosed(o);
-        dismiss();
+        Snackbar.make(getView(), msg, Snackbar.LENGTH_LONG).show();
     }
 }

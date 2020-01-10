@@ -23,11 +23,12 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.Date;
 
 
-public class MeasureUnitDialogFragment extends DialogFragment implements OnCompleteListener, OnSuccessListener,  OnFailureListener {
+public class MeasureUnitDialogFragment extends DialogFragment implements   OnFailureListener {
 
     DialogCaller dialogCaller;
     private MeasureUnits tempObj;
@@ -59,7 +60,6 @@ public class MeasureUnitDialogFragment extends DialogFragment implements OnCompl
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         // Pick a style based on the num.
         int style = DialogFragment.STYLE_NO_TITLE, theme = 0;
         setStyle(style, theme);
@@ -147,8 +147,27 @@ public class MeasureUnitDialogFragment extends DialogFragment implements OnCompl
             String code =Funciones.generateCode();
             String name = etName.getText().toString();
             toInsertObject = new MeasureUnits(code, name);
+            toInsertObject.setDATE(new Date());
+            toInsertObject.setMDATE(new Date());
             if(type.equals(CODES.ENTITY_TYPE_EXTRA_PRODUCTSFORSALE)){
-                measureUnitsController.sendToFireBase(toInsertObject, this, this, this);
+                measureUnitsController.sendToFireBase(toInsertObject,  this);
+                measureUnitsController.searchMeasureUnitFromFireBase(toInsertObject.getCODE(), new OnSuccessListener<QuerySnapshot>() {
+                    @Override
+                    public void onSuccess(QuerySnapshot querySnapshot) {
+                        MeasureUnits measureUnits =null;
+                        if(querySnapshot!= null && querySnapshot.size()>0){
+                            measureUnits = querySnapshot.getDocuments().get(0).toObject(MeasureUnits.class);
+                        }
+
+                        if(measureUnits!= null){
+                            MeasureUnitsController.getInstance(getContext()).insert(measureUnits);
+                            dialogCaller.dialogClosed(measureUnits);
+                            dismiss();
+                        }else{
+                            failure("Error guardando medida. Intente nuevamente");
+                        }
+                    }
+                }, this);
             }else if(type.equals(CODES.ENTITY_TYPE_EXTRA_INVENTORY)){
                 measureUnitsInvController.sendToFireBase(toInsertObject);
             }
@@ -161,14 +180,30 @@ public class MeasureUnitDialogFragment extends DialogFragment implements OnCompl
         try {
             MeasureUnits mu = ((MeasureUnits)tempObj);
             mu.setDESCRIPTION(etName.getText().toString());
-            mu.setMDATE(null);
+            mu.setMDATE(new Date());
 
             if(type.equals(CODES.ENTITY_TYPE_EXTRA_PRODUCTSFORSALE)){
-                measureUnitsController.sendToFireBase(mu, this, this,this);
+                measureUnitsController.sendToFireBase(mu,this);
+                measureUnitsController.searchMeasureUnitFromFireBase(mu.getCODE(), new OnSuccessListener<QuerySnapshot>() {
+                    @Override
+                    public void onSuccess(QuerySnapshot querySnapshot) {
+                        MeasureUnits measureUnits =null;
+                        if(querySnapshot!= null && querySnapshot.size()>0){
+                            measureUnits = querySnapshot.getDocuments().get(0).toObject(MeasureUnits.class);
+                        }
+
+                        if(measureUnits!= null){
+                            MeasureUnitsController.getInstance(getContext()).update(measureUnits);
+                            dialogCaller.dialogClosed(measureUnits);
+                            dismiss();
+                        }else{
+                            failure("Error guardando medida. Intente nuevamente");
+                        }
+                    }
+                }, this);
             }else if(type.equals(CODES.ENTITY_TYPE_EXTRA_INVENTORY)){
                 measureUnitsInvController.sendToFireBase(mu);
             }
-            this.dismiss();
         }catch(Exception e){
             e.printStackTrace();
         }
@@ -185,33 +220,13 @@ public class MeasureUnitDialogFragment extends DialogFragment implements OnCompl
 
     @Override
     public void onFailure(@NonNull Exception e) {
+        failure(e.getMessage());
+    }
+
+
+    public void failure(String msg){
         llSave.setEnabled(true);
         llProgress.setVisibility(View.INVISIBLE);
-        Snackbar.make(getView(), e.getMessage(), Snackbar.LENGTH_LONG).show();
-    }
-
-    @Override
-    public void onComplete(@NonNull Task task) {
-        if(task.getException() != null){
-            llSave.setEnabled(true);
-            llProgress.setVisibility(View.INVISIBLE);
-            Snackbar.make(getView(), task.getException().getMessage(), Snackbar.LENGTH_LONG).show();
-        }
-    }
-
-    @Override
-    public void onSuccess(Object o) {
-        if(tempObj == null){
-            toInsertObject.setDATE(new Date());//Guardar fecha local mientras tanto se baja nuevamente del server
-            toInsertObject.setMDATE(new Date());
-            MeasureUnitsController.getInstance(getContext()).insert(toInsertObject);
-        }else{
-            tempObj.setMDATE(new Date());//Guardar fecha local mientras tanto se baja nuevamente del server
-            MeasureUnitsController.getInstance(getContext()).update(tempObj);
-        }
-
-
-        dialogCaller.dialogClosed(o);
-        dismiss();
+        Snackbar.make(getView(), msg, Snackbar.LENGTH_LONG).show();
     }
 }

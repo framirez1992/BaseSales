@@ -24,11 +24,12 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.Date;
 
 
-public  class ProductTypeDialogFragment extends DialogFragment implements OnSuccessListener, OnCompleteListener, OnFailureListener {
+public  class ProductTypeDialogFragment extends DialogFragment implements  OnFailureListener {
 
     DialogCaller dialogCaller;
     public ProductsTypes tempObj;
@@ -155,20 +156,35 @@ public  class ProductTypeDialogFragment extends DialogFragment implements OnSucc
     }
 
     public void SaveProductType(){
-        try {
             String code = Funciones.generateCode();
             String name = etName.getText().toString();
             int orden = etOrden.getText().toString().trim().equals("")?9999:Integer.parseInt(etOrden.getText().toString());
             toInsertObject = new ProductsTypes(code, name, orden);
+            toInsertObject.setDATE(new Date());
+            toInsertObject.setMDATE(new Date());
+
             if(type.equals(CODES.ENTITY_TYPE_EXTRA_PRODUCTSFORSALE)) {
-                productsTypesController.sendToFireBase(toInsertObject, this, this, this);
+                productsTypesController.sendToFireBase(toInsertObject, this);
+                productsTypesController.searchProductTypeFromFireBase(toInsertObject.getCODE(), new OnSuccessListener<QuerySnapshot>() {
+                    @Override
+                    public void onSuccess(QuerySnapshot querySnapshot) {
+                        ProductsTypes pt = null;
+                        if(querySnapshot!= null && querySnapshot.size()>0){
+                            pt = querySnapshot.getDocuments().get(0).toObject(ProductsTypes.class);
+                        }
+
+                        if(pt != null){
+                                ProductsTypesController.getInstance(getContext()).insert(pt);
+                            dialogCaller.dialogClosed(pt);
+                            dismiss();
+                        }else{
+                            failure("Error guardando familia. Intente nuevamente.");
+                        }
+                    }
+                }, this);
             }else if(type.equals(CODES.ENTITY_TYPE_EXTRA_INVENTORY)){
                 productsTypesInvController.sendToFireBase(toInsertObject);
             }
-            this.dismiss();
-        }catch(Exception e){
-            e.printStackTrace();
-        }
 
 
     }
@@ -176,10 +192,28 @@ public  class ProductTypeDialogFragment extends DialogFragment implements OnSucc
     public void EditProductType(){
             int orden = etOrden.getText().toString().trim().equals("")?9999:Integer.parseInt(etOrden.getText().toString());
             tempObj.setDESCRIPTION(etName.getText().toString());
-            tempObj.setMDATE(null);
+            tempObj.setMDATE(new Date());
             tempObj.setORDEN(orden);
             if(type.equals(CODES.ENTITY_TYPE_EXTRA_PRODUCTSFORSALE)) {
-                productsTypesController.sendToFireBase(tempObj, this, this, this);
+                productsTypesController.sendToFireBase(tempObj, this);
+                productsTypesController.searchProductTypeFromFireBase(tempObj.getCODE(), new OnSuccessListener<QuerySnapshot>() {
+                    @Override
+                    public void onSuccess(QuerySnapshot querySnapshot) {
+
+                        ProductsTypes pt = null;
+                        if(querySnapshot!= null && querySnapshot.size()>0){
+                            pt = querySnapshot.getDocuments().get(0).toObject(ProductsTypes.class);
+                        }
+
+                        if(pt != null){
+                            ProductsTypesController.getInstance(getContext()).update(pt);
+                            dialogCaller.dialogClosed(pt);
+                            dismiss();
+                        }else{
+                            failure("Error editando familia. Intente nuevamente.");
+                        }
+                    }
+                }, this);
             }else if(type.equals(CODES.ENTITY_TYPE_EXTRA_INVENTORY)){
                 productsTypesInvController.sendToFireBase(tempObj);
             }
@@ -197,34 +231,12 @@ public  class ProductTypeDialogFragment extends DialogFragment implements OnSucc
 
     @Override
     public void onFailure(@NonNull Exception e) {
+       failure(e.getMessage());
+    }
+
+    public void failure(String msg){
         llSave.setEnabled(true);
         llProgress.setVisibility(View.INVISIBLE);
-        Snackbar.make(getView(), e.getMessage(), Snackbar.LENGTH_LONG).show();
-    }
-
-    @Override
-    public void onComplete(@NonNull Task task) {
-        if(task.getException() != null){
-            llSave.setEnabled(true);
-            llProgress.setVisibility(View.INVISIBLE);
-            Snackbar.make(getView(), task.getException().getMessage(), Snackbar.LENGTH_LONG).show();
-        }
-
-    }
-
-    @Override
-    public void onSuccess(Object o) {
-        if(tempObj == null){
-            toInsertObject.setDATE(new Date());//Guardar fecha local mientras tanto se baja nuevamente del server
-            toInsertObject.setMDATE(new Date());
-            ProductsTypesController.getInstance(getContext()).insert(toInsertObject);
-        }else{
-            tempObj.setMDATE(new Date());//Guardar fecha local mientras tanto se baja nuevamente del server
-            ProductsTypesController.getInstance(getContext()).update(tempObj);
-        }
-
-
-        dialogCaller.dialogClosed(o);
-        dismiss();
+        Snackbar.make(getView(), msg, Snackbar.LENGTH_LONG).show();
     }
 }

@@ -285,22 +285,29 @@ public class MaintenanceProductSubTypes extends AppCompatActivity implements Lis
                 }
                  if(productsSubType != null){
                      if(type.equals(CODES.ENTITY_TYPE_EXTRA_PRODUCTSFORSALE)) {
-                         productsSubTypesController.deleteFromFireBase(productsSubType, new OnCompleteListener() {
+                         productsSubTypesController.deleteFromFireBase(productsSubType, new OnFailureListener() {
                              @Override
-                             public void onComplete(@NonNull Task task) {
-                                 if(task.getException() != null){
+                             public void onFailure(@NonNull Exception e) {
+                                 btnAceptar.setEnabled(true);
+                                 btnCancelar.setEnabled(true);
+                                 d.findViewById(R.id.llProgress).setVisibility(View.INVISIBLE);
+                                 Toast.makeText(MaintenanceProductSubTypes.this, e.getMessage(), Toast.LENGTH_LONG).show();
+                             }
+                         });
+                         productsSubTypesController.searchProductSubTypeFromFireBase(productsSubType.getCODE(), new OnSuccessListener<QuerySnapshot>() {
+                             @Override
+                             public void onSuccess(QuerySnapshot querySnapshot) {
+
+                                 if(querySnapshot== null || querySnapshot.size()==0){
+                                     productsSubTypesController.delete(productsSubType);
+                                     refreshList();
+                                     d.dismiss();
+                                 }else{
                                      btnAceptar.setEnabled(true);
                                      btnCancelar.setEnabled(true);
                                      d.findViewById(R.id.llProgress).setVisibility(View.INVISIBLE);
-                                     Toast.makeText(MaintenanceProductSubTypes.this, task.getException().getMessage(), Toast.LENGTH_LONG).show();
+                                     Toast.makeText(MaintenanceProductSubTypes.this, "Error eliminando grupo. Intente nuevamente", Toast.LENGTH_LONG).show();
                                  }
-                             }
-                         }, new OnSuccessListener() {
-                             @Override
-                             public void onSuccess(Object o) {
-                                 productsSubTypesController.delete(productsSubType);
-                                 refreshList();
-                                 d.dismiss();
                              }
                          }, new OnFailureListener() {
                              @Override
@@ -315,7 +322,7 @@ public class MaintenanceProductSubTypes extends AppCompatActivity implements Lis
                          productsSubTypesInvController.deleteFromFireBase(productsSubType);
                      }
                 }
-                d.dismiss();
+                //d.dismiss();
             }
         });
 
@@ -332,6 +339,7 @@ public class MaintenanceProductSubTypes extends AppCompatActivity implements Lis
         window.setBackgroundDrawableResource(android.R.color.transparent);
 
     }
+
 
     public void refreshList(){
 

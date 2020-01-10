@@ -12,6 +12,7 @@ import com.far.basesales.CloudFireStoreObjects.Licenses;
 import com.far.basesales.CloudFireStoreObjects.ProductsSubTypes;
 import com.far.basesales.DataBase.DB;
 import com.far.basesales.Generic.KV;
+import com.far.basesales.Globales.CODES;
 import com.far.basesales.Globales.Tablas;
 import com.far.basesales.Utils.Funciones;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -139,20 +140,18 @@ public class ProductsSubTypesController {
     }
 
 
-    public void sendToFireBase(ProductsSubTypes pst, OnCompleteListener completeListener, OnSuccessListener successListener, OnFailureListener failureListener){
+    public void sendToFireBase(ProductsSubTypes pst, OnFailureListener failureListener){
             WriteBatch lote = db.batch();
             lote.set(getReferenceFireStore().document(pst.getCODE()), pst.toMap());
-            lote.commit().addOnCompleteListener(completeListener)
-                    .addOnSuccessListener(successListener)
+            lote.commit()
                     .addOnFailureListener(failureListener);
 
     }
 
 
-    public void deleteFromFireBase(ProductsSubTypes pst, OnCompleteListener completeListener, OnSuccessListener successListener, OnFailureListener failureListener){
+    public void deleteFromFireBase(ProductsSubTypes pst,  OnFailureListener failureListener){
             getReferenceFireStore().document(pst.getCODE())
-                    .delete().addOnCompleteListener(completeListener)
-                    .addOnSuccessListener(successListener)
+                    .delete()
                     .addOnFailureListener(failureListener);
     }
 
@@ -346,6 +345,15 @@ public class ProductsSubTypesController {
                     addOnSuccessListener(success).addOnCompleteListener(complete).
                     addOnFailureListener(failure);
         }
+
+    }
+
+    public void searchProductSubTypeFromFireBase(String code, OnSuccessListener<QuerySnapshot> success, OnFailureListener failure){
+            getReferenceFireStore().
+                    whereEqualTo(CODE, code).//mayor que, ya que las fechas (la que buscamos de la DB) tienen hora, minuto y segundos.
+                    get().
+                    addOnSuccessListener(success).
+                    addOnFailureListener(failure);
 
     }
 

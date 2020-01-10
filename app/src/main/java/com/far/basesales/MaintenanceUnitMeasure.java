@@ -76,7 +76,6 @@ public class MaintenanceUnitMeasure extends AppCompatActivity implements Listabl
         measureUnitsInvController = MeasureUnitsInvController.getInstance(MaintenanceUnitMeasure.this);
         licence = LicenseController.getInstance(MaintenanceUnitMeasure.this).getLicense();
 
-
         rvList = findViewById(R.id.rvList);
         objects = new ArrayList<>();
 
@@ -207,26 +206,35 @@ public class MaintenanceUnitMeasure extends AppCompatActivity implements Listabl
 
                 if(measureUnit != null){
                     if(type.equals(CODES.ENTITY_TYPE_EXTRA_PRODUCTSFORSALE)){
-                        measureUnitsController.deleteFromFireBase(measureUnit, new OnCompleteListener() {
+                        measureUnitsController.deleteFromFireBase(measureUnit,  new OnFailureListener() {
                             @Override
-                            public void onComplete(@NonNull Task task) {
-                                if(task.getException() != null){
+                            public void onFailure(@NonNull Exception e) {
+                                btnAceptar.setEnabled(true);
+                                d.findViewById(R.id.btnNegative).setEnabled(true);
+                                d.findViewById(R.id.llProgress).setVisibility(View.INVISIBLE);
+                                Toast.makeText(MaintenanceUnitMeasure.this, e.getMessage(), Toast.LENGTH_LONG).show();
+                            }
+                        });
+
+                        measureUnitsController.searchMeasureUnitFromFireBase(measureUnit.getCODE(), new OnSuccessListener<QuerySnapshot>() {
+                            @Override
+                            public void onSuccess(QuerySnapshot querySnapshot) {
+
+                                if(querySnapshot == null || querySnapshot.size()==0){
+
+                                    for(KV2 data: MeasureUnitsController.getInstance(MaintenanceUnitMeasure.this).getDependencies(measureUnit.getCODE())){
+                                        String sql = "DELETE FROM "+data.getKey()+" WHERE "+data.getValue()+" = '"+data.getValue2()+"'";
+                                        DB.getInstance(MaintenanceUnitMeasure.this).getWritableDatabase().execSQL(sql);
+                                    }
+                                    measureUnitsController.delete(measureUnit);
+                                    refreshList(lastSearch);
+                                    d.dismiss();
+                                }else{
                                     btnAceptar.setEnabled(true);
                                     d.findViewById(R.id.btnNegative).setEnabled(true);
                                     d.findViewById(R.id.llProgress).setVisibility(View.INVISIBLE);
-                                    Toast.makeText(MaintenanceUnitMeasure.this, task.getException().getMessage(), Toast.LENGTH_LONG).show();
+                                    Toast.makeText(MaintenanceUnitMeasure.this, "Error eliminando medida. Intente nuevamente", Toast.LENGTH_LONG).show();
                                 }
-                            }
-                        }, new OnSuccessListener() {
-                            @Override
-                            public void onSuccess(Object o) {
-                                for(KV2 data: MeasureUnitsController.getInstance(MaintenanceUnitMeasure.this).getDependencies(measureUnit.getCODE())){
-                                    String sql = "DELETE FROM "+data.getKey()+" WHERE "+data.getValue()+" = '"+data.getValue2()+"'";
-                                    DB.getInstance(MaintenanceUnitMeasure.this).getWritableDatabase().execSQL(sql);
-                                }
-                                measureUnitsController.delete(measureUnit);
-                                refreshList(lastSearch);
-                                d.dismiss();
                             }
                         }, new OnFailureListener() {
                             @Override
@@ -242,7 +250,6 @@ public class MaintenanceUnitMeasure extends AppCompatActivity implements Listabl
                     }
 
                 }
-                //d.dismiss();
             }
         });
 

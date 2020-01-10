@@ -224,22 +224,29 @@ public class MaintenanceProductTypes extends AppCompatActivity implements Listab
 
                 if(productsType != null){
                     if(type.equals(CODES.ENTITY_TYPE_EXTRA_PRODUCTSFORSALE)){
-                        productsTypesController.deleteFromFireBase(productsType, new OnCompleteListener() {
+                        productsTypesController.deleteFromFireBase(productsType, new OnFailureListener() {
                             @Override
-                            public void onComplete(@NonNull Task task) {
-                                if(task.getException() != null){
+                            public void onFailure(@NonNull Exception e) {
+                                btnAceptar.setEnabled(true);
+                                btnCancelar.setEnabled(true);
+                                d.findViewById(R.id.llProgress).setVisibility(View.INVISIBLE);
+                                Toast.makeText(MaintenanceProductTypes.this, e.getMessage(), Toast.LENGTH_LONG).show();
+                            }
+                        });
+                        productsTypesController.searchProductTypeFromFireBase(productsType.getCODE(), new OnSuccessListener<QuerySnapshot>() {
+                            @Override
+                            public void onSuccess(QuerySnapshot querySnapshot) {
+                                if(querySnapshot == null || querySnapshot.size()==0){
+                                    productsTypesController.delete(productsType);
+                                    refreshList(lastSearch);
+                                    d.dismiss();
+                                }else{
                                     btnAceptar.setEnabled(true);
                                     btnCancelar.setEnabled(true);
                                     d.findViewById(R.id.llProgress).setVisibility(View.INVISIBLE);
-                                    Toast.makeText(MaintenanceProductTypes.this, task.getException().getMessage(), Toast.LENGTH_LONG).show();
+                                    Toast.makeText(MaintenanceProductTypes.this, "Error borrando Familia. Intente nuevamente", Toast.LENGTH_LONG).show();
                                 }
-                            }
-                        }, new OnSuccessListener() {
-                            @Override
-                            public void onSuccess(Object o) {
-                                productsTypesController.delete(productsType);
-                                refreshList(lastSearch);
-                                d.dismiss();
+
                             }
                         }, new OnFailureListener() {
                             @Override

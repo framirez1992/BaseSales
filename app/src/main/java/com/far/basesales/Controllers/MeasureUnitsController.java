@@ -16,6 +16,7 @@ import com.far.basesales.DataBase.CloudFireStoreDB;
 import com.far.basesales.DataBase.DB;
 import com.far.basesales.Generic.KV;
 import com.far.basesales.Generic.KV2;
+import com.far.basesales.Globales.CODES;
 import com.far.basesales.Globales.Tablas;
 import com.far.basesales.Utils.Funciones;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -132,17 +133,16 @@ public class MeasureUnitsController {
         }
     }
 
-    public void sendToFireBase(MeasureUnits mu , OnCompleteListener completeListener, OnSuccessListener successListener, OnFailureListener failureListener){
+    public void sendToFireBase(MeasureUnits mu , OnFailureListener failureListener){
             WriteBatch lote = db.batch();
             lote.set(getReferenceFireStore().document(mu.getCODE()), mu.toMap());
-            lote.commit().addOnCompleteListener(completeListener)
-                    .addOnSuccessListener(successListener)
+            lote.commit()
                     .addOnFailureListener(failureListener);
 
 
     }
 
-    public void deleteFromFireBase(MeasureUnits mu, OnCompleteListener completeListener, OnSuccessListener successListener, OnFailureListener failureListener){
+    public void deleteFromFireBase(MeasureUnits mu, OnFailureListener failureListener){
 
             WriteBatch lote = db.batch();
             lote.delete(getReferenceFireStore().document(mu.getCODE()));
@@ -152,8 +152,7 @@ public class MeasureUnitsController {
                 }
             }
 
-            lote.commit().addOnCompleteListener(completeListener)
-                    .addOnSuccessListener(successListener)
+            lote.commit()
                     .addOnFailureListener(failureListener);
     }
 
@@ -274,6 +273,16 @@ public class MeasureUnitsController {
                     addOnSuccessListener(success).addOnCompleteListener(complete).
                     addOnFailureListener(failure);
         }
+
+    }
+
+
+    public void searchMeasureUnitFromFireBase(String code, OnSuccessListener<QuerySnapshot> success, OnFailureListener failure){
+            getReferenceFireStore().
+                    whereEqualTo(CODE, code).
+                    get().
+                    addOnSuccessListener(success).
+                    addOnFailureListener(failure);
 
     }
 
