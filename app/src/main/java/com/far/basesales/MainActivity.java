@@ -50,6 +50,7 @@ import javax.annotation.Nullable;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, DialogCaller {
 
+    Fragment lastFragment;
     MaintenanceFragment fragmentMaintenance;
     DayFragment dayFragment;
     LogoFragment logoFragment;
@@ -143,22 +144,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     protected void onStart() {
         super.onStart();
-
-       /* productsControlController.getReferenceFireStore().addSnapshotListener(MainActivity.this, new EventListener<QuerySnapshot>() {
-            @Override
-            public void onEvent(@Nullable QuerySnapshot querySnapshot, @Nullable FirebaseFirestoreException e) {
-                try {
-                    productsControlController.delete(null, null);
-                    for (DocumentSnapshot doc : querySnapshot) {
-                        ProductsControl pc = doc.toObject(ProductsControl.class);
-                        productsControlController.insert(pc);
-                    }
-                }catch(Exception e1){
-                    e1.printStackTrace();
-                }
-            }
-        });*/
-
         licenseController.getReferenceFireStore().addSnapshotListener(MainActivity.this, licenceListener);
         usersController.getReferenceFireStore().addSnapshotListener(MainActivity.this,usersListener);
         devicesController.getReferenceFireStore(licenseController.getLicense()).addSnapshotListener(MainActivity.this,deviceListener);
@@ -214,28 +199,28 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             showDayFragment();
 
         }else{
+
             if (id == R.id.goMenu) {
                 goToOrders();
-            } /*else if (id == R.id.goPendingOrders) {
-            goToOrdersBoard();
-        }*/ else if (id == R.id.goReports) {
+            } else if (id == R.id.goReports) {
             goToReports();
 
         } else if(id == R.id.goReceip){
                 goToReceipts();
-            }/*else if(id == R.id.goSavedReceipts){
-            goToSavedReceipts();
-        }else if(id == R.id.goConfiguration){
-            //startActivity(new Intent(this, BluetoothScan.class));
-        }*/ else if(id == R.id.logout){
+            } else if(id == R.id.logout){
                 logout();
             }else  {
-                if(usersController.isSuperUser() || usersController.isAdmin()) {//SU o Administrador
-                    showMaintenanceFragment();
+                if(usersController.isSuperUser() || usersController.isAdmin()) {//SU o Administrador;
+                    fragmentMaintenance.setLastModule(id);
+                    if(lastFragment instanceof  MaintenanceFragment){
+                     fragmentMaintenance.loadModule(id);
+                    }else{
+                        showMaintenanceFragment();
+                    }
+
                 }else {
                     showLogoFragment();
                 }
-                changeModule(id);
             }
 
         }
@@ -439,7 +424,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     public void setInitialFragment(){
         if(usersController.isSuperUser() || usersController.isAdmin()) {//SU o Administrador
-            showMaintenanceFragment();
+            showDayFragment();
         }else {
            showLogoFragment();
         }
@@ -450,6 +435,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         ft.replace(R.id.details, fragmentMaintenance);
         ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
         ft.commit();
+        lastFragment = fragmentMaintenance;
     }
 
     public void showLogoFragment(){
@@ -457,6 +443,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         ft.replace(R.id.details, logoFragment);
         ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
         ft.commit();
+        lastFragment = logoFragment;
     }
 
     public void showDayFragment(){
@@ -464,25 +451,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         ft.replace(R.id.details, dayFragment);
         ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
         ft.commit();
+        lastFragment = dayFragment;
     }
 
 
-    public void changeModule(int id){
 
-        if((usersController.isSuperUser() || usersController.isAdmin())) {
-            fragmentMaintenance.llMaintenanceCompany.setVisibility((id == R.id.goMantCompany) ? View.VISIBLE : View.GONE);
-            fragmentMaintenance.llMaintenanceInventory.setVisibility((id == R.id.goMantInventario) ? View.VISIBLE : View.GONE);
-            fragmentMaintenance.llMaintenanceProducts.setVisibility((id == R.id.goMantProductos) ? View.VISIBLE : View.GONE);
-            fragmentMaintenance.llMaintenanceUsers.setVisibility((id == R.id.goMantUsuarios) ? View.VISIBLE : View.GONE);
-            fragmentMaintenance.llMaintenanceControls.setVisibility((id == R.id.goMantControls) ? View.VISIBLE : View.GONE);
-            fragmentMaintenance.llMainScreen.setVisibility((id == R.id.goMainScreen) ? View.VISIBLE : View.GONE);
-            fragmentMaintenance.llClients.setVisibility((id == R.id.goMantClientes) ? View.VISIBLE : View.GONE);
-            fragmentMaintenance.llConfiguration.setVisibility((id == R.id.goConfiguration) ? View.VISIBLE : View.GONE);
-
-        }
-
-
-    }
 
     public boolean validateLicence(Licenses lic){
 

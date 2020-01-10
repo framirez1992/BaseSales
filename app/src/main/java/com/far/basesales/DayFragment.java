@@ -136,6 +136,10 @@ public class DayFragment extends Fragment implements  OnSuccessListener<QuerySna
 
 
     public void searchCurrentOpenDay(){
+        llDayStart.setVisibility(View.GONE);
+        llDayEnd.setVisibility(View.GONE);
+        llLoading.setVisibility(View.VISIBLE);
+
         DayController.getInstance(parentActivity).searchCurrentDayStartedFromFireBase(new OnSuccessListener<QuerySnapshot>() {
             @Override
             public void onSuccess(QuerySnapshot querySnapshot) {
@@ -277,8 +281,9 @@ public class DayFragment extends Fragment implements  OnSuccessListener<QuerySna
             case 2: SalesController.getInstance(parentActivity).searchAllSalesDetailFromFireBase(this, this); break;
             case 3: ReceiptController.getInstance(parentActivity).searchAllReceiptsFromFireBase( this, this); break;
             case 4: PaymentController.getInstance(parentActivity).searchAllPaymentsFromFireBase( this, this); break;
-            case 5: Transaction.getInstance(parentActivity).deleteDataFromFireBase(this, this); break;
-            case 6:
+            case 5: Transaction.getInstance(parentActivity).deleteDataFromFireBase( this);//los delete y los insert no retornan OnSucess si no hay conexion.
+                Transaction.getInstance(parentActivity).deleteLocalData();
+
                 Date dateEnd = new Date();
                 try {
                     dateEnd = new SimpleDateFormat("dd/MM/yyyy").parse(etEnd.getText().toString());
@@ -306,18 +311,15 @@ public class DayFragment extends Fragment implements  OnSuccessListener<QuerySna
 
     @Override
     public void onSuccess(QuerySnapshot querySnapshot) {
-        //if(lastFireBaseaction > 0){
             switch (lastFireBaseaction){
                 case 1: SalesController.getInstance(parentActivity).consumeQuerySnapshot(querySnapshot); break;
                 case 2: SalesController.getInstance(parentActivity).consumeQuerySnapshotDetail(querySnapshot); break;
                 case 3: ReceiptController.getInstance(parentActivity).consumeQuerySnapshot(querySnapshot); break;
                 case 4: PaymentController.getInstance(parentActivity).consumeQuerySnapshot(querySnapshot); break;
-                case 5: Transaction.getInstance(parentActivity).deleteLocalData();break;
                 default:break;
             }
             lastFireBaseaction++;
             execute();
-     //   }
 
     }
 

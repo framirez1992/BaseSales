@@ -57,6 +57,11 @@ public class ReceiptOptionsDialog extends DialogFragment  {
     Dialog paymentDialog;
     int lastAction=-1;
 
+    LinearLayout llProgressPayment;
+    Spinner spnPaymentType;
+    TextInputEditText etPaymentAmount;
+    CardView cvPay;
+
 
     /**
      * Create a new instance of MyDialogFragment, providing "num"
@@ -103,7 +108,7 @@ public class ReceiptOptionsDialog extends DialogFragment  {
         btnClose = view.findViewById(R.id.btnClose);
         tvErrorMessage = view.findViewById(R.id.tvErrorMsg);
 
-        if(receipts.getStatus().equals(CODES.CODE_RECEIPT_STATUS_CLOSED)){
+        if(receipts.getStatus().equals(CODES.CODE_RECEIPT_STATUS_CLOSED) || activity instanceof MainOrders){
             llPayment.setVisibility(View.GONE);
         }else{
             llPayment.setVisibility(View.VISIBLE);
@@ -376,24 +381,23 @@ public class ReceiptOptionsDialog extends DialogFragment  {
         paymentDialog = new Dialog(activity);
         paymentDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         paymentDialog.setContentView(R.layout.payment_dialog);
-        final Spinner spnPaymentType = paymentDialog.findViewById(R.id.spnPaymentType);
-        final TextInputEditText etAmount = paymentDialog.findViewById(R.id.etAmount);
-        final CardView cvPay = paymentDialog.findViewById(R.id.cvPay);
+        spnPaymentType = paymentDialog.findViewById(R.id.spnPaymentType);
+        etPaymentAmount = paymentDialog.findViewById(R.id.etAmount);
+        cvPay =paymentDialog.findViewById(R.id.cvPay);
+        llProgressPayment = paymentDialog.findViewById(R.id.llProgress);
         TextView tvPendingAmount = paymentDialog.findViewById(R.id.tvPendingAmount);
 
         PaymentController.getInstance(activity).fillSpinnerPaymentType(spnPaymentType);
-        etAmount.setText(Funciones.formatDecimal(receipts.getTotal()-receipts.getPaidamount()));
+        etPaymentAmount.setText(Funciones.formatDecimal(receipts.getTotal()-receipts.getPaidamount()));
         tvPendingAmount.setText("$"+Funciones.formatDecimal(receipts.getTotal()-receipts.getPaidamount()));
-        /*if(UserControlController.getInstance(activity).multiPayment()) {
-            etAmount.setFocusableInTouchMode(true);
-        }*/
         cvPay.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(validateEditedAmount(etAmount)){
+                if(validateEditedAmount(etPaymentAmount)){
                     paymentDialog.setCancelable(false);
-                    cvPay.setEnabled(false);
-                    savePayment(((KV)spnPaymentType.getSelectedItem()).getKey(), etAmount.getText().toString());
+                    disableViewsPayment();
+                    llProgressPayment.setVisibility(View.VISIBLE);
+                    savePayment(((KV)spnPaymentType.getSelectedItem()).getKey(), etPaymentAmount.getText().toString());
                 }
             }
         });
@@ -405,28 +409,32 @@ public class ReceiptOptionsDialog extends DialogFragment  {
 
     }
 
+    public void enableViewsPayment(){
+        spnPaymentType.setEnabled(true);
+        etPaymentAmount.setEnabled(true);
+        cvPay.setEnabled(true);
+    }
+    public void disableViewsPayment(){
+        spnPaymentType.setEnabled(false);
+        etPaymentAmount.setEnabled(false);
+        cvPay.setEnabled(false);
+    }
 
 
 
 
     public void savePayment(String paymentType, String editAmount){
-        //((MainReceipt)parentActivity).showLoadingDialog();
-
-        final Receipts myReceipt = receipts.clone();
         double paymentAmount = Double.parseDouble(editAmount.replace(",", "").replace("$", ""));
 
-        String receiptStatus = (myReceipt.getTotal()> (myReceipt.getPaidamount()+paymentAmount))?CODES.CODE_RECEIPT_STATUS_OPEN:CODES.CODE_RECEIPT_STATUS_CLOSED;
-        //String code, String codeUser,String codesale, String codeclient,  String status, String ncf, double subTotal, double taxes, double discount, double total, double paidAmount
-        //Receipts r =ReceiptController.getInstance(activity).getReceiptByCode(receipts.getCode());
-        myReceipt.setStatus(receiptStatus);
-        myReceipt.setPaidamount(receipts.getPaidamount()+paymentAmount);
-        myReceipt.setMdate(null);//para que lo envi con TIMESTAMP
+        String receiptStatus = (receipts.getTotal()> (receipts.getPaidamount()+paymentAmount))?CODES.CODE_RECEIPT_STATUS_OPEN:CODES.CODE_RECEIPT_STATUS_CLOSED;
+        receipts.setStatus(receiptStatus);
+        receipts.setPaidamount(receipts.getPaidamount()+paymentAmount);
+        receipts.setMdate(null);//para que lo envi con TIMESTAMP
 
         final Day day = DayController.getInstance(activity).getCurrentOpenDay();
         //String code, String codeReceipt,String codeUser, String codeClient, String type, double subTotal, double tax, double discount, double total
-        final Payment p = new Payment(Funciones.generateCode(), myReceipt.getCode(), Funciones.getCodeuserLogged(activity),myReceipt.getCodeclient(), paymentType,0,0,0,paymentAmount, day.getCode());
+        final Payment p = new Payment(Funciones.generateCode(), receipts.getCode(), Funciones.getCodeuserLogged(activity),receipts.getCodeclient(), paymentType,0,0,0,paymentAmount, day.getCode());
         p.setDATE(new Date());
-        //day.setDiscountamount(day.getDiscountamount()+receipt.getDiscount());
         if(p.getTYPE().equals(CODES.PAYMENTTYPE_CASH)){
             day.setCashpaidamount(day.getCashpaidamount()+p.getTOTAL());
             day.setCashpaidcount(day.getCashpaidcount()+1);
@@ -440,6 +448,8 @@ public class ReceiptOptionsDialog extends DialogFragment  {
             @Override
             public void onFailure(@NonNull Exception e) {
                 Toast.makeText(activity, e.getMessage(), Toast.LENGTH_LONG).show();
+                enableViewsPayment();
+                llProgressPayment.setVisibility(View.INVISIBLE);
             }
         });
         PaymentController.getInstance(activity).getPaymentFromFireBase(p.getCODE(), new OnSuccessListener<QuerySnapshot>() {
@@ -452,7 +462,7 @@ public class ReceiptOptionsDialog extends DialogFragment  {
                 }
 
                 if(payment != null){
-                    ReceiptController.getInstance(activity).update(myReceipt);
+                    ReceiptController.getInstance(activity).update(receipts);
                     PaymentController.getInstance(activity).insert(p);
                     DayController.getInstance(activity).update(day);
 
@@ -465,12 +475,16 @@ public class ReceiptOptionsDialog extends DialogFragment  {
                     }
                 }else{
                     Toast.makeText(activity, "Error efectuando el pago, intente otra vez", Toast.LENGTH_LONG).show();
+                    enableViewsPayment();
+                    llProgressPayment.setVisibility(View.INVISIBLE);
                 }
             }
         }, new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
                 Toast.makeText(activity, e.getMessage(), Toast.LENGTH_LONG).show();
+                enableViewsPayment();
+                llProgressPayment.setVisibility(View.INVISIBLE);
             }
         });
 

@@ -24,6 +24,7 @@ public class MaintenanceFragment extends Fragment {
     ImageView btnFamily, btnGroup, btnMeasures, btnProducts,btnFamilyInv, btnGroupInv, btnMeasuresInv, btnProductsInv,btnCompany,  btnUsers, btnUserRol/*, btnControls*/
     ,btnActualizationCenter, btnUsersControl, btnRolesControl, btnClients, btnPrinter;
     LinearLayout llMainScreen,llClients, llMaintenanceControls, llMaintenanceUsers, llMaintenanceProducts,llMaintenanceInventory,llMaintenanceCompany,  llConfiguration;
+    int lastModule=-1;
 
     public MaintenanceFragment() {
         // Required empty public constructor
@@ -94,6 +95,8 @@ public class MaintenanceFragment extends Fragment {
 
 
         btnActualizationCenter.setOnClickListener(imageClick);
+
+        loadModule(lastModule);
 
 
 
@@ -186,4 +189,19 @@ public class MaintenanceFragment extends Fragment {
 
 
     };
+
+    public void setLastModule(int id){
+        lastModule = id;
+    }
+
+    public void loadModule(int id){
+        llMaintenanceCompany.setVisibility((id == R.id.goMantCompany) ? View.VISIBLE : View.GONE);
+        llMaintenanceInventory.setVisibility((id == R.id.goMantInventario) ? View.VISIBLE : View.GONE);
+        llMaintenanceProducts.setVisibility((id == R.id.goMantProductos) ? View.VISIBLE : View.GONE);
+        llMaintenanceUsers.setVisibility((id == R.id.goMantUsuarios) ? View.VISIBLE : View.GONE);
+        llMaintenanceControls.setVisibility((id == R.id.goMantControls) ? View.VISIBLE : View.GONE);
+        llMainScreen.setVisibility((id == R.id.goMainScreen) ? View.VISIBLE : View.GONE);
+        llClients.setVisibility((id == R.id.goMantClientes) ? View.VISIBLE : View.GONE);
+        llConfiguration.setVisibility((id == R.id.goConfiguration) ? View.VISIBLE : View.GONE);
+    }
 }

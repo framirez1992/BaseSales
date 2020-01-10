@@ -107,7 +107,7 @@ public class Transaction {
     }
 
     //elimina todos los sales, receipts y payments cuyos recibos ya hayan sido saldados.
-    public void deleteDataFromFireBase( OnSuccessListener onSuccessListener, OnFailureListener failureListener){
+    public void deleteDataFromFireBase( OnFailureListener failureListener){
         WriteBatch lote = db.batch();
         for(Receipts r: ReceiptController.getInstance(context).getReceipts(new String[]{ReceiptController.STATUS, ReceiptController.CODEUSER}, new String[]{CODES.CODE_RECEIPT_STATUS_CLOSED, Funciones.getCodeuserLogged(context)}, null)){
             lote.delete(ReceiptController.getInstance(context).getDocumentReference(r));
@@ -126,9 +126,9 @@ public class Transaction {
         }
 
         lote.commit()
-                .addOnFailureListener(failureListener)
-                .addOnSuccessListener(onSuccessListener);
+                .addOnFailureListener(failureListener);
     }
+
 
     public void deleteLocalData(){
         for(Receipts r: ReceiptController.getInstance(context).getReceipts(new String[]{ReceiptController.STATUS, ReceiptController.CODEUSER}, new String[]{CODES.CODE_RECEIPT_STATUS_CLOSED, Funciones.getCodeuserLogged(context)}, null)){

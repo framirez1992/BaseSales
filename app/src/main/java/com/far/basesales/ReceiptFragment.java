@@ -244,6 +244,8 @@ public class ReceiptFragment extends Fragment implements DialogCaller {
 
     public void refresh(){
         client = null;
+        cbDiscount.setChecked(false);
+        etDiscount.setText("");
         etDocument.setText("");
         etName.setText("");
         spnPaymentType.setSelection(0);
