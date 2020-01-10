@@ -47,7 +47,7 @@ import java.util.ArrayList;
 import java.util.Date;
 
 
-public class ProductsDialogfragment extends DialogFragment implements ListableActivity, OnCompleteListener, OnSuccessListener,  OnFailureListener {
+public class ProductsDialogfragment extends DialogFragment implements ListableActivity,  OnFailureListener {
 
     DialogCaller dialogCaller;
     private Products tempObj;
@@ -174,9 +174,6 @@ public class ProductsDialogfragment extends DialogFragment implements ListableAc
                 selectedRowModel.setMaxPrice(Double.parseDouble(etMax.getText().toString()));
 
                 ((ProductMeasureSelectionAdapter)rvMeasures.getAdapter()).update();
-               /* //si esta en los selected actualizar
-                rvMeasures.getAdapter().notifyDataSetChanged();
-                rvMeasures.invalidate();*/
                 clearMeasureData();
             }
         });
@@ -299,6 +296,7 @@ public class ProductsDialogfragment extends DialogFragment implements ListableAc
             String productType = ((KV)spnFamily.getSelectedItem()).getKey();
             String productSubType = ((KV)spnGroup.getSelectedItem()).getKey();
             toInsertObject = new Products(code, description, productType, productSubType, false);
+            toInsertObject.setDATE(new Date());
 
             toInsertProductMeasure = new ArrayList<>();
             for(ProductMeasureRowModel ssrm: selected){
@@ -307,13 +305,31 @@ public class ProductsDialogfragment extends DialogFragment implements ListableAc
             }
 
             if(type.equals(CODES.ENTITY_TYPE_EXTRA_PRODUCTSFORSALE)){
-                productsController.sendToFireBase(toInsertObject, toInsertProductMeasure, this, this, this);
+                productsController.sendToFireBase(toInsertObject, toInsertProductMeasure, this);
+                productsController.searchProductFromFireBase(toInsertObject.getCODE(), new OnSuccessListener<QuerySnapshot>() {
+                    @Override
+                    public void onSuccess(QuerySnapshot querySnapshot) {
+
+                        Products p = null;
+                        if(querySnapshot != null && querySnapshot.getDocuments().size() > 0){
+                            p = querySnapshot.getDocuments().get(0).toObject(Products.class);
+                            p.setMDATE(new Date());
+                        }
+
+                        if(p != null){
+                            ProductsController.getInstance(getContext()).insert(p);
+                            modifyProductMeasureLocal(p.getCODE());
+
+                            dialogCaller.dialogClosed(p);
+                            dismiss();
+                        }else{
+                            failure("Error guardando producto. Intente nuevamente");
+                        }
+                    }
+                }, this);
             }else if(type.equals(CODES.ENTITY_TYPE_EXTRA_INVENTORY)){
                 productsInvController.sendToFireBase(toInsertObject, toInsertProductMeasure);
             }
-
-
-            this.dismiss();
         }catch(Exception e){
             e.printStackTrace();
         }
@@ -327,7 +343,7 @@ public class ProductsDialogfragment extends DialogFragment implements ListableAc
             products.setDESCRIPTION(etName.getText().toString());
             products.setTYPE(((KV)spnFamily.getSelectedItem()).getKey());
             products.setSUBTYPE(((KV)spnGroup.getSelectedItem()).getKey());
-            products.setMDATE(null);
+            products.setMDATE(new Date());
 
             toInsertProductMeasure = new ArrayList<>();
             for(ProductMeasureRowModel ssrm: selected){
@@ -337,12 +353,30 @@ public class ProductsDialogfragment extends DialogFragment implements ListableAc
             }
 
             if(type.equals(CODES.ENTITY_TYPE_EXTRA_PRODUCTSFORSALE)){
-                productsController.sendToFireBase(products, toInsertProductMeasure, this, this, this);
+                productsController.sendToFireBase(products, toInsertProductMeasure, this);
+                productsController.searchProductFromFireBase(products.getCODE(), new OnSuccessListener<QuerySnapshot>() {
+                    @Override
+                    public void onSuccess(QuerySnapshot querySnapshot) {
+                        Products p = null;
+                        if(querySnapshot != null && querySnapshot.getDocuments().size() > 0){
+                            p = querySnapshot.getDocuments().get(0).toObject(Products.class);
+                        }
+
+                        if(p != null){
+                            ProductsController.getInstance(getContext()).update(p);
+                            modifyProductMeasureLocal(p.getCODE());
+
+                            dialogCaller.dialogClosed(p);
+                            dismiss();
+                        }else{
+                            failure("Error editando producto. Intente nuevamente");
+                        }
+                    }
+                }, this);
             }else if(type.equals(CODES.ENTITY_TYPE_EXTRA_INVENTORY)){
                 productsInvController.sendToFireBase(products, toInsertProductMeasure);
             }
 
-            this.dismiss();
         }catch(Exception e){
             e.printStackTrace();
         }
@@ -509,31 +543,18 @@ public class ProductsDialogfragment extends DialogFragment implements ListableAc
     }
 
     @Override
-    public void onComplete(@NonNull Task task) {
-        if(task.getException() != null){
-            llSave.setEnabled(true);
-            llProgress.setVisibility(View.INVISIBLE);
-            Snackbar.make(getView(), task.getException().getMessage(), Snackbar.LENGTH_LONG).show();
-        }
+    public void onFailure(@NonNull Exception e) {
+       failure(e.getMessage());
     }
 
-    @Override
-    public void onSuccess(Object o) {
+    public void failure(String msg){
+        llSave.setEnabled(true);
+        llProgress.setVisibility(View.INVISIBLE);
+        Snackbar.make(getView(), msg, Snackbar.LENGTH_LONG).show();
+    }
 
+    public void modifyProductMeasureLocal(String codeProduct){
         String notIn=" NOT IN ('1'";
-        String codeProduct ="";
-
-        if(tempObj == null){
-            codeProduct = toInsertObject.getCODE();
-            toInsertObject.setDATE(new Date());//Guardar fecha local mientras tanto se baja nuevamente del server
-            toInsertObject.setMDATE(new Date());
-            ProductsController.getInstance(getContext()).insert(toInsertObject);
-        }else{
-            codeProduct = tempObj.getCODE();
-            tempObj.setMDATE(new Date());//Guardar fecha local mientras tanto se baja nuevamente del server
-            ProductsController.getInstance(getContext()).update(tempObj);
-        }
-
         if (toInsertProductMeasure != null && !toInsertProductMeasure.isEmpty()){
 
             for(ProductsMeasure pm: toInsertProductMeasure){
@@ -567,17 +588,6 @@ public class ProductsDialogfragment extends DialogFragment implements ListableAc
             ProductsMeasureController.getInstance(getContext()).update(pm,where, new String[]{pm.getCODE()});
         }
 
-
-        dialogCaller.dialogClosed(o);
-        dismiss();
-    }
-
-    @Override
-    public void onFailure(@NonNull Exception e) {
-
-        llSave.setEnabled(true);
-        llProgress.setVisibility(View.INVISIBLE);
-        Snackbar.make(getView(), e.getMessage(), Snackbar.LENGTH_LONG).show();
     }
 
 }

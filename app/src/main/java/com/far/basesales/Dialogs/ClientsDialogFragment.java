@@ -23,12 +23,13 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
-public class ClientsDialogFragment extends DialogFragment implements OnCompleteListener,  OnSuccessListener, OnFailureListener {
+public class ClientsDialogFragment extends DialogFragment implements OnFailureListener {
 
     DialogCaller dialogCaller;
     public Clients tempObj;
@@ -155,7 +156,6 @@ public class ClientsDialogFragment extends DialogFragment implements OnCompleteL
     }
 
     public void SaveClient(){
-        try {
             String code = Funciones.generateCode();
             String document = etDocument.getText().toString();
             String name = etName.getText().toString();
@@ -167,19 +167,33 @@ public class ClientsDialogFragment extends DialogFragment implements OnCompleteL
                 data = etBirth.getText().toString();
             }
             toInsertObject = new Clients(code,document, name, phone, data, data2, data3);
-            //clientsController.insert(toInsertObject);
+            toInsertObject.setDATE(new Date());
+            toInsertObject.setMDATE(new Date());
 
-            clientsController.sendToFireBase(toInsertObject,this,  this, this);
+            clientsController.sendToFireBase(toInsertObject, this);
+            clientsController.searchClientFromFireBase(toInsertObject.getCODE(), new OnSuccessListener<QuerySnapshot>() {
+                @Override
+                public void onSuccess(QuerySnapshot querySnapshot) {
+                    Clients c = null;
+                    if(querySnapshot!= null && querySnapshot.size() > 0){
+                        c = querySnapshot.getDocuments().get(0).toObject(Clients.class);
+                    }
 
-        }catch(Exception e){
-            e.printStackTrace();
-        }
+                    if(c != null){
+                            ClientsController.getInstance(getContext()).insert(c);
+                            dialogCaller.dialogClosed(c);
+                        dismiss();
+                    }else{
+                        failure("Error guardando cliente. Intente nuevamente.");
+                    }
+                }
+            }, this);
+
 
 
     }
 
     public void EditProductType(){
-        try {
             String data = "";
             String data2 = "";
             String data3 = "";
@@ -189,17 +203,30 @@ public class ClientsDialogFragment extends DialogFragment implements OnCompleteL
 
             tempObj.setDOCUMENT(etDocument.getText().toString());
             tempObj.setNAME(etName.getText().toString());
-            tempObj.setMDATE(null);
+            tempObj.setMDATE(new Date());
             tempObj.setPHONE(etPhone.getText().toString());
             tempObj.setDATA(data);
             tempObj.setDATA2(data2);
             tempObj.setDATA3(data3);
 
-            clientsController.sendToFireBase(tempObj, this, this, this);
+            clientsController.sendToFireBase(tempObj,  this);
+            clientsController.searchClientFromFireBase(tempObj.getCODE(), new OnSuccessListener<QuerySnapshot>() {
+                @Override
+                public void onSuccess(QuerySnapshot querySnapshot) {
+                    Clients c = null;
+                    if(querySnapshot!= null && querySnapshot.size() > 0){
+                        c = querySnapshot.getDocuments().get(0).toObject(Clients.class);
+                    }
 
-        }catch(Exception e){
-            e.printStackTrace();
-        }
+                    if(c != null){
+                        ClientsController.getInstance(getContext()).update(c);
+                        dialogCaller.dialogClosed(c);
+                        dismiss();
+                    }else{
+                        failure("Error Editando cliente. Intente nuevamente.");
+                    }
+                }
+            }, this);
 
 
     }
@@ -241,33 +268,13 @@ public class ClientsDialogFragment extends DialogFragment implements OnCompleteL
 
     @Override
     public void onFailure(@NonNull Exception e) {
+       failure(e.getMessage());
+    }
+
+    public void failure(String msg){
         llSave.setEnabled(true);
         llProgress.setVisibility(View.INVISIBLE);
-        Snackbar.make(getView(), e.getMessage(), Snackbar.LENGTH_LONG).show();
+        Snackbar.make(getView(), msg, Snackbar.LENGTH_LONG).show();
     }
 
-    @Override
-    public void onComplete(@NonNull Task task) {
-        if(task.getException() != null){
-            llSave.setEnabled(true);
-            llProgress.setVisibility(View.INVISIBLE);
-            Snackbar.make(getView(), task.getException().getMessage(), Snackbar.LENGTH_LONG).show();
-        }
-    }
-
-    @Override
-    public void onSuccess(Object o) {
-        if(tempObj == null){
-            toInsertObject.setDATE(new Date());//Guardar fecha local mientras tanto se baja nuevamente del server
-            toInsertObject.setMDATE(new Date());
-            ClientsController.getInstance(getContext()).insert(toInsertObject);
-            dialogCaller.dialogClosed(toInsertObject);
-        }else{
-            tempObj.setMDATE(new Date());//Guardar fecha local mientras tanto se baja nuevamente del server
-            ClientsController.getInstance(getContext()).update(tempObj);
-            dialogCaller.dialogClosed(tempObj);
-        }
-
-        dismiss();
-    }
 }

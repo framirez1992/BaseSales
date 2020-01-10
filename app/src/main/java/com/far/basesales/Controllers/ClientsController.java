@@ -10,6 +10,7 @@ import com.far.basesales.CloudFireStoreObjects.Clients;
 import com.far.basesales.CloudFireStoreObjects.Company;
 import com.far.basesales.CloudFireStoreObjects.Licenses;
 import com.far.basesales.DataBase.DB;
+import com.far.basesales.Globales.CODES;
 import com.far.basesales.Globales.Tablas;
 import com.far.basesales.Utils.Funciones;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -59,19 +60,17 @@ public class ClientsController {
     }
 
 
-    public void sendToFireBase(Clients clients, OnCompleteListener completeListener, OnSuccessListener onSuccessListener, OnFailureListener failure){
+    public void sendToFireBase(Clients clients, OnFailureListener failure){
             WriteBatch lote = db.batch();
             lote.set(getReferenceFireStore().document(clients.getCODE()), clients.toMap());
-            lote.commit().addOnCompleteListener(completeListener)
-                    .addOnSuccessListener(onSuccessListener)
+            lote.commit()
                     .addOnFailureListener(failure);
     }
 
-    public void deleteFromFireBase(Clients clients , OnCompleteListener completeListener, OnSuccessListener onSuccessListener, OnFailureListener failure){
+    public void deleteFromFireBase(Clients clients, OnFailureListener failure){
             WriteBatch lote = db.batch();
             lote.delete(getReferenceFireStore().document(clients.getCODE()));
-            lote.commit().addOnCompleteListener(completeListener)
-                    .addOnSuccessListener(onSuccessListener)
+            lote.commit()
                     .addOnFailureListener(failure);
     }
 
@@ -231,6 +230,16 @@ public class ClientsController {
                     addOnSuccessListener(success).addOnCompleteListener(complete).
                     addOnFailureListener(failure);
         }
+
+    }
+
+
+    public void searchClientFromFireBase(String code, OnSuccessListener<QuerySnapshot> success,  OnFailureListener failure){
+            getReferenceFireStore().
+                    whereEqualTo(CODE, code).
+                    get().
+                    addOnSuccessListener(success).
+                    addOnFailureListener(failure);
 
     }
 

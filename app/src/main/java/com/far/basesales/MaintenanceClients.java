@@ -49,7 +49,6 @@ public class MaintenanceClients extends AppCompatActivity implements ListableAct
 
     RecyclerView rvList;
     ArrayList<ClientRowModel> objects;
-    LinearLayout btnSave;
     ClientEditionAdapter adapter;
     ClientsController clientsController;
     Clients clients;
@@ -176,24 +175,7 @@ public class MaintenanceClients extends AppCompatActivity implements ListableAct
                 btnCancelar.setEnabled(false);
 
                 if(clients != null){
-                    clientsController.deleteFromFireBase(clients, new OnCompleteListener() {
-                        @Override
-                        public void onComplete(@NonNull Task task) {
-                            if(task.getException() != null){
-                                btnAceptar.setEnabled(true);
-                                btnCancelar.setEnabled(true);
-                                d.findViewById(R.id.llProgress).setVisibility(View.INVISIBLE);
-                                Toast.makeText(MaintenanceClients.this, task.getException().getMessage(), Toast.LENGTH_LONG).show();
-                            }
-                        }
-                    }, new OnSuccessListener() {
-                        @Override
-                        public void onSuccess(Object o) {
-                            clientsController.delete(clients);
-                            refreshList();
-                            d.dismiss();
-                        }
-                    }, new OnFailureListener() {
+                    clientsController.deleteFromFireBase(clients, new OnFailureListener() {
                         @Override
                         public void onFailure(@NonNull Exception e) {
                             btnAceptar.setEnabled(true);
@@ -202,8 +184,33 @@ public class MaintenanceClients extends AppCompatActivity implements ListableAct
                             Toast.makeText(MaintenanceClients.this, e.getMessage(), Toast.LENGTH_LONG).show();
                         }
                     });
+                   clientsController.searchClientFromFireBase(clients.getCODE(), new OnSuccessListener<QuerySnapshot>() {
+                       @Override
+                       public void onSuccess(QuerySnapshot querySnapshot) {
+
+                           if(querySnapshot == null || querySnapshot.size()==0){
+                               clientsController.delete(clients);
+                               refreshList();
+                               d.dismiss();
+                           }else{
+                               btnAceptar.setEnabled(true);
+                               btnCancelar.setEnabled(true);
+                               d.findViewById(R.id.llProgress).setVisibility(View.INVISIBLE);
+                               Toast.makeText(MaintenanceClients.this, "Error eliminando cliente. Intente nuevamente", Toast.LENGTH_LONG).show();
+                           }
+
+                       }
+                   }, new OnFailureListener() {
+                       @Override
+                       public void onFailure(@NonNull Exception e) {
+                           btnAceptar.setEnabled(true);
+                           btnCancelar.setEnabled(true);
+                           d.findViewById(R.id.llProgress).setVisibility(View.INVISIBLE);
+                           Toast.makeText(MaintenanceClients.this, e.getMessage(), Toast.LENGTH_LONG).show();
+                       }
+                   }) ;
                 }
-                d.dismiss();
+
             }
         });
 

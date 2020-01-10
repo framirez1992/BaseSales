@@ -239,33 +239,6 @@ public class ProductsMeasureController {
         }
     }
 
-    public void sendToFireBase(ArrayList<ProductsMeasure> pm){
-        try {
-            WriteBatch lote = db.batch();
-
-            if (pm != null){
-                for (ProductsMeasure obj : pm) {//Insertando o actualizando el nuevo detalle
-                    if (obj.getMDATE() == null) {
-                        lote.set(getReferenceFireStore().document(obj.getCODE()), obj.toMap());
-                    } else {
-                        lote.update(getReferenceFireStore().document(obj.getCODE()), obj.toMap());
-                    }
-
-                }
-            }
-
-            lote.commit().addOnFailureListener(new OnFailureListener() {
-                @Override
-                public void onFailure(@NonNull Exception e) {
-                    e.printStackTrace();
-                }
-            });
-
-        }catch(Exception e){
-            e.printStackTrace();
-        }
-
-    }
 
 
     public ArrayList<ProductsMeasure> getdifference(ArrayList<ProductsMeasure> sdOriginal, ArrayList<ProductsMeasure> newsalesDetails){

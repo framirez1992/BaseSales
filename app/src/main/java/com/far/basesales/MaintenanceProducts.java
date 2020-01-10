@@ -297,26 +297,34 @@ public class MaintenanceProducts extends AppCompatActivity implements ListableAc
 
                 if(products != null){
                     if(type.equals(CODES.ENTITY_TYPE_EXTRA_PRODUCTSFORSALE)){
-                        productsController.deleteFromFireBase(products, new OnCompleteListener() {
+                        productsController.deleteFromFireBase(products, new OnFailureListener() {
                             @Override
-                            public void onComplete(@NonNull Task task) {
-                                if(task.getException() != null){
+                            public void onFailure(@NonNull Exception e) {
+                                btnAceptar.setEnabled(true);
+                                d.findViewById(R.id.btnNegative).setEnabled(true);
+                                d.findViewById(R.id.llProgress).setVisibility(View.INVISIBLE);
+                                Toast.makeText(MaintenanceProducts.this, e.getMessage(), Toast.LENGTH_LONG).show();
+                            }
+                        });
+
+                        productsController.searchProductFromFireBase(products.getCODE(), new OnSuccessListener<QuerySnapshot>() {
+                            @Override
+                            public void onSuccess(QuerySnapshot querySnapshot) {
+                                if(querySnapshot == null || querySnapshot.size() == 0){
+                                    for(KV2 data: ProductsController.getInstance(MaintenanceProducts.this).getDependencies(products.getCODE())){
+                                        String sql = "DELETE FROM "+data.getKey()+" WHERE "+data.getValue()+" = '"+data.getValue2()+"'";
+                                        DB.getInstance(MaintenanceProducts.this).getWritableDatabase().execSQL(sql);
+                                    }
+                                    ProductsController.getInstance(MaintenanceProducts.this).delete(products);
+                                    refreshList();
+                                    d.dismiss();
+                                }else{
                                     btnAceptar.setEnabled(true);
                                     d.findViewById(R.id.btnNegative).setEnabled(true);
                                     d.findViewById(R.id.llProgress).setVisibility(View.INVISIBLE);
-                                    Toast.makeText(MaintenanceProducts.this, task.getException().getMessage(), Toast.LENGTH_LONG).show();
+                                    Toast.makeText(MaintenanceProducts.this,"Error eliminando producto. Intente nuevamente", Toast.LENGTH_LONG).show();
                                 }
-                            }
-                        }, new OnSuccessListener() {
-                            @Override
-                            public void onSuccess(Object o) {
-                                for(KV2 data: ProductsController.getInstance(MaintenanceProducts.this).getDependencies(products.getCODE())){
-                                  String sql = "DELETE FROM "+data.getKey()+" WHERE "+data.getValue()+" = '"+data.getValue2()+"'";
-                                    DB.getInstance(MaintenanceProducts.this).getWritableDatabase().execSQL(sql);
-                                }
-                                ProductsController.getInstance(MaintenanceProducts.this).delete(products);
-                                refreshList();
-                                d.dismiss();
+
                             }
                         }, new OnFailureListener() {
                             @Override
