@@ -207,6 +207,16 @@ public class PaymentController {
 
     }
 
+    public void getPaymentFromFireBase(String code, OnSuccessListener<QuerySnapshot> success, OnFailureListener failure){
+            getReferenceFireStore().
+                    whereEqualTo(CODE, code).
+                    get().
+                    addOnSuccessListener(success).
+                    addOnFailureListener(failure);
+
+    }
+
+
     public void consumeQuerySnapshot(QuerySnapshot querySnapshot){
 
             if (querySnapshot != null && querySnapshot.getDocuments()!= null && querySnapshot.getDocuments().size() > 0) {

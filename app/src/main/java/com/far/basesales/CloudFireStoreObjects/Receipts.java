@@ -11,7 +11,7 @@ import java.util.Date;
 import java.util.HashMap;
 
 
-public class Receipts {
+public class Receipts implements Cloneable {
     String code,codeuser,codesale,codeclient, ncf, status, codeday;
     double subtotal, taxes, discount, total, paidamount;
     private @ServerTimestamp
@@ -188,5 +188,13 @@ public class Receipts {
         this.mdate = mdate;
     }
 
+    public Receipts clone(){
+        try{
+            return (Receipts) super.clone();
+        }catch (Exception e){
+            return null;
+        }
+
+    }
 
 }

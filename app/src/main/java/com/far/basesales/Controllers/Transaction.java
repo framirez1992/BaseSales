@@ -79,7 +79,7 @@ public class Transaction {
     }
 
 //ABONAR RECIBO
-    public void sendToFireBase(Receipts receipt, Payment payment,Day day,  OnFailureListener failureListener, OnCompleteListener onCompleteListener, OnSuccessListener onSuccessListener){
+    public void sendToFireBase(Receipts receipt, Payment payment,Day day,  OnFailureListener failureListener){
         try {
             WriteBatch lote = db.batch();
 
@@ -98,9 +98,7 @@ public class Transaction {
             lote.set(DayController.getInstance(context).getReferenceFireStore().document(day.getCode()), day.toMap());
 
             lote.commit()
-                    .addOnFailureListener(failureListener)
-                    .addOnCompleteListener(onCompleteListener)
-                    .addOnSuccessListener(onSuccessListener);
+                    .addOnFailureListener(failureListener);
 
         }catch(Exception e){
             e.printStackTrace();

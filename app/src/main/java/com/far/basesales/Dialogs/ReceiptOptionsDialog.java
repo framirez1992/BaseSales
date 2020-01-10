@@ -21,6 +21,7 @@ import android.view.Window;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.bluetoothlibrary.BluetoothScan;
 import com.far.basesales.CloudFireStoreObjects.Day;
@@ -44,6 +45,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.io.File;
+import java.util.Date;
 
 public class ReceiptOptionsDialog extends DialogFragment  {
 
@@ -410,19 +412,20 @@ public class ReceiptOptionsDialog extends DialogFragment  {
     public void savePayment(String paymentType, String editAmount){
         //((MainReceipt)parentActivity).showLoadingDialog();
 
+        final Receipts myReceipt = receipts.clone();
         double paymentAmount = Double.parseDouble(editAmount.replace(",", "").replace("$", ""));
 
-        String receiptStatus = (receipts.getTotal()> (receipts.getPaidamount()+paymentAmount))?CODES.CODE_RECEIPT_STATUS_OPEN:CODES.CODE_RECEIPT_STATUS_CLOSED;
+        String receiptStatus = (myReceipt.getTotal()> (myReceipt.getPaidamount()+paymentAmount))?CODES.CODE_RECEIPT_STATUS_OPEN:CODES.CODE_RECEIPT_STATUS_CLOSED;
         //String code, String codeUser,String codesale, String codeclient,  String status, String ncf, double subTotal, double taxes, double discount, double total, double paidAmount
         //Receipts r =ReceiptController.getInstance(activity).getReceiptByCode(receipts.getCode());
-        receipts.setStatus(receiptStatus);
-        receipts.setPaidamount(receipts.getPaidamount()+paymentAmount);
-        receipts.setMdate(null);//para que lo envi con TIMESTAMP
+        myReceipt.setStatus(receiptStatus);
+        myReceipt.setPaidamount(receipts.getPaidamount()+paymentAmount);
+        myReceipt.setMdate(null);//para que lo envi con TIMESTAMP
 
         final Day day = DayController.getInstance(activity).getCurrentOpenDay();
         //String code, String codeReceipt,String codeUser, String codeClient, String type, double subTotal, double tax, double discount, double total
-        final Payment p = new Payment(Funciones.generateCode(), receipts.getCode(), Funciones.getCodeuserLogged(activity),receipts.getCodeclient(), paymentType,0,0,0,paymentAmount, day.getCode());
-
+        final Payment p = new Payment(Funciones.generateCode(), myReceipt.getCode(), Funciones.getCodeuserLogged(activity),myReceipt.getCodeclient(), paymentType,0,0,0,paymentAmount, day.getCode());
+        p.setDATE(new Date());
         //day.setDiscountamount(day.getDiscountamount()+receipt.getDiscount());
         if(p.getTYPE().equals(CODES.PAYMENTTYPE_CASH)){
             day.setCashpaidamount(day.getCashpaidamount()+p.getTOTAL());
@@ -436,31 +439,41 @@ public class ReceiptOptionsDialog extends DialogFragment  {
         Transaction.getInstance(activity).sendToFireBase(receipts, p,day, new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
-
-            }
-        }, new OnCompleteListener() {
-            @Override
-            public void onComplete(@NonNull Task task) {
-
-            }
-        }, new OnSuccessListener() {
-            @Override
-            public void onSuccess(Object o) {
-                ReceiptController.getInstance(activity).update(receipts);
-                PaymentController.getInstance(activity).insert(p);
-                DayController.getInstance(activity).update(day);
-
-                paymentDialog.dismiss();
-                paymentDialog=null;
-                if(activity instanceof  MainOrders){
-                    ((MainOrders)activity).newOrderAndRefresh();
-                }else if(activity instanceof MainReceipt){
-                    ((MainReceipt)activity).refreshReceiptsResume();
-                }
-
+                Toast.makeText(activity, e.getMessage(), Toast.LENGTH_LONG).show();
             }
         });
-        //((MainReceipt)parentActivity).addPayment(r, p);
+        PaymentController.getInstance(activity).getPaymentFromFireBase(p.getCODE(), new OnSuccessListener<QuerySnapshot>() {
+            @Override
+            public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+
+                Payment payment = null;
+                if(queryDocumentSnapshots!= null && queryDocumentSnapshots.getDocuments().size() > 0){
+                    payment = queryDocumentSnapshots.getDocuments().get(0).toObject(Payment.class);
+                }
+
+                if(payment != null){
+                    ReceiptController.getInstance(activity).update(myReceipt);
+                    PaymentController.getInstance(activity).insert(p);
+                    DayController.getInstance(activity).update(day);
+
+                    paymentDialog.dismiss();
+                    paymentDialog=null;
+                    if(activity instanceof  MainOrders){
+                        ((MainOrders)activity).newOrderAndRefresh();
+                    }else if(activity instanceof MainReceipt){
+                        ((MainReceipt)activity).refreshReceiptsResume();
+                    }
+                }else{
+                    Toast.makeText(activity, "Error efectuando el pago, intente otra vez", Toast.LENGTH_LONG).show();
+                }
+            }
+        }, new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Toast.makeText(activity, e.getMessage(), Toast.LENGTH_LONG).show();
+            }
+        });
+
 
     }
 
