@@ -101,7 +101,7 @@ public class ClientSearchDialog extends DialogFragment {
                 ClientRowModel crm = rvList.getAdapter()!= null?((ClientsAdapter)rvList.getAdapter()).getSelected():null;
                 if(crm!= null){
                     dialogCaller.dialogClosed(crm);
-                    //((MainOrders)parentActivity).setSelectedClientReceipt();
+                    Funciones.hideKeyBoard(etSearch, parentActivity);
                     dismiss();
                 }else{
                     Funciones.hideKeyBoard(etSearch,parentActivity);

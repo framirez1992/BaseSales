@@ -150,7 +150,6 @@ public class MaintenanceProducts extends AppCompatActivity implements ListableAc
     @Override
     protected void onStart() {
         super.onStart();
-        setUpListeners();
     }
 
     @Override
@@ -202,71 +201,6 @@ public class MaintenanceProducts extends AppCompatActivity implements ListableAc
     }
 
 
-    public void setUpListeners(){
-      /*  if(type.equals(CODES.ENTITY_TYPE_EXTRA_PRODUCTSFORSALE)) {
-            productsMeasureController.getReferenceFireStore().addSnapshotListener(MaintenanceProducts.this, new EventListener<QuerySnapshot>() {
-                @Override
-                public void onEvent(QuerySnapshot querySnapshot, FirebaseFirestoreException e) {
-                    productsMeasureController.delete(null, null);//limpia la tabla
-
-                    for (DocumentSnapshot ds : querySnapshot) {
-
-                        ProductsMeasure mu = ds.toObject(ProductsMeasure.class);
-                        productsMeasureController.insert(mu);
-                    }
-
-                    //refreshList();
-                }
-            });
-
-
-            productsController.getReferenceFireStore().addSnapshotListener(MaintenanceProducts.this, new EventListener<QuerySnapshot>() {
-                @Override
-                public void onEvent(QuerySnapshot querySnapshot, FirebaseFirestoreException e) {
-                    productsController.delete(null, null);//limpia la tabla
-
-                    for (DocumentSnapshot ds : querySnapshot) {
-
-                        Products mu = ds.toObject(Products.class);
-                        productsController.insert(mu);
-                    }
-
-                    refreshList();
-                }
-            });
-        }else if(type.equals(CODES.ENTITY_TYPE_EXTRA_INVENTORY)){
-            productsMeasureInvController.getReferenceFireStore().addSnapshotListener(new EventListener<QuerySnapshot>() {
-                @Override
-                public void onEvent(QuerySnapshot querySnapshot, FirebaseFirestoreException e) {
-                    productsMeasureInvController.delete(null, null);//limpia la tabla
-
-                    for (DocumentSnapshot ds : querySnapshot) {
-
-                        ProductsMeasure mu = ds.toObject(ProductsMeasure.class);
-                        productsMeasureInvController.insert(mu);
-                    }
-
-                    refreshList();
-                }
-            });
-
-
-            productsInvController.getReferenceFireStore().addSnapshotListener(new EventListener<QuerySnapshot>() {
-                @Override
-                public void onEvent(QuerySnapshot querySnapshot, FirebaseFirestoreException e) {
-                    productsInvController.delete(null, null);//limpia la tabla
-
-                    for (DocumentSnapshot ds : querySnapshot) {
-
-                        Products mu = ds.toObject(Products.class);
-                        productsInvController.insert(mu);
-                    }
-
-                    refreshList();
-                }
-            });
-        }*/
-    }
     public void callAddDialog(boolean isNew){
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
         Fragment prev = getSupportFragmentManager().findFragmentByTag("dialog");

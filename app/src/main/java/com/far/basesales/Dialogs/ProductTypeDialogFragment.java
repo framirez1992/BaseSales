@@ -174,7 +174,7 @@ public  class ProductTypeDialogFragment extends DialogFragment implements  OnFai
                         }
 
                         if(pt != null){
-                                ProductsTypesController.getInstance(getContext()).insert(pt);
+                            ProductsTypesController.getInstance(getContext()).insert(pt);
                             dialogCaller.dialogClosed(pt);
                             dismiss();
                         }else{

@@ -157,7 +157,7 @@ public class BirthDayDialog extends DialogFragment implements ListableActivity {
         Company company = CompanyController.getInstance(parentActivity).getCompany();
         //Convertir caracteres a exadecimales
         //https://norfipc.com/herramientas/escapar-codificar-caracteres-direcciones-url-hexadecimal.php
-        String msg = company.getNAME().replace("&", "%26")+" quiere desearte muchas feliciades en tu dia "+selectedClient.getName()+";";
+        String msg = company.getNAME().replace("&", "%26")+" quiere desearte muchas felicidades en tu dia "+selectedClient.getName()+";";
 
         try {
             String mobile = "1"+selectedClient.getPhone();
