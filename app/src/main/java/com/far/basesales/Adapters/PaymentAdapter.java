@@ -43,7 +43,7 @@ public class PaymentAdapter  extends RecyclerView.Adapter<PaymentAdapter.Payment
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-               // listableActivity.onClick(objects.get(position));
+                listableActivity.onClick(objects.get(position));
             }
         });
 
@@ -70,7 +70,7 @@ public class PaymentAdapter  extends RecyclerView.Adapter<PaymentAdapter.Payment
             String description = obj.getTYPE().equals(CODES.PAYMENTTYPE_CREDIT)?"TARJETA DE CREDITO":"EFECTIVO";
             tvDate.setText(Funciones.getFormatedDateRepDomHour(obj.getDATE()));
             tvDescription.setText(description);
-            tvTotal.setText("$"+Funciones.formatDecimal(obj.getTOTAL()));
+            tvTotal.setText("$"+Funciones.formatMoney(obj.getTOTAL()));
         }
     }
 }

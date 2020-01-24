@@ -51,10 +51,11 @@ public class ReceiptOptionsDialog extends DialogFragment  {
 
     Activity activity;
     public Receipts receipts;
+    Payment lastPayment;
     LinearLayout llProgress, llPrint, llShare, llPayment;
     CardView btnClose;
     TextView tvErrorMessage;
-    Dialog paymentDialog;
+    Dialog paymentDialog ;
     int lastAction=-1;
 
     LinearLayout llProgressPayment;
@@ -279,6 +280,7 @@ public class ReceiptOptionsDialog extends DialogFragment  {
 
     }
 
+
     public void share(){
         AsyncTask<Void, Void, String> a = new AsyncTask<Void, Void, String>() {
             @Override
@@ -407,7 +409,18 @@ public class ReceiptOptionsDialog extends DialogFragment  {
         window.setLayout(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
         window.setBackgroundDrawableResource(android.R.color.transparent);
 
+        Funciones.showKeyBoard(etPaymentAmount);
+
     }
+
+    public void refreshData(){
+        if(activity instanceof  MainOrders){
+            ((MainOrders)activity).newOrderAndRefresh();
+        }else if(activity instanceof MainReceipt){
+            ((MainReceipt)activity).refreshReceiptsResume();
+        }
+    }
+
 
     public void enableViewsPayment(){
         spnPaymentType.setEnabled(true);
@@ -433,7 +446,7 @@ public class ReceiptOptionsDialog extends DialogFragment  {
 
         final Day day = DayController.getInstance(activity).getCurrentOpenDay();
         //String code, String codeReceipt,String codeUser, String codeClient, String type, double subTotal, double tax, double discount, double total
-        final Payment p = new Payment(Funciones.generateCode(), receipts.getCode(), Funciones.getCodeuserLogged(activity),receipts.getCodeclient(), paymentType,0,0,0,paymentAmount, day.getCode());
+        Payment p = new Payment(Funciones.generateCode(), receipts.getCode(), Funciones.getCodeuserLogged(activity),receipts.getCodeclient(), paymentType,0,0,0,paymentAmount, day.getCode());
         p.setDATE(new Date());
         if(p.getTYPE().equals(CODES.PAYMENTTYPE_CASH)){
             day.setCashpaidamount(day.getCashpaidamount()+p.getTOTAL());
@@ -462,17 +475,20 @@ public class ReceiptOptionsDialog extends DialogFragment  {
                 }
 
                 if(payment != null){
+                    lastPayment = payment;
                     ReceiptController.getInstance(activity).update(receipts);
-                    PaymentController.getInstance(activity).insert(p);
+                    PaymentController.getInstance(activity).insert(payment);
                     DayController.getInstance(activity).update(day);
 
                     paymentDialog.dismiss();
                     paymentDialog=null;
-                    if(activity instanceof  MainOrders){
-                        ((MainOrders)activity).newOrderAndRefresh();
-                    }else if(activity instanceof MainReceipt){
-                        ((MainReceipt)activity).refreshReceiptsResume();
+                    refreshData();
+
+                    if(activity instanceof MainReceipt){
+                        ((MainReceipt)activity).showPrintPaymentConfirmation(lastPayment);
                     }
+
+
                 }else{
                     Toast.makeText(activity, "Error efectuando el pago, intente otra vez", Toast.LENGTH_LONG).show();
                     enableViewsPayment();
@@ -519,5 +535,6 @@ public class ReceiptOptionsDialog extends DialogFragment  {
         }
         return true;
     }
+
 
 }

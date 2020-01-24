@@ -345,28 +345,7 @@ public class Funciones {
             e.printStackTrace();
         }
     }
-/*no funciona*/
-    /*
-    public static String getCode(String field, String entity, Context cont){
-            String code = "0000";
-            String sql = "Select CAST(MAX("+field+") AS INTEGER) + 1 from "+entity;
-            Cursor c = DB.getInstance(cont).getReadableDatabase().rawQuery(sql, null);
-            if(c.moveToNext() && c.getString(0) != null){
-                code = c.getString(0);
-            }
-            return code;
-    }
 
-    public String getNextCodeWhithPrefix(String prefix, String field, String entity, Context context){
-        String code = prefix+"0000";
-        String sql = "Select CAST(SUBSTR(MAX("+field+"), "+(prefix.length() + 1)+", LEN("+field+")) AS INTEGER) + 1 from "+entity
-                +" WHERE "+field+" LIKE '"+prefix+"%'";
-        Cursor c = DB.getInstance(context).getReadableDatabase().rawQuery(sql, null);
-        if(c.moveToNext()){
-            code = c.getString(0);
-        }
-        return code;
-    }*/
 
     public static void savePreferences(Context context, String key, Object value){
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);

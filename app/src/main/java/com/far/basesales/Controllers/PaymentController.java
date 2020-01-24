@@ -7,8 +7,13 @@ import android.support.annotation.NonNull;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 
+import com.example.bluetoothlibrary.Printer.Print;
+import com.far.basesales.Adapters.Models.SalesDetailModel;
+import com.far.basesales.CloudFireStoreObjects.Clients;
 import com.far.basesales.CloudFireStoreObjects.Licenses;
 import com.far.basesales.CloudFireStoreObjects.Payment;
+import com.far.basesales.CloudFireStoreObjects.Receipts;
+import com.far.basesales.CloudFireStoreObjects.Users;
 import com.far.basesales.DataBase.DB;
 import com.far.basesales.Generic.KV;
 import com.far.basesales.Globales.CODES;
@@ -26,6 +31,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.WriteBatch;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -263,6 +269,49 @@ public class PaymentController {
 
         ArrayAdapter<KV> adapter = new ArrayAdapter<KV>(context,android.R.layout.simple_list_item_1, data);
         spn.setAdapter(adapter);
+    }
+
+
+    public String printPayment(String codePayment)throws Exception{
+
+        Print p = new Print(context,Print.PULGADAS.PULGADAS_2);
+        CompanyController.getInstance(context).addCompanyToPrint(p);
+        Payment payment = getPaymentByCode(codePayment);
+        Receipts receipt = ReceiptController.getInstance(context).getReceiptByCode(payment.getCODERECEIPT());
+        Clients c = ClientsController.getInstance(context).getClientByCode(receipt.getCodeclient());
+        Users u = UsersController.getInstance(context).getUserByCode(receipt.getCodeuser());
+
+        p.drawText(" ");
+        p.drawText("Fecha: "+Funciones.getFormatedDateRepDomHour(payment.getDATE()));
+        p.drawText("Codigo: "+payment.getCODE());
+        p.drawText(" ");
+        p.drawText("Vendedor: "+u.getUSERNAME());
+        p.drawText("Cliente:  "+c.getNAME());
+        p.drawText(" ");
+        p.addAlign(Print.PRINTER_ALIGN.ALIGN_CENTER);
+        p.drawText("RECIBO DE PAGO");
+        p.drawLine();
+        p.drawText("Detalle");
+        p.drawLine();
+        String paymentMethod ="UNKNOWN";
+        if(payment.getTYPE().equals(CODES.PAYMENTTYPE_CASH)){
+            paymentMethod = "EFECTIVO";
+        }else if(payment.getTYPE().equals(CODES.PAYMENTTYPE_CREDIT)){
+            paymentMethod = "TARJETA DE CREDITO";
+        }
+        p.addAlign(Print.PRINTER_ALIGN.ALIGN_LEFT);
+        p.drawText("Factura: "+receipt.getCode());
+        p.drawText("Pago   :"+paymentMethod);
+        p.drawText("Total pagado: $"+Funciones.formatMoney(payment.getTOTAL()));
+
+        p.drawLine();
+
+        p.drawText(" ");
+        p.drawText(" ");
+
+
+        p.printText(Funciones.getMacAddress(context));
+        return null;
     }
 
 }

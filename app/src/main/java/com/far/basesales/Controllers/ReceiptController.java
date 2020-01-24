@@ -418,13 +418,14 @@ public class ReceiptController {
         Users u = UsersController.getInstance(context).getUserByCode(receipt.getCodeuser());
 
         p.drawText(" ");
-        p.drawText("Fecha: "+new SimpleDateFormat("dd-MM-yyyy HH:mm:ss a").format(receipt.getDate()));
-        p.drawText("No: "+receipt.getCode());
+        p.drawText("Fecha: "+Funciones.getFormatedDateRepDomHour(receipt.getDate()));
+        p.drawText("Codigo: "+receipt.getCode());
         p.drawText(" ");
         p.drawText("Vendedor: "+u.getUSERNAME());
         p.drawText("Cliente:  "+c.getNAME());
         p.drawText(" ");
         p.addAlign(Print.PRINTER_ALIGN.ALIGN_CENTER);
+        p.drawText("FACTURA COMERCIAL");
         p.drawLine();
         p.drawText("Detalle");
         p.drawLine();
@@ -443,8 +444,12 @@ public class ReceiptController {
             p.drawText("Descuento: $"+Funciones.formatMoney(receipt.getDiscount()), Print.TEXT_ALIGN.RIGHT);
         }
         p.drawText("Total a pagar: $"+Funciones.formatMoney(receipt.getTotal()), Print.TEXT_ALIGN.RIGHT);
+        p.drawText(" ");
         p.drawText("Total pagado: $"+Funciones.formatMoney(receipt.getPaidamount()), Print.TEXT_ALIGN.RIGHT);
-        p.drawText("Pendiente: $"+Funciones.formatMoney(receipt.getTotal()-receipt.getPaidamount()), Print.TEXT_ALIGN.RIGHT);
+        if(receipt.getTotal()-receipt.getPaidamount() > 0){
+            p.drawText("Pendiente: $"+Funciones.formatMoney(receipt.getTotal()-receipt.getPaidamount()), Print.TEXT_ALIGN.RIGHT);
+
+        }
 
         p.drawText(" ", Print.TEXT_ALIGN.RIGHT);
         p.drawText(" ", Print.TEXT_ALIGN.RIGHT);
@@ -453,6 +458,8 @@ public class ReceiptController {
         p.printText(Funciones.getMacAddress(context));
         return null;
     }
+
+
 
     public String createPDF(String codeReceipt, int format) throws Exception{
         Writer writer = new Writer(context);

@@ -1,44 +1,69 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.v7.widget.CardView
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_margin="5dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
+        android:orientation="horizontal"
         android:padding="20dp">
 
-        <TextView android:id="@+id/tvDate"
-            android:layout_width="match_parent"
+        <android.support.v7.widget.CardView
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text=""
-            android:textSize="18sp"
-            android:gravity="right"/>
+            app:cardCornerRadius="30dp"
+            app:cardBackgroundColor="@color/colorPrimary"
+            android:layout_gravity="center_vertical">
+            <ImageView
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:src="@drawable/printer"
+                android:tint="@color/white"
+                android:padding="10dp"/>
+        </android.support.v7.widget.CardView>
 
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
-            <TextView android:id="@+id/tvDescription"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text=""
-                android:textSize="18sp"/>
+            android:orientation="vertical"
+            android:paddingLeft="20dp">
 
-            <TextView android:id="@+id/tvTotal"
-                android:layout_width="0dp"
+            <TextView android:id="@+id/tvDate"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
                 android:text=""
-                android:gravity="right"
-                android:textSize="25sp"
-                android:textStyle="bold"/>
+                android:textSize="18sp"
+                android:gravity="right"/>
+
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+                <TextView android:id="@+id/tvDescription"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text=""
+                    android:textSize="18sp"/>
+
+                <TextView android:id="@+id/tvTotal"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text=""
+                    android:gravity="right"
+                    android:textSize="25sp"
+                    android:textStyle="bold"/>
+            </LinearLayout>
         </LinearLayout>
+
     </LinearLayout>
+
+
 
 </android.support.v7.widget.CardView>

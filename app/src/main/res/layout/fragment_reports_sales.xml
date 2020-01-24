@@ -152,7 +152,7 @@
 
                         <TextView android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Total Ventas: "
+                            android:text="Ventas Brutas: "
                             android:textSize="20sp"/>
 
                         <TextView android:id="@+id/tvSalesTotalAmount"
@@ -169,7 +169,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Total Descuento: "
+                            android:text="Descuentos: "
                             android:textSize="20sp"/>
 
                         <TextView  android:id="@+id/tvSalesTotalDiscount"
@@ -186,7 +186,7 @@
 
                         <TextView android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Total Neto: "
+                            android:text="Ventas Netas: "
                             android:textSize="20sp"/>
 
                         <TextView  android:id="@+id/tvSalesNetAmount"
@@ -226,6 +226,22 @@
                             android:textSize="20sp"/>
 
                         <TextView android:id="@+id/tvCreditAmount"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textSize="20sp"/>
+
+                    </TableRow>
+
+                    <TableRow android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                        <TextView android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Total Pagos: "
+                            android:textSize="20sp"/>
+
+                        <TextView android:id="@+id/tvTotalPayments"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:textSize="20sp"/>

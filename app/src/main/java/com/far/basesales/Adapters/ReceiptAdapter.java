@@ -87,8 +87,8 @@ public class ReceiptAdapter extends RecyclerView.Adapter<ReceiptAdapter.ReceiptR
            tvClientName.setText(obj.getClientName());
            tvClientDocument.setText(obj.getClientDocument());
            tvClientPhone.setText(obj.getClientPhone());
-           tvTotal.setText("$"+Funciones.formatDecimal(obj.getTotal()));
-           tvPaid.setText("$"+Funciones.formatDecimal(obj.getPaid()));
+           tvTotal.setText("$"+Funciones.formatMoney(obj.getTotal()));
+           tvPaid.setText("$"+Funciones.formatMoney(obj.getPaid()));
            String status ="UNKNOWN";
            if(obj.getStatus().equals(CODES.CODE_RECEIPT_STATUS_CLOSED)){
               status = "Pagado";

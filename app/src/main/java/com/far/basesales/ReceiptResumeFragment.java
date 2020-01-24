@@ -60,7 +60,7 @@ import java.util.ArrayList;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class ReceiptResumeFragment extends Fragment {
+public class ReceiptResumeFragment extends Fragment implements ListableActivity {
 
     Activity parentActivity;
     TextView tvCode, tvDate, tvClientName, tvDocument, tvPhone, tvStatus, tvSubTotal, tvDiscount, tvTotal, tvTotalPayment;
@@ -70,6 +70,7 @@ public class ReceiptResumeFragment extends Fragment {
     LinearLayout llGoReceipts, llMenu;
     CardView cvDetails, cvPayments;
     LinearLayout llTotal, llTotalPayment;
+    Dialog printPaymentDialog;
 
     public ReceiptResumeFragment() {
         // Required empty public constructor
@@ -262,7 +263,7 @@ public class ReceiptResumeFragment extends Fragment {
                     return;
                 }
                 pb.setVisibility(View.GONE);
-                PaymentAdapter adapter = new PaymentAdapter(parentActivity, (ListableActivity) parentActivity, payments);
+                PaymentAdapter adapter = new PaymentAdapter(parentActivity, ReceiptResumeFragment.this, payments);
                 rvListPayment.setAdapter(adapter);
                 rvListPayment.getAdapter().notifyDataSetChanged();
                 rvListPayment.invalidate();
@@ -459,4 +460,65 @@ public class ReceiptResumeFragment extends Fragment {
         newFragment.show(ft, "dialog");
     }
 
+    @Override
+    public void onClick(Object obj) {
+        if(obj instanceof Payment){
+                showPrintPaymentConfirmation((Payment)obj);
+        }
+    }
+
+
+    public void showPrintPaymentConfirmation(final Payment p){
+        printPaymentDialog = Funciones.getCustomDialog2Btn(parentActivity, parentActivity.getResources().getColor(R.color.colorPrimary), "Print Payment", "Desea imprimir el pago?", R.drawable.printer, new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                printPayment(p);
+                printPaymentDialog.dismiss();
+                printPaymentDialog = null;
+            }
+        }, null);
+        printPaymentDialog.findViewById(R.id.btnNegative).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                printPaymentDialog.dismiss();
+                printPaymentDialog = null;
+            }
+        });
+        printPaymentDialog.setCancelable(false);
+        printPaymentDialog.show();
+
+        Window window = printPaymentDialog.getWindow();
+        window.setLayout(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        window.setBackgroundDrawableResource(android.R.color.transparent);
+    }
+
+    public void printPayment(final Payment payment){
+        AsyncTask<Payment, Void, String> a = new AsyncTask<Payment, Void, String>() {
+            @Override
+            protected String doInBackground(Payment... payments) {
+                String error = null;
+                try{
+                    PaymentController.getInstance(parentActivity).printPayment(payment.getCODE());
+                }catch (Exception e){
+                    error = e.getMessage();
+                }
+                return error;
+            }
+
+            @Override
+            protected void onPostExecute(String s) {
+                super.onPostExecute(s);
+                if(s!= null){
+                    showError(s);
+                    return;
+                }
+            }
+        };
+        a.execute();
+
+    }
+
+    public void showError(String msg){
+        Snackbar.make(getView(), msg, Snackbar.LENGTH_LONG).show();
+    }
 }

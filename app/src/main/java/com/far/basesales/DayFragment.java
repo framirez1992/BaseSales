@@ -46,7 +46,7 @@ public class DayFragment extends Fragment implements  OnSuccessListener<QuerySna
     LinearLayout llLoading, llDayStart, llDayEnd, llLoadingCloseDay;
     TextInputEditText etInitialDateStart, etStart, etEnd;
     TextView btnStartDay, btnEndDay, tvErrorMsg;
-    EditText etSalesCount, etSalesAmount, etCashCount, etCashAmount, etCreditCount,etCreditAmount, etDiscount;
+    EditText etSalesCount, etSalesAmount,etNetSalesAmount, etCashCount, etCashAmount, etCreditCount,etCreditAmount, etDiscount, etTotalPayments;
 
     int lastDatePressed;
     int lastFireBaseaction = 0;
@@ -81,11 +81,13 @@ public class DayFragment extends Fragment implements  OnSuccessListener<QuerySna
         etEnd = view.findViewById(R.id.etEnd);
         etSalesCount = view.findViewById(R.id.etSalesCount);
         etSalesAmount = view.findViewById(R.id.etSalesAmount);
+        etNetSalesAmount = view.findViewById(R.id.etNetSalesAmount);
         etCashCount = view.findViewById(R.id.etCashCount);
         etCashAmount = view.findViewById(R.id.etCashAmount);
         etCreditCount = view.findViewById(R.id.etCreditCount);
         etCreditAmount = view.findViewById(R.id.etCreditAmount);
         etDiscount = view.findViewById(R.id.etDiscount);
+        etTotalPayments = view.findViewById(R.id.etTotalPayments);
 
         btnStartDay.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -214,11 +216,13 @@ public class DayFragment extends Fragment implements  OnSuccessListener<QuerySna
         etEnd.setText(Funciones.getFormatedDateRepDom(new Date()));
         etSalesCount.setText(day.getSalescount()+"");
         etSalesAmount.setText("$"+Funciones.formatMoney(day.getSalesamount()));
+        etNetSalesAmount.setText("$"+Funciones.formatMoney(day.getSalesamount() - day.getDiscountamount()));
         etCashCount.setText((int)day.getCashpaidcount()+"");
         etCashAmount.setText("$"+Funciones.formatMoney(day.getCashpaidamount()));
         etCreditCount.setText((int)day.getCreditpaidcount()+"");
         etCreditAmount.setText("$"+Funciones.formatMoney(day.getCreditpaidamount()));
         etDiscount.setText("$"+Funciones.formatMoney(day.getDiscountamount()));
+        etTotalPayments.setText("$"+Funciones.formatMoney(day.getCreditpaidamount()+ day.getCashpaidamount()));
     }
 
 

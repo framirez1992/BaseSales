@@ -114,6 +114,10 @@ public class MainReceipt extends AppCompatActivity implements ListableActivity, 
         receiptResumeFragment.searchPayments(false);
    }
 
+
+   public void showPrintPaymentConfirmation(Payment payment){
+        receiptResumeFragment.showPrintPaymentConfirmation(payment);
+   }
     @Override
     public void onBackPressed() {
         if(lastFragment instanceof ReceiptResumeFragment){

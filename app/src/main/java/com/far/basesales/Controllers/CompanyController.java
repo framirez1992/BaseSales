@@ -251,13 +251,22 @@ public class CompanyController {
         if(companys.size() > 0){
             name = companys.get(0).getNAME();
             direction = companys.get(0).getADDRESS();
-            phone = companys.get(0).getPHONE();
+            phone = Funciones.formatPhone(companys.get(0).getPHONE());
         }
         p.addAlign(Print.PRINTER_ALIGN.ALIGN_CENTER);
         //p.addImage(R.drawable.ic_action_monetization_on);
-        p.drawText(name);
-        p.drawText(direction);
-        p.drawText(phone);
+        if(!name.equals("NONE")){
+            p.drawText(name);
+        }
+        if(!direction.equals("NONE")){
+            p.drawText(direction);
+        }
+        if(!phone.equals("NONE")){
+            p.drawText(phone);
+        }
+
+
+
         p.drawText("");
         p.addAlign(Print.PRINTER_ALIGN.ALIGN_LEFT);
     }

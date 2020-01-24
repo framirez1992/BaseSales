@@ -47,7 +47,7 @@ public class DayAdapter  extends RecyclerView.Adapter<DayAdapter.DayHolder>{
 
 
     public class DayHolder extends RecyclerView.ViewHolder {
-        TextView tvDateStart,tvDateEnd,  tvSalesCount, tvSalesTotal, tvCashCount,tvCashAmount,  tvCreditCount,tvCreditAmount,  tvDiscountAmount, tvNetAmount;
+        TextView tvDateStart,tvDateEnd,  tvSalesCount, tvSalesTotal, tvCashCount,tvCashAmount,  tvCreditCount,tvCreditAmount,  tvDiscountAmount, tvNetAmount, tvTotalPayment;
         public DayHolder(View itemView) {
             super(itemView);
             tvDateStart = itemView.findViewById(R.id.tvDateStart);
@@ -60,19 +60,21 @@ public class DayAdapter  extends RecyclerView.Adapter<DayAdapter.DayHolder>{
             tvCreditAmount = itemView.findViewById(R.id.tvCreditAmount);
             tvDiscountAmount= itemView.findViewById(R.id.tvDiscountAmount);
             tvNetAmount= itemView.findViewById(R.id.tvNetAmount);
+            tvTotalPayment = itemView.findViewById(R.id.tvTotalPayment);
         }
 
         public void fillData(Day day){
-            tvDateStart.setText(Funciones.getFormatedDateRepDom(day.getDatestart()));
-            tvDateEnd.setText(Funciones.getFormatedDateRepDom(day.getDateend()));
+            tvDateStart.setText(Funciones.getFormatedDateRepDomHour(day.getDatestart()));
+            tvDateEnd.setText(Funciones.getFormatedDateRepDomHour(day.getDateend()));
             tvSalesCount.setText(day.getSalescount()+"");
-            tvSalesTotal.setText(Funciones.formatMoney(day.getSalesamount()));
+            tvSalesTotal.setText("$"+Funciones.formatMoney(day.getSalesamount()));
             tvCashCount.setText(day.getCashpaidcount()+"");
-            tvCashAmount.setText(Funciones.formatMoney(day.getCashpaidamount()));
+            tvCashAmount.setText("$"+Funciones.formatMoney(day.getCashpaidamount()));
             tvCreditCount.setText(day.getCreditpaidcount()+"");
-            tvCreditAmount.setText(Funciones.formatMoney(day.getCreditpaidamount()));
-            tvDiscountAmount.setText(Funciones.formatMoney(day.getDiscountamount()));
-            tvNetAmount.setText(Funciones.formatMoney(day.getSalesamount()-day.getDiscountamount()));
+            tvCreditAmount.setText("$"+Funciones.formatMoney(day.getCreditpaidamount()));
+            tvDiscountAmount.setText("$"+Funciones.formatMoney(day.getDiscountamount()));
+            tvNetAmount.setText("$"+Funciones.formatMoney(day.getSalesamount()-day.getDiscountamount()));
+            tvTotalPayment.setText("$"+Funciones.formatMoney(day.getCreditpaidamount() + day.getCashpaidamount()));
         }
     }
 }

@@ -49,7 +49,7 @@ public class ReportsSales extends Fragment implements OnCompleteListener, OnSucc
     Activity parentActivity;
     Spinner spnMonth, spnYear;
     CardView btnSearch;
-    TextView tvSalesTotalAmount, tvSalesTotalDiscount, tvSalesNetAmount, tvSalesCashAmount, tvCreditAmount;
+    TextView tvSalesTotalAmount, tvSalesTotalDiscount, tvSalesNetAmount, tvSalesCashAmount, tvCreditAmount, tvTotalPayments;
 
     RecyclerView rvList;
     ProgressBar pb;
@@ -89,6 +89,7 @@ public class ReportsSales extends Fragment implements OnCompleteListener, OnSucc
         tvSalesNetAmount = view.findViewById(R.id.tvSalesNetAmount);
         tvSalesCashAmount = view.findViewById(R.id.tvSalesCashAmount);
         tvCreditAmount = view.findViewById(R.id.tvCreditAmount);
+        tvTotalPayments = view.findViewById(R.id.tvTotalPayments);
 
 
         btnSearch.setOnClickListener(new View.OnClickListener() {
@@ -251,11 +252,12 @@ public class ReportsSales extends Fragment implements OnCompleteListener, OnSucc
         String date = year+month;
 
         Day generalDay = DayController.getInstance(parentActivity).getGeneralDay(year, month);
-        tvSalesTotalAmount.setText(Funciones.formatMoney(generalDay.getSalesamount()));
-        tvSalesTotalDiscount.setText(Funciones.formatMoney(generalDay.getDiscountamount()));
-        tvSalesNetAmount.setText(Funciones.formatMoney(generalDay.getSalesamount() - generalDay.getDiscountamount()));
-        tvSalesCashAmount.setText(Funciones.formatMoney(generalDay.getCashpaidamount()));
-        tvCreditAmount.setText(Funciones.formatMoney(generalDay.getCreditpaidamount()));
+        tvSalesTotalAmount.setText("$"+Funciones.formatMoney(generalDay.getSalesamount()));
+        tvSalesTotalDiscount.setText("$"+Funciones.formatMoney(generalDay.getDiscountamount()));
+        tvSalesNetAmount.setText("$"+Funciones.formatMoney(generalDay.getSalesamount() - generalDay.getDiscountamount()));
+        tvSalesCashAmount.setText("$"+Funciones.formatMoney(generalDay.getCashpaidamount()));
+        tvCreditAmount.setText("$"+Funciones.formatMoney(generalDay.getCreditpaidamount()));
+        tvTotalPayments.setText("$"+Funciones.formatMoney(generalDay.getCreditpaidamount() + generalDay.getCashpaidamount()));
 
 
         pb.setVisibility(View.GONE);
