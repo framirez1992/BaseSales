@@ -58,7 +58,7 @@ public class Tablas {
 
    ///////////////////////////////////////////////////////////////////////
     ///////////////////        SQLITE         ///////////////////////////
-   public static final String DB_NAME = "EATIT.db";
+   public static final String DB_NAME = "BASESALES.db";
    public static final String tempOrders = "TempOrders";
     public static final String tempOrdersDetails = "TempOrdersDetails";
 
