@@ -45,7 +45,7 @@ public class ResumenOrderFragment extends Fragment {
     TextView tvTotal;
 
     MainOrders parentActivity;
-    Dialog errorDialog;
+    boolean fragmentCreated;
 
     public ResumenOrderFragment() {
         // Required empty public constructor
@@ -77,7 +77,6 @@ public class ResumenOrderFragment extends Fragment {
     }
 
     public void init(View v){
-        //llSave = v.findViewById(R.id.llSave);
         llCancel = v.findViewById(R.id.llCancel);
         llPay = v.findViewById(R.id.llPay);
         rvList = v.findViewById(R.id.rvResultList);
@@ -111,14 +110,6 @@ public class ResumenOrderFragment extends Fragment {
             }
         });
 
-     /*   llSave.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                llSave.setEnabled(false);
-                Save();
-            }
-        });*/
      llPay.setOnClickListener(new View.OnClickListener() {
          @Override
          public void onClick(View v) {
@@ -137,6 +128,7 @@ public class ResumenOrderFragment extends Fragment {
         });
 
         parentActivity.refreshResume();
+        fragmentCreated = true;
     }
 
 
@@ -153,19 +145,6 @@ public class ResumenOrderFragment extends Fragment {
             return false;
         }
 
-
-       /* Sales s = salesController.getSaleByCode(tempOrdersController.getTempSale().getCODE());
-        //VALIDAR SI LA ORDEN EXISTE. SI ESXISTE SE VA A EDITAR, SI ES ASI DEBEMOS VALIDAR SI ESA ORDEN AUN PERTENECE AL USUARIO QUE LA VA A EDITAR
-        //Y A LA MISMA MESA QUE TIENE ACTUALMENTE (ESTO ES POR SI EL USUARIO ESTA EN EL MODO EDICION y PIDE QUE CAMBIEN LA ORDEN DEL MESA O USUARIO)
-        if(s != null && !s.getCODEUSER().equals(Funciones.getCodeuserLogged(parentActivity))){
-            showErrorDialog("Error", "No es posible editar esta orden. Esta orden ya no pertenece a este usuario");
-            llCancel.performClick();
-            return false;
-        }else if(s!= null && !s.getCODEAREADETAIL().equals(((KV)spnMesas.getSelectedItem()).getKey())){
-            showErrorDialog("Error", "Esta orden fue movida de mesa. Edite nuevamente");
-            llCancel.performClick();
-            return false;
-        }*/
         return true;
     }
     public boolean validQuantitys(){
@@ -179,47 +158,14 @@ public class ResumenOrderFragment extends Fragment {
        return true;
     }
 
-    public void Save(){
-        /*if(validate()){
-            if(salesController.getSaleByCode(tempOrdersController.getTempSale().getCODE()) != null){
-                editOrder();
-            }else {
-                saveOrder();
-            }
-        }
-        llSave.setEnabled(true);*/
-    }
-
-    public void saveOrder(){
-        salesController.save();
-        parentActivity.refresh();
-
-    }
-
-    public void editOrder(){
-        try {
-            Sales s = tempOrdersController.getTempSale();
-            s.setMDATE(null);
-            s.setSTATUS(CODES.CODE_ORDER_STATUS_OPEN);
-
-            salesController.editDetailToFireBase(s, tempOrdersController.getTempSalesDetails(s));
-
-            parentActivity.refresh();
-            //parentActivity.setThemeNormal();
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-    }
 
 
 
     public void refreshList(){
-
-        OrderResumeAdapter adapter = new OrderResumeAdapter(parentActivity, parentActivity, TempOrdersController.getInstance(parentActivity).getOrderDetailModels(((parentActivity).getOrderCode())));
-        rvList.setAdapter(adapter);
-        rvList.getAdapter().notifyDataSetChanged();
-        rvList.invalidate();
-
+            OrderResumeAdapter adapter = new OrderResumeAdapter(parentActivity, parentActivity, TempOrdersController.getInstance(parentActivity).getOrderDetailModels(((parentActivity).getOrderCode())));
+            rvList.setAdapter(adapter);
+            rvList.getAdapter().notifyDataSetChanged();
+            rvList.invalidate();
     }
 
     public void refreshTotal(){
@@ -248,15 +194,7 @@ public class ResumenOrderFragment extends Fragment {
     }
 
 
-    public void showErrorDialog(String title, String msg){
-      errorDialog = Funciones.getCustomDialog(parentActivity,getResources().getColor(R.color.red_700), title, msg, R.drawable.ic_error_white, new View.OnClickListener() {
-           @Override
-           public void onClick(View v) {
-               errorDialog.dismiss();
-               errorDialog=null;
-           }
-       });
-
-      errorDialog.show();
+    public boolean isFragmentCreated(){
+        return fragmentCreated;
     }
 }

@@ -145,9 +145,9 @@ public class ReceiptOptionsDialog extends DialogFragment  {
             @Override
             public void onClick(View v) {
                 if(activity instanceof MainOrders){
-                    ((MainOrders)activity).newOrderAndRefresh();
+                    ((MainOrders)activity).startNewOrder();
                 }else if(activity instanceof MainReceipt){
-                    //((MainReceipt)activity).refreshPayments();
+
                 }
                 dismiss();
             }
@@ -415,7 +415,7 @@ public class ReceiptOptionsDialog extends DialogFragment  {
 
     public void refreshData(){
         if(activity instanceof  MainOrders){
-            ((MainOrders)activity).newOrderAndRefresh();
+            ((MainOrders)activity).startNewOrder();
         }else if(activity instanceof MainReceipt){
             ((MainReceipt)activity).refreshReceiptsResume();
         }

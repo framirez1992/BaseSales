@@ -578,4 +578,9 @@ public class Funciones {
         return d;
     }
 
+    public static String rellenarCeros(int cantCeros, int valor){
+        String val = String.format("%0"+cantCeros+"d", valor); // Filling with zeroes
+        return val;
+    }
+
 }

@@ -15,6 +15,7 @@ public class Tablas {
     //public static final String generalUsersCombos = "Combos";
     public static final String generalUsersCompany = "Company";
     public static final String generalUsersClients = "Clients";
+    public static final String generalUsersCounters = "Counters";
     public static final String generalUsersDay = "Day";
     public static final String generalUsersMeasureUnits = "MeasureUnits";
     public static final String generalUsersMeasureUnitsInv = "MeasureUnitsInv";

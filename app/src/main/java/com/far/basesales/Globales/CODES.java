@@ -64,6 +64,10 @@ public class CODES {
    public static final String CODE_DAY_STATUS_CLOSED = "0";//CERRADA
     public static final String CODE_DAY_STATUS_OPEN = "1";//ABIERTA
 
+    //////////////////////////////////////////////////////////////////
+    /////////////// COUNTERS            //////////////////////////////////
+    public static final String CODE_COUNTER_TYPE_RECIPE = "R";//RECIPES
+
 
 
     //PREFERENCES

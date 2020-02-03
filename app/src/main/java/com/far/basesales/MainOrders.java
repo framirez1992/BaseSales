@@ -36,6 +36,7 @@ import com.example.bluetoothlibrary.BluetoothScan;
 import com.far.basesales.Adapters.Models.ClientRowModel;
 import com.far.basesales.Adapters.Models.OrderDetailModel;
 import com.far.basesales.Adapters.Models.SimpleRowModel;
+import com.far.basesales.CloudFireStoreObjects.Counter;
 import com.far.basesales.CloudFireStoreObjects.Day;
 import com.far.basesales.CloudFireStoreObjects.Payment;
 import com.far.basesales.CloudFireStoreObjects.Products;
@@ -43,6 +44,7 @@ import com.far.basesales.CloudFireStoreObjects.ProductsMeasure;
 import com.far.basesales.CloudFireStoreObjects.Receipts;
 import com.far.basesales.CloudFireStoreObjects.Sales;
 import com.far.basesales.CloudFireStoreObjects.SalesDetails;
+import com.far.basesales.Controllers.CounterController;
 import com.far.basesales.Controllers.DayController;
 import com.far.basesales.Controllers.PaymentController;
 import com.far.basesales.Controllers.ProductsController;
@@ -80,13 +82,10 @@ public class MainOrders extends AppCompatActivity implements ListableActivity, N
     NewOrderFragment newOrderFragment;
     ResumenOrderFragment resumenOrderFragment;
     ReceiptFragment receiptFragment;
-    //ReceipFragment receipFragment;
-    //ReceiptResumeFragment receiptResumeFragment;
     Fragment lastFragment;
 
     TempOrdersController tempOrdersController;
     String orderCode = null;
-    //RelativeLayout rlNotifications;
 
     Receipts lastReceipt;
     Payment lastPayment;
@@ -94,18 +93,11 @@ public class MainOrders extends AppCompatActivity implements ListableActivity, N
     ArrayList<SalesDetails> lastSalesDetails;
     Day lastDay;
 
-
-
-    /*DrawerLayout drawer;
-    NavigationView nav;*/
-
-   /* NotificationsDialog notificationsDialog;
-    WorkedOrdersDialog workedOrdersDialog;*/
     OrderDetailModel objectToEditFromResume = null;
     Dialog dialogConfirmPayment;
     Dialog dialogLoading;
     Dialog errorDialog;
-    Dialog postPayment;
+    Counter receiptCounter = null;
 
     public static final String KEY_ORDERCODE = "KEYORDERCODE";
     boolean editingOrder;
@@ -129,62 +121,14 @@ public class MainOrders extends AppCompatActivity implements ListableActivity, N
         resumenOrderFragment.setParent(this);
         receiptFragment = new ReceiptFragment();
         receiptFragment.setParent(this);
-       /* receipFragment = new ReceipFragment();
-        receipFragment.setMainActivityReference(this);
-        receiptResumeFragment = new ReceiptResumeFragment();
-        receiptResumeFragment.setMainActivityReference(this);*/
 
-
-       /* drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        nav = (NavigationView)findViewById(R.id.nav_view);
-
-        imgMenu.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                try {
-                    if (nav.isShown()) {
-                        drawer.closeDrawer(nav);
-                    } else {
-                        drawer.openDrawer(nav);
-                    }
-                }catch(Exception e){
-                    e.printStackTrace();
-                }
-            }
-        });
-
-
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
-        navigationView.setNavigationItemSelectedListener(MainOrders.this);
-
-        setupUserControls();*/
-
-        // SI SE ENTRA POR PRIMERA VEZ, SI SE GIRA LA PANTALLA NO CORRER OTRA VEZ.
-        if(savedInstanceState == null){
-            prepareNewOrder();
-        }
-        goToNewOrder();
+        startNewOrder();
 
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-       /* productsMeasure.addSnapshotListener(new EventListener<QuerySnapshot>() {
-            @Override
-            public void onEvent(@Nullable QuerySnapshot querySnapshot, @Nullable FirebaseFirestoreException e) {
-                if(querySnapshot == null ){
-                    return;
-                }
-                productsMeasureController.delete(null, null);
-                for(DocumentSnapshot dc: querySnapshot){
-                    ProductsMeasure pm = dc.toObject(ProductsMeasure.class);
-                    productsMeasureController.insert(pm);
-                }
-
-                updateTempSalesDetail();
-            }
-        });*/
     }
 
     @Override
@@ -219,14 +163,8 @@ public class MainOrders extends AppCompatActivity implements ListableActivity, N
 
             if (id == R.id.goMenu) {
                 goToMenu();
-            }/* else if (id == R.id.openOrders) {
-               // callWorkedOrdersDialog();
-            } else if (id == R.id.goReceip) {
-                //showReceiptFragment();
-            }*/
+            }
         }
-        /*drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        drawer.closeDrawer(GravityCompat.START);*/
         return true;
     }
 
@@ -287,18 +225,9 @@ public class MainOrders extends AppCompatActivity implements ListableActivity, N
         if(obj instanceof SimpleRowModel) {
             Products p = ProductsController.getInstance(MainOrders.this).getProductByCode(((SimpleRowModel) obj).getId());
             callAddDialog(p);
-        }/*else if(obj instanceof NotificationRowModel){
-            UserInboxController.getInstance(MainOrders.this).setMessageReaded(((NotificationRowModel) obj).getCode());
-            notificationsDialog.showDetail((NotificationRowModel)obj);
-        }*/else if(obj instanceof OrderDetailModel){
+        }else if(obj instanceof OrderDetailModel){
             objectToEditFromResume = (OrderDetailModel) obj;
-        }/*else if(obj instanceof WorkedOrdersRowModel){
-            workedOrdersDialog.showDetail((WorkedOrdersRowModel) obj);
-        }else if(obj instanceof OrderReceiptModel){
-            OrderReceiptModel orderReceiptModel = (OrderReceiptModel)obj;
-            receiptResumeFragment.setCodeAreaDetail(orderReceiptModel.getMesaID());
-            showReceiptResumeFragment();
-        }*/
+        }
     }
 
 
@@ -352,33 +281,6 @@ public class MainOrders extends AppCompatActivity implements ListableActivity, N
     }
 
 
-    public void editOrder(Sales s){
-        orderCode = s.getCODE();
-        tempOrdersController.delete(null, null);
-        tempOrdersController.delete_Detail(null, null);
-
-        tempOrdersController.insert(s);
-
-        for(SalesDetails sd: salesController.getSalesDetailsByCodeSales(orderCode)){
-            tempOrdersController.insert_Detail(sd);
-        }
-
-        refreshResume();
-        prepareResumeForEdition();
-
-
-        FrameLayout menuFrameLayout = findViewById(R.id.details);
-        FrameLayout resumenFrameLayout = findViewById(R.id.result);
-
-        //Si la visivilidad esta en modo "telefono" mostrar el layout del resumen si actualmente se esta visualizando el "menu"
-        if(menuFrameLayout.getVisibility()== View.VISIBLE && resumenFrameLayout.getVisibility() == View.GONE){
-            menuFrameLayout.setVisibility(View.GONE);
-            resumenFrameLayout.setVisibility(View.VISIBLE);
-        }
-
-        setEditing(true);
-    }
-
     public void deleteOrderLine(OrderDetailModel d){
         String where = TempOrdersController.DETAIL_CODE +" = ? AND "+TempOrdersController.DETAIL_CODESALES+" = ?";
         tempOrdersController.delete_Detail(where, new String[]{d.getCode(), d.getCode_sales()});
@@ -408,34 +310,23 @@ public class MainOrders extends AppCompatActivity implements ListableActivity, N
 
     public void refresh(){
         prepareNewOrder();
-        resumenOrderFragment.refreshList();
-        resumenOrderFragment.refreshTotal();
-        resumenOrderFragment.llCancel.setVisibility(View.GONE);
-        resumenOrderFragment.etNotas.setText("");
-        resumenOrderFragment.llMore.setVisibility(View.GONE);
-        resumenOrderFragment.imgMore.setImageResource(R.drawable.ic_arrow_drop_down);
-
-        receiptFragment.refresh();
-        //resumenOrderFragment.setUpSpinnersAreas();
-
-        newOrderFragment.setUpSpinners();
-    }
-
-
-    public void updateTempSalesDetail(){
-        TempOrdersController.getInstance(MainOrders.this).updatePrices();
-    }
-
-
-
-
-    public void setupUserControls(){
-        MenuItem printOrders = ((NavigationView)findViewById(R.id.nav_view)).getMenu().findItem(R.id.goReceip);
-        printOrders.setVisible(false);
-        if(UserControlController.getInstance(MainOrders.this).printOrders()){
-            printOrders.setVisible(true);
+        if(resumenOrderFragment.isFragmentCreated()){
+            resumenOrderFragment.refreshList();
+            resumenOrderFragment.refreshTotal();
+            resumenOrderFragment.llCancel.setVisibility(View.GONE);
+            resumenOrderFragment.etNotas.setText("");
+            resumenOrderFragment.llMore.setVisibility(View.GONE);
+            resumenOrderFragment.imgMore.setImageResource(R.drawable.ic_arrow_drop_down);
         }
 
+
+        if(receiptFragment.isFragmentCreated()){
+            receiptFragment.refresh();
+        }
+
+        if(newOrderFragment.isFragmentCreated()){
+            newOrderFragment.setUpSpinners();
+        }
     }
 
 
@@ -545,7 +436,7 @@ public class MainOrders extends AppCompatActivity implements ListableActivity, N
 
 
 
-        Transaction.getInstance(MainOrders.this).sendToFireBase(sales, salesDetails, receipt, payment, day, this);
+        Transaction.getInstance(MainOrders.this).sendToFireBase(sales, salesDetails, receipt, payment, day,receiptCounter, this);
         ReceiptController.getInstance(MainOrders.this).searchReceiptFromFireBase(receipt.getCode(), new OnSuccessListener<QuerySnapshot>() {
             @Override
             public void onSuccess(QuerySnapshot querySnapshot) {
@@ -605,9 +496,40 @@ public class MainOrders extends AppCompatActivity implements ListableActivity, N
 
     }
 
-    public void newOrderAndRefresh(){
-        refresh();
-        goToNewOrder();
-        showMenu();
+
+    public void startNewOrder(){
+        showLoadingDialog();
+        CounterController.getInstance(MainOrders.this).searchCounterFromFireBase(Funciones.getCodeuserLogged(MainOrders.this), CODES.CODE_COUNTER_TYPE_RECIPE, new OnSuccessListener<QuerySnapshot>() {
+            @Override
+            public void onSuccess(QuerySnapshot querySnapshot) {
+                receiptCounter = null;
+                if (querySnapshot != null && querySnapshot.size() > 0) {
+                    receiptCounter = querySnapshot.getDocuments().get(0).toObject(Counter.class);
+                }
+
+                if (receiptCounter == null) {
+                    //String code,String codeuser,  String type, int count, String data, String data2, String data3
+                    receiptCounter = new Counter(Funciones.generateCode(), Funciones.getCodeuserLogged(MainOrders.this), CODES.CODE_COUNTER_TYPE_RECIPE, 0, "", "", "");
+                }
+
+
+                receiptCounter.setCount(receiptCounter.getCount()+1);
+
+                refresh();
+                goToNewOrder();
+                showMenu();
+                closeLoadingDialog();
+
+
+            }
+        }, new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                closeLoadingDialog();
+                Toast.makeText(MainOrders.this, e.getMessage(), Toast.LENGTH_LONG).show();
+                finish();
+            }
+        });
     }
+
 }

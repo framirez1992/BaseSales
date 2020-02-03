@@ -12,7 +12,7 @@ import java.util.HashMap;
 
 
 public class Receipts {
-    String code,codeuser,codesale,codeclient, ncf, status, codeday;
+    String code,receiptnumber, codeuser,codesale,codeclient, ncf, status, codeday;
     double subtotal, taxes, discount, total, paidamount;
     private @ServerTimestamp
     Date date, mdate;
@@ -20,8 +20,9 @@ public class Receipts {
     public Receipts(){
 
     }
-    public Receipts(String code, String codeUser,String codesale, String codeclient,  String status, String ncf, double subtotal, double taxes, double discount, double total, double paidAmount, String codeday){
+    public Receipts(String code,String receiptnumber,  String codeUser,String codesale, String codeclient,  String status, String ncf, double subtotal, double taxes, double discount, double total, double paidAmount, String codeday){
         this.code = code;
+        this.receiptnumber = receiptnumber;
         this.codeuser = codeUser;
         this.codesale = codesale;
         this.codeclient = codeclient;
@@ -37,6 +38,7 @@ public class Receipts {
 
     public Receipts(Cursor c){
         this.code = c.getString(c.getColumnIndex(ReceiptController.CODE));
+        this.receiptnumber = c.getString(c.getColumnIndex(ReceiptController.RECEIPTNUMBER));
         this.codeuser =c.getString(c.getColumnIndex(ReceiptController.CODEUSER));
         this.codesale = c.getString(c.getColumnIndex(ReceiptController.CODESALE));
         this.codeclient = c.getString(c.getColumnIndex(ReceiptController.CODECLIENT));
@@ -57,6 +59,7 @@ public class Receipts {
 
         HashMap<String, Object> data = new HashMap<>();
         data.put(ReceiptController.CODE,code);
+        data.put(ReceiptController.RECEIPTNUMBER,receiptnumber);
         data.put(ReceiptController.CODEUSER, codeuser);
         data.put(ReceiptController.CODESALE, codesale);
         data.put(ReceiptController.CODECLIENT, codeclient);
@@ -188,5 +191,11 @@ public class Receipts {
         this.mdate = mdate;
     }
 
+    public String getReceiptnumber() {
+        return receiptnumber;
+    }
 
+    public void setReceiptnumber(String receiptnumber) {
+        this.receiptnumber = receiptnumber;
+    }
 }

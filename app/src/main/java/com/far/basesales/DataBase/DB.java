@@ -5,7 +5,6 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
-import com.far.basesales.CloudFireStoreObjects.Day;
 import com.far.basesales.Controllers.ClientsController;
 import com.far.basesales.Controllers.CompanyController;
 import com.far.basesales.Controllers.DayController;
@@ -31,11 +30,11 @@ import com.far.basesales.Controllers.TempOrdersController;
 import com.far.basesales.Controllers.UserControlController;
 import com.far.basesales.Controllers.UserTypesController;
 import com.far.basesales.Controllers.UsersController;
+import com.far.basesales.Controllers.VersionAppController;
 import com.far.basesales.Globales.Tablas;
 import com.far.basesales.Utils.Funciones;
 
 import java.util.Date;
-import java.util.concurrent.TimeUnit;
 
 public class DB extends SQLiteOpenHelper {
     private static DB instance;
@@ -58,6 +57,7 @@ public class DB extends SQLiteOpenHelper {
 
             //db.execSQL(AreasController.QUERY_CREATE);
             //db.execSQL(AreasDetailController.QUERY_CREATE);
+            db.execSQL(VersionAppController.QUERY_CREATE);
             db.execSQL(DayController.QUERY_CREATE);
             db.execSQL(LicenseController.QUERY_CREATE);
             db.execSQL(UsersController.QUERY_CREATE);

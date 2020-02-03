@@ -3,6 +3,7 @@ package com.far.basesales.Controllers;
 import android.content.Context;
 import android.support.annotation.NonNull;
 
+import com.far.basesales.CloudFireStoreObjects.Counter;
 import com.far.basesales.CloudFireStoreObjects.Day;
 import com.far.basesales.CloudFireStoreObjects.Payment;
 import com.far.basesales.CloudFireStoreObjects.Receipts;
@@ -39,7 +40,7 @@ public class Transaction {
     }
 
 
-    public void sendToFireBase(Sales sale, ArrayList<SalesDetails> salesDetails, Receipts receipt, Payment payment, Day day,  OnFailureListener failureListener){
+    public void sendToFireBase(Sales sale, ArrayList<SalesDetails> salesDetails, Receipts receipt, Payment payment, Day day, Counter counter,  OnFailureListener failureListener){
             WriteBatch lote = db.batch();
 
             if (sale.getMDATE() == null) {
@@ -69,6 +70,10 @@ public class Transaction {
                 lote.set(PaymentController.getInstance(context).getReferenceFireStore().document(payment.getCODE()), payment.toMap());
             }else{
                 lote.update(PaymentController.getInstance(context).getReferenceFireStore().document(payment.getCODE()), payment.toMap());
+            }
+
+            if(counter != null){
+                lote.set(CounterController.getInstance(context).getReferenceFireStore().document(counter.getCode()), counter.toMap());
             }
 
             lote.set(DayController.getInstance(context).getReferenceFireStore().document(day.getCode()), day.toMap());

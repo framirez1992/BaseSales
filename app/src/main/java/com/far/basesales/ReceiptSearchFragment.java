@@ -69,10 +69,6 @@ public class ReceiptSearchFragment extends Fragment implements DialogCaller  {
     Spinner spnStatus;
     RecyclerView rvList;
     ProgressBar pb;
-    //ImageView imgSearch,imgMenu, imgHideSearch;
-    //LinearLayout llMenu;
-    //LinearLayout llSearch;
-    //EditText etSearch;
 
     CardView btnSearch, btnSearchClients;
     CheckBox cbClient, cbDate;

@@ -54,6 +54,7 @@ public class NewOrderFragment extends Fragment {
     String lastSubType = null;
     String lastSeach = null;
     MainOrders parentActivity;
+    boolean fragmentCreated;
 
     public NewOrderFragment() {
         // Required empty public constructor
@@ -178,6 +179,7 @@ public class NewOrderFragment extends Fragment {
 
 
         ProductsTypesController.getInstance(parentActivity).fillSpinner(spnFamilia, false);
+        fragmentCreated = true;
     }
 
     AdapterView.OnItemSelectedListener spnFamiliaListener = new AdapterView.OnItemSelectedListener() {
@@ -319,6 +321,10 @@ public class NewOrderFragment extends Fragment {
         ImageViewCompat.setImageTintList(imgSeach, ColorStateList.valueOf(getResources().getColor(android.R.color.white)));
         ImageViewCompat.setImageTintList(imgHideSearch, ColorStateList.valueOf(getResources().getColor(android.R.color.white)));
         ImageViewCompat.setImageTintList(imgBell, ColorStateList.valueOf(getResources().getColor(android.R.color.white)));
+    }
+
+    public boolean isFragmentCreated(){
+        return fragmentCreated;
     }
 
 

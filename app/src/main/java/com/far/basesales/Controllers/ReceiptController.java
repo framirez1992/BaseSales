@@ -56,13 +56,12 @@ import java.util.Date;
 
 public class ReceiptController {
     public static final String TABLE_NAME ="RECEIPTS";
-    //public static final String TABLE_NAME_HISTORY ="RECEIPTS_HISTORY";
-    public static  String CODE = "code",CODEUSER = "codeuser", CODESALE = "codesale",CODECLIENT="codeclient", STATUS = "status",  NCF = "ncf" ,SUBTOTAL="subtotal",TAXES = "taxes", DISCOUNT="discount", TOTAL = "total",PAIDAMOUNT="paidamount",
+    public static  String CODE = "code",RECEIPTNUMBER = "receiptnumber", CODEUSER = "codeuser", CODESALE = "codesale",CODECLIENT="codeclient", STATUS = "status",  NCF = "ncf" ,SUBTOTAL="subtotal",TAXES = "taxes", DISCOUNT="discount", TOTAL = "total",PAIDAMOUNT="paidamount",
             CODEDAY = "codeday", DATE = "date", MDATE = "mdate";
     public static String QUERY_CREATE = "CREATE TABLE "+TABLE_NAME+"("
-            +CODE+" TEXT,"+CODEUSER+" TEXT,"+CODESALE+" TEXT, "+CODECLIENT+" TEXT,  "+STATUS+" TEXT, "+NCF+" TEXT,"+SUBTOTAL+" NUMERIC,"+TAXES+" NUMERIC,"+DISCOUNT+" NUMERIC, "+TOTAL+", "+PAIDAMOUNT+" NUMERIC, "+CODEDAY+" TEXT,  " +
+            +CODE+" TEXT, "+RECEIPTNUMBER+" TEXT,  "+CODEUSER+" TEXT,"+CODESALE+" TEXT, "+CODECLIENT+" TEXT,  "+STATUS+" TEXT, "+NCF+" TEXT,"+SUBTOTAL+" NUMERIC,"+TAXES+" NUMERIC,"+DISCOUNT+" NUMERIC, "+TOTAL+", "+PAIDAMOUNT+" NUMERIC, "+CODEDAY+" TEXT,  " +
             ""+DATE+" TEXT, "+MDATE+" TEXT)";
-    public static String[] columns = new String[]{CODE,CODEUSER,CODESALE, CODECLIENT, STATUS, NCF,SUBTOTAL,TAXES,DISCOUNT,TOTAL,PAIDAMOUNT,CODEDAY,  DATE, MDATE};
+    public static String[] columns = new String[]{CODE,RECEIPTNUMBER, CODEUSER,CODESALE, CODECLIENT, STATUS, NCF,SUBTOTAL,TAXES,DISCOUNT,TOTAL,PAIDAMOUNT,CODEDAY,  DATE, MDATE};
     Context context;
     FirebaseFirestore db;
     private static ReceiptController instance;
@@ -90,6 +89,7 @@ public class ReceiptController {
     public long insert(Receipts r){
         ContentValues cv = new ContentValues();
         cv.put(CODE,r.getCode() );
+        cv.put(RECEIPTNUMBER,r.getReceiptnumber() );
         cv.put(CODEUSER, r.getCodeuser());
         cv.put(CODESALE, r.getCodesale());
         cv.put(CODECLIENT, r.getCodeclient());
@@ -111,6 +111,7 @@ public class ReceiptController {
     public long update(Receipts r){
         ContentValues cv = new ContentValues();
         cv.put(CODE,r.getCode() );
+        cv.put(RECEIPTNUMBER,r.getReceiptnumber() );
         cv.put(CODEUSER, r.getCodeuser());
         cv.put(CODESALE, r.getCodesale());
         cv.put(CODECLIENT, r.getCodeclient());
@@ -419,7 +420,7 @@ public class ReceiptController {
 
         p.drawText(" ");
         p.drawText("Fecha: "+Funciones.getFormatedDateRepDomHour(receipt.getDate()));
-        p.drawText("Codigo: "+receipt.getCode());
+        p.drawText("No: "+receipt.getReceiptnumber());
         p.drawText(" ");
         p.drawText("Vendedor: "+u.getUSERNAME());
         p.drawText("Cliente:  "+c.getNAME());
@@ -514,7 +515,7 @@ public class ReceiptController {
         Header header=null;
         if(company!= null){
             Bitmap logo =Picasso.with(context).load(company.getLOGO()).get();
-            Image i = new Image(/*BitmapFactory.decodeResource(context.getResources(),R.drawable.optica)*/logo, 100f, 100f);
+            Image i = new Image(logo, 100f, 100f);
             header = new Header(company.getNAME(), company.getADDRESS(), Funciones.formatPhone(company.getPHONE()), company.getADDRESS2(), i);
         }else{
             Image i = new Image(BitmapFactory.decodeResource(context.getResources(),R.drawable.optica));
@@ -528,12 +529,11 @@ public class ReceiptController {
 
 
         obj.add(header.getLogo().center());
-        //obj.add(new LineItem(header.getName()).bold().center());
         obj.add(new LineItem(header.getAddress()).bold().center());
         obj.add(new LineItem(header.getPhone()).bold().center());
         obj.add(new LineItem(" "));
         obj.add(new LineItem("Fecha: "+new SimpleDateFormat("dd-MM-yyyy HH:mm:ss a").format(receipts.getDate())));
-        obj.add(new LineItem("No: "+receipts.getCode()));
+        obj.add(new LineItem("No: "+receipts.getReceiptnumber()));
         obj.add(new LineItem(" "));
         obj.add(new LineItem("Vendedor: "+u.getUSERNAME()));
         obj.add(new LineItem("Cliente:  "+c.getName()));
