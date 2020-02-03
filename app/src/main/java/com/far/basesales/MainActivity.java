@@ -78,6 +78,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         fragmentMaintenance.setParentActivity(MainActivity.this);
 
         logoFragment = new LogoFragment();
+        logoFragment.setParentActivity(this);
 
         dayFragment = new DayFragment();
         dayFragment.setParentActivity(MainActivity.this);
