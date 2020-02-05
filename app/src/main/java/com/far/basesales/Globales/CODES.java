@@ -99,14 +99,18 @@ public class CODES {
     public static final String USERSCONTROL_TARGET_USER_ROL = "1";
     public static final String USERSCONTROL_TARGET_COMPANY = "2";
 
-    public static final String USER_CONTROL_CREATEORDER = "CREATEORDER";//modulo de menu (para crear ordenes)
-    public static final String USER_CONTROL_CHARGE_ORDERS = "CHARGE_ORDERS";//modulo de facturacion (cobrar)
-    public static final String USER_CONTROL_MODIFYORDER = "MODIFYORDER";//editar ordenes desde el modulo de menu
-    public static final String USER_CONTROL_ANULATEORDER = "ANULATEORDER";//anular ordenes desde el modulo de menu
-    public static final String USER_CONTROL_PRINTORDERS = "PRINTORDERS";//imprimir ordenes
-    //RECIBOS
-    public static final String USER_CONTROL_MULTIPAYMENT="MULTIPAYMENT";//Permite hacerle multiples pagos (abonar) un recibo.
+    public static final String USERSCONTROL_COMPANY = "COMPANY";//habilita el mantenimiento de empresas
+    public static final String USERSCONTROL_CLIENTS = "CLIENTS";//habilita el mantenimiento de clientes, (de lo contrario el cliente se agrega manual)
+    public static final String USERSCONTROL_PRODUCTS_MEASURE = "PRODUCTSMEASURE";//habilita products measure y venta de productos con multiples unidades de medida
+    public static final String USERSCONTROL_SALES = "SALES";//habilita el modulo de ventas
+    public static final String USERSCONTROL_SALES_DISCOUNT = "SALES_DISCOUNT";//Descuento en ventas
+    public static final String USERSCONTROL_PRODUCTS = "PRODUCTS";//habilita el modulo de productos
+    public static final String USERSCONTROL_PRODUCT_PRICES_RANGE = "PRODUCT_PRICES_RANGE";//habilita el modulo de ventas
 
+    public static final String USERSCONTROL_MULTIPAYMENT="MULTIPAYMENT";//Permite hacerle multiples pagos (abonar) un recibo. (de lo contrario las ventas deben pagarse completas)
+    public static final String USERSCONTROL_PRINTER="PRINTER";//habilita impresion
+
+    public static final String USERSCONTROL_RECEIPTS = "RECEIPTS";//habilita el modulo de recibos
 
 
     //////////////////////////////////

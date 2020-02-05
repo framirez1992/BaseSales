@@ -356,5 +356,6 @@ public class MaintenanceProducts extends AppCompatActivity implements ListableAc
     public void dialogClosed(Object o) {
         refreshList();
     }
+
 }
 

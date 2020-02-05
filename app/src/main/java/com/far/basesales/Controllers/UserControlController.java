@@ -9,6 +9,7 @@ import android.widget.Spinner;
 
 import com.far.basesales.Adapters.Models.SimpleSeleccionRowModel;
 import com.far.basesales.Adapters.Models.UserControlRowModel;
+import com.far.basesales.CloudFireStoreObjects.Day;
 import com.far.basesales.CloudFireStoreObjects.Licenses;
 import com.far.basesales.CloudFireStoreObjects.UserControl;
 import com.far.basesales.CloudFireStoreObjects.Users;
@@ -23,6 +24,7 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentChange;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.WriteBatch;
@@ -37,7 +39,7 @@ public class UserControlController {
     public static String QUERY_CREATE = "CREATE TABLE "+TABLE_NAME+" ("
             +CODE+" TEXT, "+TARGET+" TEXT,"+TARGETCODE+" TEXT, "+CONTROL+" TEXT," +VALUE+" TEXT, "+ACTIVE+" BOOLEAN, "+
             DATE+" TEXT, "+MDATE+" TEXT)";
-    public static String[]RolesControl = new String[]{CODES.USER_CONTROL_CREATEORDER,  CODES.USER_CONTROL_CHARGE_ORDERS};
+    //public static String[]RolesControl = new String[]{CODES.USER_CONTROL_CREATEORDER,  CODES.USER_CONTROL_CHARGE_ORDERS};
 
     FirebaseFirestore db;
     Context context;
@@ -293,36 +295,6 @@ public class UserControlController {
         return null;
     }
 
-    public boolean createOrders(){
-        String c = searchControl(CODES.USER_CONTROL_CREATEORDER);
-        return (c != null);
-    }
-
-
-    public boolean chargeOrders(){
-        String c = searchControl(CODES.USER_CONTROL_CHARGE_ORDERS);
-        return (c != null);
-    }
-
-    public boolean printOrders(){
-        String c = searchControl(CODES.USER_CONTROL_PRINTORDERS);
-        return (c != null);
-    }
-
-    public boolean editOrders(){
-        String c = searchControl(CODES.USER_CONTROL_MODIFYORDER);
-        return (c != null);
-    }
-
-    public boolean cancelOrders(){
-        String c = searchControl(CODES.USER_CONTROL_ANULATEORDER);
-        return (c != null);
-    }
-
-    public boolean multiPayment(){
-        String c = searchControl(CODES.USER_CONTROL_MULTIPAYMENT);
-        return (c != null);
-    }
 
 
 
@@ -380,7 +352,7 @@ public class UserControlController {
 
 
 
-    public String searchControl(String control){
+    /*public String searchControl(String control){
         String result = null;
         String sql = "SELECT "+VALUE+" " +
                 "FROM "+TABLE_NAME+" " +
@@ -390,6 +362,26 @@ public class UserControlController {
                 CODES.USERSCONTROL_TARGET_USER,u.getCODE(),
                 CODES.USERSCONTROL_TARGET_USER_ROL,u.getROLE(),
                 CODES.USERSCONTROL_TARGET_COMPANY,u.getCOMPANY() };
+        try {
+            Cursor c = DB.getInstance(context).getReadableDatabase().rawQuery(sql, args);
+            if (c.moveToFirst()) {
+                result = c.getString(0);
+            }
+            c.close();
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+
+        return result;
+    }*/
+
+
+    public String searchSimpleControl(String control){
+        String result = null;
+        String sql = "SELECT "+VALUE+" " +
+                "FROM "+TABLE_NAME+" " +
+                "WHERE "+CONTROL+" = ? AND "+ACTIVE+" = ?  ";
+        String[]args = new String[]{control, "1" };
         try {
             Cursor c = DB.getInstance(context).getReadableDatabase().rawQuery(sql, args);
             if (c.moveToFirst()) {
@@ -499,7 +491,7 @@ public class UserControlController {
     public ArrayList<SimpleSeleccionRowModel> getUsersControlSSRM( String targerCodeUser){
         ArrayList<SimpleSeleccionRowModel> list = new ArrayList<>();
         try {
-            String controls = getControlsQueryUser();
+            String controls = "";//getControlsQueryUser();
             String sql;
             if(targerCodeUser.equals("-1")){
                  sql = "SELECT c.CODE as CODE, c.DESCRIPTION as DESCRIPTION, 0 as CHECKED " +
@@ -588,17 +580,17 @@ public class UserControlController {
 
 
     public static String getControlsQueryRol(){
-        String controls = "(SELECT CODE, DESCRIPTION, TARGET FROM  ( " +
+        //String controls = "(SELECT CODE, DESCRIPTION, TARGET FROM  ( " +
                 /*"SELECT '"+CODES.USER_CONTROL_CREATEORDER+"' as CODE, 'Create orders' as DESCRIPTION, '"+CODES.USERSCONTROL_TARGET_USER_ROL +"' as TARGET "+
                 "UNION " +
                 "SELECT '"+CODES.USER_CONTROL_CHARGE_ORDERS+"' as CODE, 'Charge orders' as DESCRIPTION,  '"+CODES.USERSCONTROL_TARGET_USER_ROL +"' as TARGET " +
                 "UNION " +*/
-                "SELECT '"+CODES.USER_CONTROL_MULTIPAYMENT+"' as CODE, 'Abono a facturas' as DESCRIPTION,  '"+CODES.USERSCONTROL_TARGET_USER_ROL +"' as TARGET " +
-                " ) )";
-        return controls;
+               // "SELECT '"+CODES.USER_CONTROL_MULTIPAYMENT+"' as CODE, 'Abono a facturas' as DESCRIPTION,  '"+CODES.USERSCONTROL_TARGET_USER_ROL +"' as TARGET " +
+               // " ) )";
+        return"";// controls;
     }
 
-    public static String getControlsQueryUser(){
+   /* public static String getControlsQueryUser(){
         //String RolesControls =  getControlsQueryRol();
         String controls = //"(" +
                // "SELECT * FROM " +
@@ -613,7 +605,7 @@ public class UserControlController {
                // "SELECT * FROM "+RolesControls+"  " +
               //  ")";
         return controls;
-    }
+    }*/
 
     /**
      * llena un spinner con una lista de los roles que pueden despachar ordenes (CONTROL DISPATCHORDER activo para el rol)
@@ -665,21 +657,57 @@ public class UserControlController {
     }*/
 
 
-    public void searchChanges(OnSuccessListener<QuerySnapshot> success, OnCompleteListener<QuerySnapshot> complete, OnFailureListener failure){
+  public ArrayList<SimpleSeleccionRowModel> getAdminUserControlSSRM(){
+      ArrayList<SimpleSeleccionRowModel> list = new ArrayList<>();
+      list.add(new SimpleSeleccionRowModel(CODES.USERSCONTROL_COMPANY, "Modulo de empresas", false));
+      list.add(new SimpleSeleccionRowModel(CODES.USERSCONTROL_CLIENTS, "Modulo de clientes", false));
+      list.add(new SimpleSeleccionRowModel(CODES.USERSCONTROL_PRODUCTS_MEASURE, "Modulo de medidas", false));
 
-        Date mdate = DB.getLastMDateSaved(context, TABLE_NAME);
+      list.add(new SimpleSeleccionRowModel(CODES.USERSCONTROL_PRODUCTS, "Modulo de productos", false));
+      list.add(new SimpleSeleccionRowModel(CODES.USERSCONTROL_SALES, "Modulo de ventas", false));
+      list.add(new SimpleSeleccionRowModel(CODES.USERSCONTROL_PRODUCT_PRICES_RANGE, "Habilita el rango de precios en ventas", false));
+      list.add(new SimpleSeleccionRowModel(CODES.USERSCONTROL_SALES_DISCOUNT, "Habilita descuentos en ventas", false));
+
+      list.add(new SimpleSeleccionRowModel(CODES.USERSCONTROL_MULTIPAYMENT, "Habilita abonos a facturas", false));
+
+      list.add(new SimpleSeleccionRowModel(CODES.USERSCONTROL_PRINTER, "Habilita impresion", false));
+
+
+      list.add(new SimpleSeleccionRowModel(CODES.USERSCONTROL_RECEIPTS, "Habilita modulo de recibos", false));
+
+      return list;
+  }
+
+    public void searchChanges(boolean all, OnSuccessListener<QuerySnapshot> success,  OnFailureListener failure){
+
+        Date mdate = all?null: DB.getLastMDateSaved(context, TABLE_NAME);
         if(mdate != null){
             getReferenceFireStore().
                     whereGreaterThan(MDATE, mdate).//mayor que, ya que las fechas (la que buscamos de la DB) tienen hora, minuto y segundos.
                     get().
-                    addOnSuccessListener(success).addOnCompleteListener(complete).
+                    addOnSuccessListener(success).
                     addOnFailureListener(failure);
         }else{//TODOS
             getReferenceFireStore().
                     get().
-                    addOnSuccessListener(success).addOnCompleteListener(complete).
+                    addOnSuccessListener(success).
                     addOnFailureListener(failure);
         }
 
     }
+
+
+    public void consumeQuerySnapshot(boolean clear, QuerySnapshot querySnapshot){
+        if(clear){
+            delete(null, null);
+        }
+        if (querySnapshot != null && querySnapshot.getDocuments()!= null && querySnapshot.getDocuments().size() > 0) {
+            for(DocumentSnapshot doc: querySnapshot){
+                UserControl obj = doc.toObject(UserControl.class);
+                insert(obj);
+            }
+        }
+
+    }
+
 }

@@ -21,9 +21,9 @@
             android:textStyle="bold"
             android:textSize="15sp"/>
 
-        <CheckBox android:id="@+id/cbCheck"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+        <ImageView android:id="@+id/cbCheck"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
             android:layout_gravity="center_vertical"/>
     </LinearLayout>
 

@@ -6,6 +6,7 @@ import android.database.Cursor;
 import android.support.annotation.NonNull;
 
 import com.far.basesales.Adapters.Models.NewOrderProductModel;
+import com.far.basesales.Adapters.Models.ProductMeasureRowModel;
 import com.far.basesales.Adapters.Models.ProductRowModel;
 import com.far.basesales.CloudFireStoreObjects.Licenses;
 import com.far.basesales.CloudFireStoreObjects.Products;
@@ -36,12 +37,13 @@ public class ProductsController {
 
     public static final String TABLE_NAME ="PRODUCTS";
     public static  String CODE = "code", DESCRIPTION = "description",
-            TYPE = "type",SUBTYPE = "subtype",  COMBO = "combo", DATE = "date", MDATE="mdate";
-    public static String[] columns = new String[]{CODE, DESCRIPTION,TYPE, SUBTYPE, COMBO, DATE, MDATE};
+            TYPE = "type",SUBTYPE = "subtype",PRICE="price",
+    RANGE ="range", MINPRICE="minprice", MAXPRICE = "maxprice",  COMBO = "combo",ENABLED = "enabled", DATE = "date", MDATE="mdate";
+    public static String[] columns = new String[]{CODE, DESCRIPTION,TYPE, SUBTYPE,PRICE, RANGE, MINPRICE, MAXPRICE, COMBO,ENABLED,  DATE, MDATE};
 
     public static String QUERY_CREATE = "CREATE TABLE "+TABLE_NAME+"("
-            +CODE+" TEXT, "+DESCRIPTION+" TEXT, "+TYPE+" TEXT, "+SUBTYPE+" TEXT, "+
-            COMBO+" BOOLEAN, "+DATE+" TEXT, "+MDATE+" TEXT)";
+            +CODE+" TEXT, "+DESCRIPTION+" TEXT, "+TYPE+" TEXT, "+SUBTYPE+" TEXT, "+PRICE+" DECIMAL, "+RANGE+" TEXT, "+MINPRICE+" DECIMAL, "+MAXPRICE+" DECIMAL,  "+
+            COMBO+" TEXT, "+ENABLED+" TEXT,  "+DATE+" TEXT, "+MDATE+" TEXT)";
     Context context;
     FirebaseFirestore db;
     static ProductsController instance;
@@ -74,7 +76,12 @@ public class ProductsController {
         cv.put(DESCRIPTION,p.getDESCRIPTION());
         cv.put(TYPE, p.getTYPE());
         cv.put(SUBTYPE,p.getSUBTYPE() );
+        cv.put(PRICE, p.getPRICE());
+        cv.put(RANGE, p.isRANGE());
+        cv.put(MINPRICE, p.getMINPRICE());
+        cv.put(MAXPRICE, p.getMAXPRICE());
         cv.put(COMBO,p.isCOMBO() );
+        cv.put(ENABLED,p.isENABLED() );
         cv.put(DATE, Funciones.getFormatedDate(p.getDATE()));
         cv.put(MDATE, Funciones.getFormatedDate(p.getMDATE()));
 
@@ -91,7 +98,12 @@ public class ProductsController {
         cv.put(DESCRIPTION,p.getDESCRIPTION());
         cv.put(TYPE, p.getTYPE());
         cv.put(SUBTYPE,p.getSUBTYPE());
+        cv.put(PRICE, p.getPRICE());
+        cv.put(RANGE, p.isRANGE());
+        cv.put(MINPRICE, p.getMINPRICE());
+        cv.put(MAXPRICE, p.getMAXPRICE());
         cv.put(COMBO,p.isCOMBO() );
+        cv.put(ENABLED,p.isENABLED() );
         cv.put(MDATE, Funciones.getFormatedDate(p.getMDATE()));
 
         long result = DB.getInstance(context).getWritableDatabase().update(TABLE_NAME,cv,where, args);
@@ -206,6 +218,103 @@ public class ProductsController {
         return result;
 
     }
+
+
+    public ArrayList<NewOrderProductModel> getNewProductRowModelsWithoutMeasures(String where, String[] args, String campoOrder){
+        ArrayList<NewOrderProductModel> result = new ArrayList<>();
+        if(campoOrder == null){campoOrder = DESCRIPTION;}
+        where=((where != null)? "AND  "+where:"");
+        String data = "";
+        try {
+
+            String sql = "SELECT * FROM ("+
+                    "SELECT toc."+TempOrdersController.DETAIL_CODE+" AS CODEORDERDETAIL, p."+CODE+" as CODE, p."+DESCRIPTION+" AS DESCRIPTION, ifnull(toc."+TempOrdersController.DETAIL_QUANTITY+", 0) AS QUANTITY, " +
+                    "ifnull(toc."+TempOrdersController.DETAIL_CODEUND+", p."+CODE+" ) as MEASURE,ifnull(toc."+TempOrdersController.DETAIL_MANUALPRICE+", p."+PRICE+") as MANUALPRICE, " +
+                    "ifnull(toc."+TempOrdersController.DETAIL_POSITION+", 0) as POSITION, pt."+ProductsTypesController.CODE+" as PTCODE, pt."+ProductsTypesController.DESCRIPTION+" as PTDESCRIPTION, " +
+                    "pst."+ProductsSubTypesController.CODE+" AS PSTCODE, pst."+ProductsSubTypesController.DESCRIPTION+" AS PSTDESCRIPTION, p."+MDATE+" AS MDATE, ifnull(pc."+ProductsControlController.BLOQUED+", 0) as BLOQUED " +
+                    "FROM "+TABLE_NAME+" p " +
+                    "INNER JOIN "+ProductsTypesController.TABLE_NAME+" pt ON pt."+ProductsTypesController.CODE+" = p."+TYPE+" "+
+                    "INNER JOIN "+ProductsSubTypesController.TABLE_NAME+" pst ON pst."+ProductsSubTypesController.CODE+" = "+SUBTYPE+" "+
+                    "LEFT JOIN "+TempOrdersController.TABLE_NAME_DETAIL+" toc  on toc."+TempOrdersController.DETAIL_CODEPRODUCT+" = p."+CODE+" "+
+                    "LEFT JOIN "+ProductsControlController.TABLE_NAME+" pc on pc."+ProductsControlController.CODEPRODUCT+" = p."+ProductsController.CODE+" "+
+                    "WHERE p."+ENABLED+" = '1' "+where+" " +
+                    "ORDER BY toc."+TempOrdersController.DETAIL_POSITION+" ASC " +
+                    ")"+
+                    "GROUP BY  "+CODE+" "+
+                    "ORDER BY  "+DESCRIPTION+" ASC";
+            Cursor c = DB.getInstance(context).getReadableDatabase().rawQuery(sql, args);
+
+            while(c.moveToNext()){
+                String codeOrderdetail = c.getString(c.getColumnIndex("CODEORDERDETAIL"));
+                String code = c.getString(c.getColumnIndex("CODE"));
+                String desc = c.getString(c.getColumnIndex("DESCRIPTION"));
+                String qty = String.valueOf(c.getInt(c.getColumnIndex("QUANTITY")));
+                String measure = c.getString(c.getColumnIndex("MEASURE"));
+                String manualPrice = c.getString(c.getColumnIndex("MANUALPRICE"));
+                String position =  c.getString(c.getColumnIndex("POSITION"));
+                String blocked = c.getString(c.getColumnIndex("BLOQUED"));
+                data+="DESC:"+desc+" MEASURE: "+measure+" ORDER:"+position+"\n";
+
+                result.add(new NewOrderProductModel(codeOrderdetail,
+                        code,
+                        desc,
+                        qty,
+                        measure,
+                        manualPrice,
+                        blocked,
+                        ProductsMeasureController.getInstance(context).getProductsMeasureKVByCodeProduct(c.getString(c.getColumnIndex("CODE")))));
+            }
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+
+        return result;
+
+    }
+
+
+
+    public ArrayList<ProductMeasureRowModel> getDefaultProductMeasure(String codeProduct){
+        ArrayList<ProductMeasureRowModel> result = new ArrayList<>();
+        try {
+            if(getProductByCode(codeProduct) != null){
+                String sql = "SELECT "+CODE+" AS CODEMEASURE, '' AS MEASUREDESCRIPTION, " +
+                        " ifnull("+RANGE+", '0') as RANGE,ifnull("+MINPRICE+", 0) as MINPRICE, ifnull("+MAXPRICE+", 0) as MAXPRICE,   ifnull("+PRICE+", 0) as PRICE " +
+                        "FROM " + TABLE_NAME + "  " +
+                        "WHERE " + CODE + " = ? AND ENABLED = ?";
+
+                Cursor c = DB.getInstance(context).getReadableDatabase().rawQuery(sql, new String[]{codeProduct, "1"});
+
+                //String codeMeasure,String measureDescription,String amount,  boolean priceRange,String minPrice, String maxPrice,  boolean checked
+                while (c.moveToNext()) {
+                    result.add(new ProductMeasureRowModel(
+                            c.getString(c.getColumnIndex("CODEMEASURE")),
+                            c.getString(c.getColumnIndex("MEASUREDESCRIPTION")),
+                            c.getDouble(c.getColumnIndex("PRICE")),
+                            c.getString(c.getColumnIndex("RANGE")).equals("1"),
+                            c.getDouble(c.getColumnIndex("MINPRICE")),
+                            c.getDouble(c.getColumnIndex("MAXPRICE")),
+                            true));
+                } c.close();
+            }else{
+                result.add(new ProductMeasureRowModel(
+                        codeProduct,
+                        "DEFAULT",
+                        0.0,
+                        false,
+                        0.0,
+                        0.0,
+                        false));
+            }
+
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+
+        return result;
+
+    }
+
 
     public void getDataFromFireBase(String key, OnSuccessListener<QuerySnapshot> onSuccessListener,
                                     OnFailureListener onFailureListener){

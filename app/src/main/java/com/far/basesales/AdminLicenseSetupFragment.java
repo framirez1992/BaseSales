@@ -44,7 +44,7 @@ public class AdminLicenseSetupFragment extends Fragment {
         btnTokens = view.findViewById(R.id.btnTokens);
         btnUserDevices = view.findViewById(R.id.btnUserDevices);
         btnUsers = view.findViewById(R.id.btnUsers);
-        //btnControls = view.findViewById(R.id.btnControls);
+        btnControls = view.findViewById(R.id.btnControls);
 
         btnTokens.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -81,14 +81,14 @@ public class AdminLicenseSetupFragment extends Fragment {
             }
         });
 
-        /*btnControls.setOnClickListener(new View.OnClickListener() {
+        btnControls.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent i = new Intent(getContext(), MaintenanceUsersControl.class);
+                Intent i = new Intent(getContext(), AdminLicenseUsersControl.class);
                 i.putExtra(CODES.EXTRA_ADMIN_LICENSE, licenses);
                 startActivity(i);
             }
-        });*/
+        });
 
         if(licenses != null){
             ((TextView)view.findViewById(R.id.tvLicenceDescription)).setText(licenses.getCODE()+" - "+licenses.getCLIENTNAME());

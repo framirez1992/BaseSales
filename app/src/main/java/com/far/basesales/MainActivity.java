@@ -136,8 +136,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         Users u = usersController.getUserByCode(Funciones.getCodeuserLogged(MainActivity.this));
         TextView tvUser = (nav.getHeaderView(0).findViewById(R.id.tvUserName));
         tvUser.setText(u != null ? u.getUSERNAME() : "UNKNOWN");
-
-        setUpForUserType();
         setInitialFragment();
 
     }
@@ -149,7 +147,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         usersController.getReferenceFireStore().addSnapshotListener(MainActivity.this,usersListener);
         devicesController.getReferenceFireStore(licenseController.getLicense()).addSnapshotListener(MainActivity.this,deviceListener);
         usersDevicesController.getReferenceFireStore(licenseController.getLicense()).addSnapshotListener(MainActivity.this,userDevicesListener);
-        userControlController.getReferenceFireStore().addSnapshotListener(MainActivity.this,userControlListener);
 
     }
 
@@ -158,6 +155,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         super.onResume();
         searchBirthDays();
         //licenseController.setLastUpdateToFireBase();//Actualiza la licencia
+        setupUserControls();
     }
 
     @Override
@@ -211,17 +209,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             } else if(id == R.id.logout){
                 logout();
             }else  {
-                if(usersController.isSuperUser() || usersController.isAdmin()) {//SU o Administrador;
                     fragmentMaintenance.setLastModule(id);
                     if(lastFragment instanceof  MaintenanceFragment){
                      fragmentMaintenance.loadModule(id);
                     }else{
                         showMaintenanceFragment();
                     }
-
-                }else {
-                    showLogoFragment();
-                }
             }
 
         }
@@ -331,26 +324,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
     };
 
-    public EventListener<QuerySnapshot> userControlListener = new EventListener<QuerySnapshot>() {
-        @Override
-        public void onEvent(@Nullable QuerySnapshot querySnapshot, @Nullable FirebaseFirestoreException e) {
-
-            if(e != null){
-                Toast.makeText(MainActivity.this, e.getMessage()+" - "+e.getLocalizedMessage(), Toast.LENGTH_LONG).show();
-                return;
-            }
-
-            if (querySnapshot != null && querySnapshot.getDocuments()!= null && querySnapshot.getDocuments().size() > 0) {
-                userControlController.delete(null, null);
-
-                for(DocumentSnapshot doc: querySnapshot){
-                    UserControl uc = doc.toObject(UserControl.class);
-                    userControlController.insert(uc);
-                }
-            }
-            setUpForUserType();
-        }
-    };
 
     public boolean validateUser(Users u){
 
@@ -384,7 +357,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     }
 
-    public void setUpForUserType(){
+    public void setupUserControls(){
+        UserControlController uc = UserControlController.getInstance(MainActivity.this);
+        MenuItem mantenimientoEmpresas = nav.getMenu().findItem(R.id.goMantCompany);
         MenuItem mantenimientoInventario = nav.getMenu().findItem(R.id.goMantInventario);
         MenuItem mantenimientoProductos = nav.getMenu().findItem(R.id.goMantProductos);
         MenuItem mantenimientoUsuarios = nav.getMenu().findItem(R.id.goMantUsuarios);
@@ -395,33 +370,30 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         MenuItem reportes = nav.getMenu().findItem(R.id.goReports);
 
         mantenimientoInventario.setVisible(false);
-        mantenimientoProductos.setVisible(false);
+        mantenimientoProductos.setVisible(uc.searchSimpleControl(CODES.USERSCONTROL_PRODUCTS)!=null?true:false);
         mantenimientoUsuarios.setVisible(false);
-        mantenimientoClientes.setVisible(false);
+        mantenimientoClientes.setVisible(uc.searchSimpleControl(CODES.USERSCONTROL_CLIENTS)!=null?true:false);
         mantenimientoControles.setVisible(false);
-        crearOrdenes.setVisible(false);
-        facturar.setVisible(false);
-        reportes.setVisible(true);
+        crearOrdenes.setVisible(uc.searchSimpleControl(CODES.USERSCONTROL_SALES)!=null?true:false);
+        facturar.setVisible(uc.searchSimpleControl(CODES.USERSCONTROL_RECEIPTS)!=null?true:false);
+        mantenimientoEmpresas.setVisible(uc.searchSimpleControl(CODES.USERSCONTROL_COMPANY)!=null?true:false);
+        reportes.setVisible(false);
 
-        //if(UserControlController.getInstance(MainActivity.this).createOrders()){
-            nav.getMenu().findItem(R.id.goMenu).setVisible(true);
-        //}
-        //if(UserControlController.getInstance(MainActivity.this).chargeOrders()){
-            nav.getMenu().findItem(R.id.goReceip).setVisible(true);
-        //}
-
-        if(usersController.isSuperUser() || usersController.isAdmin()){//SU o Administrador
-            mantenimientoProductos.setVisible(/*usersController.isSuperUser()*/true);
-            //mantenimientoUsuarios.setVisible(/*usersController.isSuperUser()*/true);
-            mantenimientoClientes.setVisible(/*usersController.isSuperUser()*/true);
-            mantenimientoControles.setVisible(usersController.isSuperUser());
-
-            //rearOrdenes.setVisible(usersController.isSuperUser());
-            //facturar.setVisible(usersController.isSuperUser());
-            //reportes.setVisible(true);
+        if(usersController.isSuperUser()){//SU o Administrador
+            mantenimientoInventario.setVisible(true);
+            mantenimientoProductos.setVisible(true);
+            mantenimientoUsuarios.setVisible(true);
+            mantenimientoClientes.setVisible(true);
+            mantenimientoControles.setVisible(true);
+            crearOrdenes.setVisible(true);
+            facturar.setVisible(true);
+            mantenimientoEmpresas.setVisible(true);
+            reportes.setVisible(true);
         }
 
+
     }
+
 
     public void setInitialFragment(){
         if(usersController.isSuperUser() || usersController.isAdmin()) {//SU o Administrador

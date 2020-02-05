@@ -31,6 +31,7 @@ import com.far.basesales.Controllers.ProductsSubTypesController;
 import com.far.basesales.Controllers.ProductsSubTypesInvController;
 import com.far.basesales.Controllers.ProductsTypesController;
 import com.far.basesales.Controllers.ProductsTypesInvController;
+import com.far.basesales.Controllers.UserControlController;
 import com.far.basesales.Generic.KV;
 import com.far.basesales.Globales.CODES;
 import com.far.basesales.Interfases.DialogCaller;
@@ -66,6 +67,7 @@ public class ProductsDialogfragment extends DialogFragment implements ListableAc
     CardView btnApply;
     ProductMeasureRowModel selectedRowModel;
 
+    UserControlController userControlController;
     ProductsController productsController;
     ProductsInvController productsInvController;
     ArrayList<ProductMeasureRowModel> selected = new ArrayList<>() ;
@@ -101,6 +103,7 @@ public class ProductsDialogfragment extends DialogFragment implements ListableAc
         setStyle(style, theme);
         productsController = ProductsController.getInstance(getActivity());
         productsInvController = ProductsInvController.getInstance(getActivity());
+        userControlController = UserControlController.getInstance(getActivity());
 
     }
 
@@ -113,8 +116,6 @@ public class ProductsDialogfragment extends DialogFragment implements ListableAc
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-
-
         return inflater.inflate(R.layout.dialog_add_edit_product, container, true);
     }
 
@@ -291,21 +292,15 @@ public class ProductsDialogfragment extends DialogFragment implements ListableAc
 
     public void SaveProduct(){
         try {
-            String code = etCode.getText().toString();
-            String description = etName.getText().toString();
-            String productType = ((KV)spnFamily.getSelectedItem()).getKey();
-            String productSubType = ((KV)spnGroup.getSelectedItem()).getKey();
-            toInsertObject = new Products(code, description, productType, productSubType, false);
-            toInsertObject.setDATE(new Date());
-
-            toInsertProductMeasure = new ArrayList<>();
-            for(ProductMeasureRowModel ssrm: selected){
-                //String code, String codeProduct, String codeMeasure,double price,boolean range, double minPrice, double maxPrice, boolean enabled, String date, String mdate
-                toInsertProductMeasure.add(new ProductsMeasure(Funciones.generateCode(), code, ssrm.getCodeMeasure(),ssrm.getAmount(),ssrm.isPriceRange(), ssrm.getMinPrice(),ssrm.getMaxPrice(),ssrm.isChecked(), null, null));
+            if(userControlController.searchSimpleControl(CODES.USERSCONTROL_PRODUCTS_MEASURE) != null){
+               insertProductWithMeasure();
+            }else{
+                toInsertProductMeasure = null;
+                insertProductWithoutMeasure();
             }
 
             if(type.equals(CODES.ENTITY_TYPE_EXTRA_PRODUCTSFORSALE)){
-                productsController.sendToFireBase(toInsertObject, toInsertProductMeasure, this);
+
                 productsController.searchProductFromFireBase(toInsertObject.getCODE(), new OnSuccessListener<QuerySnapshot>() {
                     @Override
                     public void onSuccess(QuerySnapshot querySnapshot) {
@@ -339,22 +334,16 @@ public class ProductsDialogfragment extends DialogFragment implements ListableAc
 
     public void EditProduct(){
         try {
-            Products products = tempObj;
-            products.setDESCRIPTION(etName.getText().toString());
-            products.setTYPE(((KV)spnFamily.getSelectedItem()).getKey());
-            products.setSUBTYPE(((KV)spnGroup.getSelectedItem()).getKey());
-            products.setMDATE(new Date());
 
-            toInsertProductMeasure = new ArrayList<>();
-            for(ProductMeasureRowModel ssrm: selected){
-                //String code, String codeProduct, String codeMeasure,double price,boolean range, double minPrice, double maxPrice, boolean enabled, String date, String mdate
-                toInsertProductMeasure.add(new ProductsMeasure(Funciones.generateCode(), products.getCODE(), ssrm.getCodeMeasure(),ssrm.getAmount(),
-                        ssrm.isPriceRange(),ssrm.getMinPrice(),ssrm.getMaxPrice() ,true, null, null));
+            if(userControlController.searchSimpleControl(CODES.USERSCONTROL_PRODUCTS_MEASURE) != null){
+               updateProductWithMeasure();
+            }else{
+                toInsertProductMeasure = null;
+                updateProductWithoutMeasure();
             }
 
             if(type.equals(CODES.ENTITY_TYPE_EXTRA_PRODUCTSFORSALE)){
-                productsController.sendToFireBase(products, toInsertProductMeasure, this);
-                productsController.searchProductFromFireBase(products.getCODE(), new OnSuccessListener<QuerySnapshot>() {
+                productsController.searchProductFromFireBase(tempObj.getCODE(), new OnSuccessListener<QuerySnapshot>() {
                     @Override
                     public void onSuccess(QuerySnapshot querySnapshot) {
                         Products p = null;
@@ -373,9 +362,9 @@ public class ProductsDialogfragment extends DialogFragment implements ListableAc
                         }
                     }
                 }, this);
-            }else if(type.equals(CODES.ENTITY_TYPE_EXTRA_INVENTORY)){
+            }/*else if(type.equals(CODES.ENTITY_TYPE_EXTRA_INVENTORY)){
                 productsInvController.sendToFireBase(products, toInsertProductMeasure);
-            }
+            }*/
 
         }catch(Exception e){
             e.printStackTrace();
@@ -409,16 +398,23 @@ public class ProductsDialogfragment extends DialogFragment implements ListableAc
 
     public void fillMeasures(){
 
+        boolean controlProductMeasure =userControlController.searchSimpleControl(CODES.USERSCONTROL_PRODUCTS_MEASURE)!= null;
         if(tempObj != null) {
             if(type.equals(CODES.ENTITY_TYPE_EXTRA_PRODUCTSFORSALE)){
-                selected.addAll(ProductsMeasureController.getInstance(getActivity()).getSSRMByCodeProduct((tempObj).getCODE()));
+
+                if(controlProductMeasure){
+                    selected.addAll(ProductsMeasureController.getInstance(getActivity()).getSSRMByCodeProduct((tempObj).getCODE()));
+                }else{
+                    selected.addAll(productsController.getDefaultProductMeasure(tempObj.getCODE()));
+                }
             }else if(type.equals(CODES.ENTITY_TYPE_EXTRA_INVENTORY)){
                // selectedObjs.addAll(ProductsMeasureInvController.getInstance(getActivity()).getSSRMByCodeProduct(((Products) tempObj).getCODE()));
             }
         }
         ArrayList<ProductMeasureRowModel> arr = null;
         if(type.equals(CODES.ENTITY_TYPE_EXTRA_PRODUCTSFORSALE)){
-            arr =  MeasureUnitsController.getInstance(getActivity()).getUnitMeasuresSSRM(null, null, null);
+            arr =  controlProductMeasure?MeasureUnitsController.getInstance(getActivity()).getUnitMeasuresSSRM(null, null, null)
+            :productsController.getDefaultProductMeasure(etCode.getText().toString());
         }else if(type.equals(CODES.ENTITY_TYPE_EXTRA_INVENTORY)){
             //arr = MeasureUnitsInvController.getInstance(getActivity()).getUnitMeasuresSSRM(null, null, null);
         }
@@ -587,6 +583,95 @@ public class ProductsDialogfragment extends DialogFragment implements ListableAc
             where = ProductsMeasureController.CODE+" = ?";
             ProductsMeasureController.getInstance(getContext()).update(pm,where, new String[]{pm.getCODE()});
         }
+
+    }
+
+
+    public void insertProductWithMeasure(){
+        String code = etCode.getText().toString();
+        String description = etName.getText().toString();
+        String productType = ((KV)spnFamily.getSelectedItem()).getKey();
+        String productSubType = ((KV)spnGroup.getSelectedItem()).getKey();
+
+        toInsertObject = new Products(code, description, productType, productSubType, false);
+        toInsertProductMeasure = new ArrayList<>();
+        for(ProductMeasureRowModel ssrm: selected){
+            //String code, String codeProduct, String codeMeasure,double price,boolean range, double minPrice, double maxPrice, boolean enabled, String date, String mdate
+            toInsertProductMeasure.add(new ProductsMeasure(Funciones.generateCode(), code, ssrm.getCodeMeasure(),ssrm.getAmount(),ssrm.isPriceRange(), ssrm.getMinPrice(),ssrm.getMaxPrice(),ssrm.isChecked(), null, null));
+        }
+        toInsertObject.setDATE(new Date());
+        productsController.sendToFireBase(toInsertObject, toInsertProductMeasure, this);
+    }
+
+    public void updateProductWithMeasure(){
+        Products products = tempObj;
+        products.setDESCRIPTION(etName.getText().toString());
+        products.setTYPE(((KV)spnFamily.getSelectedItem()).getKey());
+        products.setSUBTYPE(((KV)spnGroup.getSelectedItem()).getKey());
+        products.setMDATE(new Date());
+
+        toInsertProductMeasure = new ArrayList<>();
+        for(ProductMeasureRowModel ssrm: selected){
+            //String code, String codeProduct, String codeMeasure,double price,boolean range, double minPrice, double maxPrice, boolean enabled, String date, String mdate
+            toInsertProductMeasure.add(new ProductsMeasure(Funciones.generateCode(), products.getCODE(), ssrm.getCodeMeasure(),ssrm.getAmount(),
+                    ssrm.isPriceRange(),ssrm.getMinPrice(),ssrm.getMaxPrice() ,true, null, null));
+        }
+
+        productsController.sendToFireBase(products, toInsertProductMeasure, this);
+
+    }
+
+
+    public void insertProductWithoutMeasure(){
+        String code = etCode.getText().toString();
+        String description = etName.getText().toString();
+        String productType = ((KV)spnFamily.getSelectedItem()).getKey();
+        String productSubType = ((KV)spnGroup.getSelectedItem()).getKey();
+        double price=0.0, minprice=0.0, maxprice=0.0;
+        boolean enabled = false;
+        boolean range = false;
+
+        for(ProductMeasureRowModel ssrm: selected){
+            price = ssrm.getAmount();
+            minprice = ssrm.getMinPrice();
+            maxprice = ssrm.getMaxPrice();
+            enabled = ssrm.isChecked();
+            range = ssrm.isPriceRange();
+        }
+        //String code, String description, String type,String subType, double price,boolean enabled, boolean range, double minprice, double maxprice, boolean combo
+        toInsertObject = new Products(code, description, productType, productSubType,price, enabled, range, minprice, maxprice,  false);
+        productsController.sendToFireBase(toInsertObject, this);
+    }
+
+
+    public void updateProductWithoutMeasure(){
+
+        double price=0.0, minprice=0.0, maxprice=0.0;
+        boolean enabled = false;
+        boolean range = false;
+
+        for(ProductMeasureRowModel ssrm: selected){
+            price = ssrm.getAmount();
+            minprice = ssrm.getMinPrice();
+            maxprice = ssrm.getMaxPrice();
+            enabled = ssrm.isChecked();
+            range = ssrm.isPriceRange();
+        }
+
+        Products products = tempObj;
+        products.setDESCRIPTION(etName.getText().toString());
+        products.setTYPE(((KV)spnFamily.getSelectedItem()).getKey());
+        products.setSUBTYPE(((KV)spnGroup.getSelectedItem()).getKey());
+        products.setPRICE(price);
+        products.setMINPRICE(minprice);
+        products.setMAXPRICE(maxprice);
+        products.setENABLED(enabled);
+        products.setRANGE(range);
+        products.setMDATE(new Date());
+
+
+        productsController.sendToFireBase(products, this);
+
 
     }
 

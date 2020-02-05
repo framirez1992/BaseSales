@@ -7,9 +7,9 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CheckBox;
-import android.widget.CompoundButton;
+import android.widget.ImageView;
 import android.widget.TextView;
+
 
 import com.far.basesales.Adapters.Models.SimpleSeleccionRowModel;
 import com.far.basesales.R;
@@ -20,21 +20,12 @@ public class SimpleSelectionRowAdapter extends RecyclerView.Adapter<SimpleSelect
 
     Activity activity;
     ArrayList<SimpleSeleccionRowModel> objects;
-    ArrayList<SimpleSeleccionRowModel> selectedObjects;
-    boolean noEditable;
 
-    public SimpleSelectionRowAdapter(Activity act, ArrayList<SimpleSeleccionRowModel> objs, ArrayList<SimpleSeleccionRowModel> selectedObjs) {
+    public SimpleSelectionRowAdapter(Activity act, ArrayList<SimpleSeleccionRowModel> objs) {
         this.activity = act;
         this.objects = objs;
-        this.selectedObjects = selectedObjs;
     }
 
-    public SimpleSelectionRowAdapter(Activity act, ArrayList<SimpleSeleccionRowModel> objs, ArrayList<SimpleSeleccionRowModel> selectedObjs, boolean noEditable) {
-        this.activity = act;
-        this.objects = objs;
-        this.selectedObjects = selectedObjs;
-        this.noEditable = noEditable;
-    }
     @NonNull
     @Override
     public SimpleSelectionRowHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -45,41 +36,16 @@ public class SimpleSelectionRowAdapter extends RecyclerView.Adapter<SimpleSelect
 
     @Override
     public void onBindViewHolder(@NonNull SimpleSelectionRowHolder holder, final int position) {
-
-        if(isSelected(objects.get(position))){
-            objects.get(position).setChecked(true);
-        }
-        CheckBox cb =  holder.getCbCheck();
-        cb.setOnCheckedChangeListener(null);
         holder.fillData(objects.get(position));
-
-        if(noEditable) {
-            cb.setEnabled(false);
-            cb.setFocusable(false);
-
-        }else {
-            cb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
-                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                    objects.get(position).setChecked(isChecked);
-                    if (isChecked && findPositionInSeleted(objects.get(position)) == -1) {//SI NO ESTA AGREGALO
-                        selectedObjects.add(objects.get(position));
-                    } else {
-                        selectedObjects.remove(findPositionInSeleted(objects.get(position)));
-                    }
-
+                public void onClick(View v) {
+                    SimpleSeleccionRowModel obj = objects.get(position);
+                    obj.setChecked(!obj.isChecked());
                     notifyDataSetChanged();
                 }
             });
 
-            holder.itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    CheckBox cbCheck = v.findViewById(R.id.cbCheck);
-                    cbCheck.setChecked(!cbCheck.isChecked());
-                }
-            });
-        }
 
 
     }
@@ -93,37 +59,32 @@ public class SimpleSelectionRowAdapter extends RecyclerView.Adapter<SimpleSelect
         return objects;
     }
 
-    public boolean isSelected(SimpleSeleccionRowModel srm){
-        for(SimpleSeleccionRowModel selected: selectedObjects){
-            if(srm.getCode().equals(selected.getCode())){
-                return true;
+    public ArrayList<SimpleSeleccionRowModel> getSelectedObjects() {
+        ArrayList<SimpleSeleccionRowModel> selected = new ArrayList<>();
+        for(SimpleSeleccionRowModel o: objects){
+            if(o.isChecked()){
+                selected.add(o);
             }
         }
-        return false;
+        return selected;
     }
 
-    public void setObjects(ArrayList<SimpleSeleccionRowModel> objs){
-        this.objects.clear();
-        this.objects.addAll(objs);
+    public void setSelections(ArrayList<SimpleSeleccionRowModel> selections){
+        for (SimpleSeleccionRowModel ssrm: selections){
+            for(SimpleSeleccionRowModel item: objects){
+                if(item.getCode().equals(ssrm.getCode())){
+                    item.setChecked(true);
+                    break;
+                }
+            }
+        }
+
         notifyDataSetChanged();
     }
-    public int findPositionInSeleted(SimpleSeleccionRowModel srm){
-        for(int i = 0; i < selectedObjects.size(); i++){
-            if(selectedObjects.get(i).getCode().equals(srm.getCode())){
-                return i;
-            }
-        }
-        return  -1;
-    }
-
-    public ArrayList<SimpleSeleccionRowModel> getSelectedObjects() {
-        return selectedObjects;
-    }
-
 
     public class SimpleSelectionRowHolder extends RecyclerView.ViewHolder {
         TextView tvName;
-        CheckBox cbCheck;
+        ImageView cbCheck;
         public SimpleSelectionRowHolder(View itemView) {
             super(itemView);
             tvName = itemView.findViewById(R.id.tvName);
@@ -132,13 +93,8 @@ public class SimpleSelectionRowAdapter extends RecyclerView.Adapter<SimpleSelect
 
         public void fillData(SimpleSeleccionRowModel model){
             tvName.setText(model.getName());
-            cbCheck.setOnCheckedChangeListener(null);
-            cbCheck.setChecked(model.isChecked());
+            cbCheck.setImageResource(model.isChecked()?R.drawable.ic_check_box:R.drawable.ic_check_box_outline_blank);
 
-        }
-
-        public CheckBox getCbCheck() {
-            return cbCheck;
         }
     }
 }

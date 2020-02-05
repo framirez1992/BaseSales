@@ -24,6 +24,7 @@ public class MaintenanceFragment extends Fragment {
     ImageView btnFamily, btnGroup, btnMeasures, btnProducts,btnFamilyInv, btnGroupInv, btnMeasuresInv, btnProductsInv,btnCompany,  btnUsers, btnUserRol/*, btnControls*/
     ,btnActualizationCenter, btnUsersControl, btnRolesControl, btnClients, btnPrinter;
     LinearLayout llMainScreen,llClients, llMaintenanceControls, llMaintenanceUsers, llMaintenanceProducts,llMaintenanceInventory,llMaintenanceCompany,  llConfiguration;
+    LinearLayout llMeasure;
     int lastModule=-1;
 
     public MaintenanceFragment() {
@@ -50,6 +51,8 @@ public class MaintenanceFragment extends Fragment {
         llMaintenanceCompany = view.findViewById(R.id.llMaintenanceCompany);
         llClients = view.findViewById(R.id.llClients);
         llConfiguration = view.findViewById(R.id.llConfiguration);
+
+        llMeasure = view.findViewById(R.id.llMeasure);
 
         btnFamily = view.findViewById(R.id.btnFamily);
         btnGroup = view.findViewById(R.id.btnGroups);
@@ -111,6 +114,12 @@ public class MaintenanceFragment extends Fragment {
         }
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        setupControls();
+    }
+
     public void setParentActivity(Activity activity){
         this.parentActivity = activity;
     }
@@ -156,7 +165,7 @@ public class MaintenanceFragment extends Fragment {
                 case R.id.btnCompany:
                     i = new Intent(getActivity(), MaintenanceCompany.class);
                     break;
-                case R.id.btnRolesControl:
+               /* case R.id.btnRolesControl:
                     i =new Intent(getActivity(), MainAssignation.class);
                     i.putExtra(CODES.EXTRA_MAINASSIGNATION_TABLE, UserControlController.TABLE_NAME);
                     i.putExtra(CODES.EXTRA_MAINASSIGNATION_TARGET, CODES.EXTRA_MAINASSIGNATION_TARGET_ROLESCONTROL);
@@ -165,7 +174,7 @@ public class MaintenanceFragment extends Fragment {
                     i =new Intent(getActivity(), MainAssignation.class);
                     i.putExtra(CODES.EXTRA_MAINASSIGNATION_TABLE, UserControlController.TABLE_NAME);
                     i.putExtra(CODES.EXTRA_MAINASSIGNATION_TARGET, CODES.EXTRA_MAINASSIGNATION_TARGET_USERSCONTROL);
-                    break;
+                    break;*/
                 case R.id.btnClients:
                     i = new Intent(getActivity(), MaintenanceClients.class);
                     break;
@@ -204,4 +213,13 @@ public class MaintenanceFragment extends Fragment {
         llClients.setVisibility((id == R.id.goMantClientes) ? View.VISIBLE : View.GONE);
         llConfiguration.setVisibility((id == R.id.goConfiguration) ? View.VISIBLE : View.GONE);
     }
+
+
+    private void setupControls(){
+        UserControlController uc = UserControlController.getInstance(parentActivity);
+        llMeasure.setVisibility(uc.searchSimpleControl(CODES.USERSCONTROL_PRODUCTS_MEASURE)!=null?View.VISIBLE:View.GONE);
+
+    }
+
+
 }

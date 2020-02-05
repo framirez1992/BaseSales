@@ -28,6 +28,7 @@ import com.far.basesales.Controllers.ProductsTypesInvController;
 import com.far.basesales.Controllers.ReceiptController;
 import com.far.basesales.Controllers.RolesController;
 import com.far.basesales.Controllers.SalesController;
+import com.far.basesales.Controllers.UserControlController;
 import com.far.basesales.Controllers.UserTypesController;
 import com.far.basesales.Controllers.UsersController;
 import com.far.basesales.Globales.Tablas;
@@ -110,6 +111,7 @@ public class MainActualizationCenter extends AppCompatActivity implements OnSucc
            case 12:MeasureUnitsController.getInstance(MainActualizationCenter.this).searchChanges(true, this, this, this); break;//ALL
            case 13:MeasureUnitsInvController.getInstance(MainActualizationCenter.this).searchChanges(true, this, this, this); break;//ALL
            case 14:DayController.getInstance(MainActualizationCenter.this).searchCurrentDayStartedFromFireBase( this, this); break;//ALL
+           case 15: UserControlController.getInstance(MainActualizationCenter.this).searchChanges( true, this, this); break;//ALL
           default:
               currentindex=0;
               tvMessage.setText("Finalizado Correctamente");
@@ -169,6 +171,7 @@ public class MainActualizationCenter extends AppCompatActivity implements OnSucc
             case 12:MeasureUnitsController.getInstance(MainActualizationCenter.this).consumeQuerySnapshot(true, querySnapshot); break;
             case 13:MeasureUnitsInvController.getInstance(MainActualizationCenter.this).consumeQuerySnapshot(true, querySnapshot); break;
             case 14:DayController.getInstance(MainActualizationCenter.this).consumeQuerySnapshot(true, querySnapshot); break;
+            case 15:UserControlController.getInstance(MainActualizationCenter.this).consumeQuerySnapshot(true, querySnapshot); break;
             default:break;
         }
         currentindex++;

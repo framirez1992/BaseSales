@@ -271,9 +271,9 @@ public class ReceiptFragment extends Fragment implements DialogCaller {
 
 
     public void setUpControls(){
-        if(UserControlController.getInstance(parentActivity).multiPayment()) {
-            etAmount.setFocusableInTouchMode(true);
-        }
+        //if(UserControlController.getInstance(parentActivity).multiPayment()) {
+          //  etAmount.setFocusableInTouchMode(true);
+        //}
     }
 
     public double getManualDiscount(){
