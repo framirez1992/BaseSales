@@ -55,7 +55,7 @@ public class ProductsDialogfragment extends DialogFragment implements ListableAc
     private Products toInsertObject;
     private ArrayList<ProductsMeasure> toInsertProductMeasure;
 
-    LinearLayout llSave, llBack, llProgress;
+    LinearLayout llSave, llBack, llProgress, llRange;
     TextInputEditText etCode, etName;
     Spinner spnFamily, spnGroup;
     RecyclerView rvMeasures;
@@ -76,6 +76,8 @@ public class ProductsDialogfragment extends DialogFragment implements ListableAc
 
     Dialog loadingDialg;
     Dialog errorDialog;
+
+    boolean rangeControl;
 
     public  static ProductsDialogfragment newInstance(String type, Products pt, DialogCaller dialogCaller) {
 
@@ -104,6 +106,8 @@ public class ProductsDialogfragment extends DialogFragment implements ListableAc
         productsController = ProductsController.getInstance(getActivity());
         productsInvController = ProductsInvController.getInstance(getActivity());
         userControlController = UserControlController.getInstance(getActivity());
+
+        rangeControl = userControlController.searchSimpleControl(CODES.USERSCONTROL_PRODUCT_PRICES_RANGE)!=null;
 
     }
 
@@ -158,6 +162,8 @@ public class ProductsDialogfragment extends DialogFragment implements ListableAc
         etMin = view.findViewById(R.id.etMin);
         etMax = view.findViewById(R.id.etMax);
         btnApply = view.findViewById(R.id.btnApply);
+
+        llRange = view.findViewById(R.id.llRange);
 
         btnApply.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -250,6 +256,14 @@ public class ProductsDialogfragment extends DialogFragment implements ListableAc
 
             }
         });
+
+        setupControls();
+    }
+
+
+
+    public void setupControls(){
+        llRange.setVisibility(rangeControl?View.VISIBLE:View.GONE);
     }
 
     public boolean validate(){
@@ -633,9 +647,9 @@ public class ProductsDialogfragment extends DialogFragment implements ListableAc
 
         for(ProductMeasureRowModel ssrm: selected){
             price = ssrm.getAmount();
+            enabled = ssrm.isChecked();
             minprice = ssrm.getMinPrice();
             maxprice = ssrm.getMaxPrice();
-            enabled = ssrm.isChecked();
             range = ssrm.isPriceRange();
         }
         //String code, String description, String type,String subType, double price,boolean enabled, boolean range, double minprice, double maxprice, boolean combo

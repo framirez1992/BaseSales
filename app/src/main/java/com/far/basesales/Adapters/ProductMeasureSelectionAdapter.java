@@ -8,12 +8,16 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.far.basesales.Adapters.Models.ProductMeasureRowModel;
+import com.far.basesales.Controllers.UserControlController;
+import com.far.basesales.Globales.CODES;
 import com.far.basesales.Interfases.ListableActivity;
 import com.far.basesales.R;
 import com.far.basesales.Utils.Funciones;
+import com.far.farpdf.Objects.Line;
 
 import java.util.ArrayList;
 
@@ -23,12 +27,15 @@ public class ProductMeasureSelectionAdapter extends RecyclerView.Adapter<Product
     ListableActivity listableActivity;
     ArrayList<ProductMeasureRowModel> objects;
     ArrayList<ProductMeasureRowModel> previousSaved;
+    boolean rangeControl;
 
     public ProductMeasureSelectionAdapter(Activity act, ListableActivity la,  ArrayList<ProductMeasureRowModel> objs, ArrayList<ProductMeasureRowModel> previousSaved) {
         this.activity = act;
         this.listableActivity = la;
         this.objects = objs;
         this.previousSaved = previousSaved;
+
+        this.rangeControl = UserControlController.getInstance(act).searchSimpleControl(CODES.USERSCONTROL_PRODUCT_PRICES_RANGE)!= null;
 
 
         for(ProductMeasureRowModel pm: objects){
@@ -136,6 +143,7 @@ public class ProductMeasureSelectionAdapter extends RecyclerView.Adapter<Product
     public class ProductMeasureRowHolder extends RecyclerView.ViewHolder {
         TextView tvMeasure,etAmount, tvMinPrice, tvMaxPrice;
         CheckBox cbCheck, cbCheckRange;
+        LinearLayout llRange;
 
         public ProductMeasureRowHolder(View itemView) {
             super(itemView);
@@ -145,6 +153,9 @@ public class ProductMeasureSelectionAdapter extends RecyclerView.Adapter<Product
             etAmount = itemView.findViewById(R.id.etAmount);
             cbCheck = itemView.findViewById(R.id.cbCheck);
             cbCheckRange = itemView.findViewById(R.id.cbCheckRange);
+            llRange = itemView.findViewById(R.id.llRange);
+
+            llRange.setVisibility(rangeControl?View.VISIBLE:View.GONE);
         }
 
         public void fillData(ProductMeasureRowModel obj) {

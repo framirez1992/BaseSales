@@ -61,7 +61,7 @@ public class ReceiptFragment extends Fragment implements DialogCaller {
 
     TextInputEditText etDocument, etName, etAmount, etDiscount, etDiscountDescription;
     TextView tvTotal;
-    CardView btnSearch, btnAddClient;
+    CardView btnSearch, btnAddClient, cvClients, cvDiscount;
     LinearLayout llGoResumen;
     LinearLayout llPay;
     ClientSearchDialog dialog;
@@ -71,10 +71,22 @@ public class ReceiptFragment extends Fragment implements DialogCaller {
 
     Activity parentActivity;
     boolean fragmentCreated;
+
+    boolean multipaymentControl;
+    boolean allowClientSelection;
+    boolean salesDiscount;
+
     public ReceiptFragment() {
         // Required empty public constructor
     }
 
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        multipaymentControl = UserControlController.getInstance(parentActivity).searchSimpleControl(CODES.USERSCONTROL_MULTIPAYMENT)!= null;
+        allowClientSelection = UserControlController.getInstance(parentActivity).searchSimpleControl(CODES.USERSCONTROL_CLIENTS)!= null;
+        salesDiscount = UserControlController.getInstance(parentActivity).searchSimpleControl(CODES.USERSCONTROL_SALES_DISCOUNT)!= null;
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -98,6 +110,8 @@ public class ReceiptFragment extends Fragment implements DialogCaller {
         spnPaymentType = view.findViewById(R.id.spnPaymentType);
         btnAddClient = view.findViewById(R.id.btnAddClient);
         cbDiscount = view.findViewById(R.id.cbDiscount);
+        cvClients = view.findViewById(R.id.cvClients);
+        cvDiscount = view.findViewById(R.id.cvDiscount);
 
 
         PaymentController.getInstance(parentActivity).fillSpinnerPaymentType(spnPaymentType);
@@ -209,6 +223,7 @@ public class ReceiptFragment extends Fragment implements DialogCaller {
 
     public void createReceipt(){
 
+        String clientCode = allowClientSelection?client.getCode():"-1";
         Day day = DayController.getInstance(parentActivity).getCurrentOpenDay();
 
         Sales s = TempOrdersController.getInstance(parentActivity).getTempSale();
@@ -231,10 +246,10 @@ public class ReceiptFragment extends Fragment implements DialogCaller {
 
         String receiptStatus = (receiptTotal > paidAmount)?CODES.CODE_RECEIPT_STATUS_OPEN:CODES.CODE_RECEIPT_STATUS_CLOSED;
         //String code, String codeUser,String codesale, String codeclient,  String status, String ncf, double subTotal, double taxes, double discount, double total, double paidAmount
-        Receipts r = new Receipts(Funciones.generateCode(),Funciones.rellenarCeros(4, ((MainOrders)parentActivity).receiptCounter.getCount()), Funciones.getCodeuserLogged(parentActivity),s.getCODE(),client.getCode(),receiptStatus,"",receiptSubTotal,receiptTaxes,receiptManualDiscount,receiptTotal,paidAmount, day.getCode());
+        Receipts r = new Receipts(Funciones.generateCode(),Funciones.rellenarCeros(4, ((MainOrders)parentActivity).receiptCounter.getCount()), Funciones.getCodeuserLogged(parentActivity),s.getCODE(),clientCode,receiptStatus,"",receiptSubTotal,receiptTaxes,receiptManualDiscount,receiptTotal,paidAmount, day.getCode());
         r.setDate(/*day.getDatestart()*/new Date());
         //String code, String codeReceipt,String codeUser, String codeClient, String type, double subTotal, double tax, double discount, double total
-        Payment p = new Payment(Funciones.generateCode(), r.getCode(), Funciones.getCodeuserLogged(parentActivity),client.getCode(), ((KV)spnPaymentType.getSelectedItem()).getKey(),0,0,0,paidAmount, day.getCode());
+        Payment p = new Payment(Funciones.generateCode(), r.getCode(), Funciones.getCodeuserLogged(parentActivity),clientCode, ((KV)spnPaymentType.getSelectedItem()).getKey(),0,0,0,paidAmount, day.getCode());
         p.setDATE(/*day.getDatestart()*/new Date());
 
         s.setCODERECEIPT(r.getCode());
@@ -261,7 +276,7 @@ public class ReceiptFragment extends Fragment implements DialogCaller {
             return false;
         }else if(!validateEditedAmount()){
             return false;
-        }else if(client == null){
+        }else if(allowClientSelection && client == null){
             Snackbar.make(getView(), "Seleccione un cliente", Snackbar.LENGTH_LONG).show();
             return false;
         }
@@ -271,9 +286,10 @@ public class ReceiptFragment extends Fragment implements DialogCaller {
 
 
     public void setUpControls(){
-        //if(UserControlController.getInstance(parentActivity).multiPayment()) {
-          //  etAmount.setFocusableInTouchMode(true);
-        //}
+        etAmount.setFocusableInTouchMode(multipaymentControl);
+        cvClients.setVisibility(allowClientSelection?View.VISIBLE:View.GONE);
+        cvDiscount.setVisibility(salesDiscount?View.VISIBLE:View.GONE);
+
     }
 
     public double getManualDiscount(){
@@ -302,14 +318,14 @@ public class ReceiptFragment extends Fragment implements DialogCaller {
             return false;
         }
 
-        if(!cbDiscount.isChecked() && editAmountD <1){
+        if(salesDiscount && !cbDiscount.isChecked() && editAmountD <1){
             Snackbar.make(getView(), "El importe debe ser superior a 1", Snackbar.LENGTH_LONG).show();
             return false;
         }
 
 
         double manualDiscount=0.0;
-        if(cbDiscount.isChecked()){
+        if(salesDiscount && cbDiscount.isChecked()){
             try{
                 manualDiscount=  Double.parseDouble(mDiscount);
             }catch (Exception e){

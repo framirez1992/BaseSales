@@ -11,7 +11,6 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -22,8 +21,6 @@ import com.far.basesales.Adapters.Models.OrderDetailModel;
 import com.far.basesales.CloudFireStoreObjects.SalesDetails;
 import com.far.basesales.Controllers.TempOrdersController;
 import com.far.basesales.Dialogs.AddProductDialog;
-import com.far.basesales.Generic.KV;
-import com.far.basesales.Generic.KV2;
 import com.far.basesales.Interfases.ListableActivity;
 import com.far.basesales.MainOrders;
 import com.far.basesales.R;
@@ -32,32 +29,27 @@ import com.far.basesales.Utils.Funciones;
 import java.util.ArrayList;
 import java.util.Date;
 
-public class OrderResumeAdapter extends RecyclerView.Adapter<OrderResumeAdapter.OrderResumeHolder> {
+public class OrderResumeNoMeasureAdapter extends RecyclerView.Adapter<OrderResumeNoMeasureAdapter.OrderResumeNoMeasureHolder> {
     ArrayList<OrderDetailModel> objects;
     ListableActivity listableActivity;
     Activity activity;
     AddProductDialog productDialog;
 
-    public OrderResumeAdapter(Activity act, ListableActivity la, ArrayList<OrderDetailModel> objs){
+    public OrderResumeNoMeasureAdapter(Activity act, ListableActivity la, ArrayList<OrderDetailModel> objs){
         this.activity = act;
         this.listableActivity = la;
         this.objects = objs;
     }
     @NonNull
     @Override
-    public OrderResumeHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        return new OrderResumeHolder(((LayoutInflater)activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.order_resume_row ,parent, false));
+    public OrderResumeNoMeasureAdapter.OrderResumeNoMeasureHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        return new OrderResumeNoMeasureAdapter.OrderResumeNoMeasureHolder(((LayoutInflater)activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.order_resume_row ,parent, false));
     }
 
     @Override
-    public void onBindViewHolder(final OrderResumeHolder holder, final int position) {
+    public void onBindViewHolder(final OrderResumeNoMeasureAdapter.OrderResumeNoMeasureHolder holder, final int position) {
 
-        ArrayAdapter adapter = null;
-        if( objects.get(position).getMeasures() != null &&  objects.get(position).getMeasures().size() >0){
-            adapter = new ArrayAdapter<KV2>(activity, android.R.layout.simple_list_item_1,objects.get(position).getMeasures());
-        }
-
-        holder.fillData(objects.get(position), adapter);
+        holder.fillData(objects.get(position));
         final Button btnLess =  holder.getBtnLess();
         final Button btnMore = holder.getBtnMore();
         final EditText etQuantity = holder.getEtCantidad();
@@ -72,13 +64,13 @@ public class OrderResumeAdapter extends RecyclerView.Adapter<OrderResumeAdapter.
             }
         });
 
-       btnLess.setOnClickListener(new View.OnClickListener() {
+        btnLess.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
-                SalesDetails sd = TempOrdersController.getInstance(activity).getTempSaleDetailByCodeProductAndCodeMeasure(
-                        objects.get(position).getCodeProduct(),
-                        objects.get(position).getCodeMeasure());
+                SalesDetails sd = TempOrdersController.getInstance(activity).getTempSaleDetailByCodeProduct(
+                        objects.get(position).getCodeProduct()).get(0);
+
                 if(sd == null){
                     return;
                 }
@@ -100,12 +92,10 @@ public class OrderResumeAdapter extends RecyclerView.Adapter<OrderResumeAdapter.
         btnMore.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                SalesDetails sd = TempOrdersController.getInstance(activity).getTempSaleDetailByCodeProductAndCodeMeasure(
-                        objects.get(position).getCodeProduct(),
-                        objects.get(position).getCodeMeasure());
+                SalesDetails sd = TempOrdersController.getInstance(activity).getTempSaleDetailByCodeProduct(
+                        objects.get(position).getCodeProduct()).get(0);
+
                 if(sd == null){
-                    //objects.get(position).setQuantity("1");
-                    //saveOrderLine(objects.get(position));
                     return;
                 }
                 double newQuantity = sd.getQUANTITY() + 1;
@@ -164,7 +154,7 @@ public class OrderResumeAdapter extends RecyclerView.Adapter<OrderResumeAdapter.
     }
 
 
-    public void callAddProductDialog(OrderDetailModel obj, OrderResumeHolder holder){
+    public void callAddProductDialog(OrderDetailModel obj, OrderResumeNoMeasureAdapter.OrderResumeNoMeasureHolder holder){
         FragmentTransaction ft = ((AppCompatActivity)activity).getSupportFragmentManager().beginTransaction();
         Fragment prev = ((AppCompatActivity)activity).getSupportFragmentManager().findFragmentByTag("AddProductDialog");
         if (prev != null) {
@@ -176,8 +166,8 @@ public class OrderResumeAdapter extends RecyclerView.Adapter<OrderResumeAdapter.
         productDialog.show(ft, "AddProductDialog");
     }
 
-    public void EditLineFromExternal(OrderDetailModel editedLine, OrderResumeHolder holder) {
-        SalesDetails sd = TempOrdersController.getInstance(activity).getTempSaleDetailByCodeProductAndCodeMeasure(editedLine.getCodeProduct(), editedLine.getCodeMeasure());
+    public void EditLineFromExternal(OrderDetailModel editedLine, OrderResumeNoMeasureAdapter.OrderResumeNoMeasureHolder holder) {
+        SalesDetails sd = TempOrdersController.getInstance(activity).getTempSaleDetailByCodeProduct(editedLine.getCodeProduct()).get(0);
         if (sd == null) {
             return;
 
@@ -198,28 +188,25 @@ public class OrderResumeAdapter extends RecyclerView.Adapter<OrderResumeAdapter.
 
 
 
-    public class OrderResumeHolder extends RecyclerView.ViewHolder {
+    public class OrderResumeNoMeasureHolder extends RecyclerView.ViewHolder {
         TextView tvName;
         EditText etCantidad;
-        TextView tvUnitMeasure;
         Button btnLess, btnMore;
         ImageView imgMenu;
         LinearLayout llPadre;
-        public OrderResumeHolder(View itemView) {
+        public OrderResumeNoMeasureHolder(View itemView) {
             super(itemView);
             llPadre = itemView.findViewById(R.id.llParent);
             tvName = itemView.findViewById(R.id.tvName);
             etCantidad = itemView.findViewById(R.id.etQuantity);
-            tvUnitMeasure = itemView.findViewById(R.id.tvUnitMeasure);
             imgMenu = itemView.findViewById(R.id.imgMenu);
             btnMore = itemView.findViewById(R.id.btnMore);
             btnLess = itemView.findViewById(R.id.btnLess);
         }
 
-        public void fillData(OrderDetailModel od, ArrayAdapter<KV> adapter){
+        public void fillData(OrderDetailModel od){
             tvName.setText(od.getProduct_name());
             etCantidad.setText(od.getQuantity());
-            tvUnitMeasure.setText(od.getMeasureDescription());
             if(od.isBlocked()){
                 btnMore.setEnabled(false);
                 btnLess.setEnabled(false);

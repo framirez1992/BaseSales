@@ -23,8 +23,10 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.far.basesales.Adapters.Models.NewOrderProductModel;
+import com.far.basesales.Adapters.Models.NewOrderProductNoMeasureModel;
 import com.far.basesales.Adapters.NewOrderProductRowAdapter;
 import com.far.basesales.Adapters.SalesRowAdapter;
+import com.far.basesales.Adapters.SalesRowNoMeasureAdapter;
 import com.far.basesales.CloudFireStoreObjects.Sales;
 import com.far.basesales.Controllers.ProductsController;
 import com.far.basesales.Controllers.ProductsSubTypesController;
@@ -241,14 +243,17 @@ public class NewOrderFragment extends Fragment {
         args = x.toArray(new String[x.size()]);
 
         //NewOrderProductRowAdapter adapter = new NewOrderProductRowAdapter(parentActivity, parentActivity,ProductsController.getInstance(parentActivity).getNewProductRowModels(where, args, null) );
-        ArrayList<NewOrderProductModel> products = new ArrayList<>();
         if(userControlController.searchSimpleControl(CODES.USERSCONTROL_PRODUCTS_MEASURE)!= null){
-           products.addAll(ProductsController.getInstance(parentActivity).getNewProductRowModels(where, args, null));
+            ArrayList<NewOrderProductModel> products = new ArrayList<>();
+            products.addAll(ProductsController.getInstance(parentActivity).getNewProductRowModels(where, args, null));
+            SalesRowAdapter adapter = new SalesRowAdapter(parentActivity, parentActivity,products);
+            rvList.setAdapter(adapter);
         }else{
+            ArrayList<NewOrderProductNoMeasureModel> products = new ArrayList<>();
             products.addAll(ProductsController.getInstance(parentActivity).getNewProductRowModelsWithoutMeasures(where, args, null));
+            SalesRowNoMeasureAdapter adapter = new SalesRowNoMeasureAdapter(parentActivity, parentActivity,products);
+            rvList.setAdapter(adapter);
         }
-        SalesRowAdapter adapter = new SalesRowAdapter(parentActivity, parentActivity,products);
-        rvList.setAdapter(adapter);
         rvList.getAdapter().notifyDataSetChanged();
         rvList.invalidate();
 

@@ -15,14 +15,10 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.far.basesales.Adapters.Models.NewOrderProductModel;
-import com.far.basesales.CloudFireStoreObjects.ProductsMeasure;
+import com.far.basesales.Adapters.Models.NewOrderProductNoMeasureModel;
 import com.far.basesales.CloudFireStoreObjects.SalesDetails;
-import com.far.basesales.Controllers.ProductsMeasureController;
 import com.far.basesales.Controllers.TempOrdersController;
-import com.far.basesales.Controllers.UserControlController;
 import com.far.basesales.Dialogs.AddProductDialog;
-import com.far.basesales.Globales.CODES;
 import com.far.basesales.Interfases.ListableActivity;
 import com.far.basesales.MainOrders;
 import com.far.basesales.R;
@@ -31,28 +27,29 @@ import com.far.basesales.Utils.Funciones;
 import java.util.ArrayList;
 import java.util.Date;
 
-public class SalesRowAdapter extends RecyclerView.Adapter<SalesRowAdapter.SalesRowHolder> {
+public class SalesRowNoMeasureAdapter extends RecyclerView.Adapter<SalesRowNoMeasureAdapter.SalesRowNoMeasureHolder> {
 
     Activity activity;
-    ArrayList<NewOrderProductModel> objects;
+    ArrayList<NewOrderProductNoMeasureModel> objects;
     ListableActivity listableActivity;
     int lastPosition = 0;
     AddProductDialog productDialog;
-    public SalesRowAdapter(Activity act, ListableActivity la, ArrayList<NewOrderProductModel> objs){
+    boolean productMeasureControl = false;
+    public SalesRowNoMeasureAdapter(Activity act, ListableActivity la, ArrayList<NewOrderProductNoMeasureModel> objs){
         this.activity = act;
         this.objects = objs;
         this.listableActivity = la;
     }
     @NonNull
     @Override
-    public SalesRowHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public SalesRowNoMeasureHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
 
-        return new SalesRowHolder(((LayoutInflater) activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE))
+        return new SalesRowNoMeasureHolder(((LayoutInflater) activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE))
                 .inflate(R.layout.sales_row1, parent, false));
     }
 
     @Override
-    public void onBindViewHolder(final SalesRowHolder holder, final int position) {
+    public void onBindViewHolder(final SalesRowNoMeasureHolder holder, final int position) {
 
         holder.fillData(objects.get(position));
         holder.setBackgroundColor(activity.getResources(), objects.get(position).isBlocked());
@@ -98,27 +95,20 @@ public class SalesRowAdapter extends RecyclerView.Adapter<SalesRowAdapter.SalesR
     }
 
 
-    public void saveOrderLine(NewOrderProductModel opm){
+    public void saveOrderLine(NewOrderProductNoMeasureModel opm){
 
         String code = Funciones.generateCode();
         String codeSale = ((MainOrders)activity).getOrderCode();
         String codeProduct = opm.getCodeProduct();
-        String codeUnd = opm.getMeasure();
         int position = Integer.parseInt(Funciones.getSimpleTimeFormat().format(new Date()));
         double quantity = Double.parseDouble(opm.getQuantity());
         double tax = 0;
-        double price = 0;
+        double price = opm.getPrice();
         double manualPrice = opm.getManualPrice().isEmpty()?0:Double.parseDouble(opm.getManualPrice());
         double discount = 0;
 
-            ProductsMeasure pm = ProductsMeasureController.getInstance(activity).getProductsMeasure(ProductsMeasureController.CODEMEASURE+"=? AND "+ProductsMeasureController.CODEPRODUCT+" = ?",
-                    new String[]{opm.getMeasure(), opm.getCodeProduct()})
-                    .get(0);
-            price =pm.getPRICE();
-
-
         //String code,String codeSales, String codeProduct, String codeUnd,int position,double quantity,double price, double discount, double tax
-        SalesDetails sd = new SalesDetails(code,codeSale,Funciones.getCodeuserLogged(activity), codeProduct, codeUnd, position, quantity, price,manualPrice,  discount, tax, "");
+        SalesDetails sd = new SalesDetails(code,codeSale,Funciones.getCodeuserLogged(activity), codeProduct, "", position, quantity, price,manualPrice,  discount, tax, "");
         TempOrdersController.getInstance(activity).insert_Detail(sd);
         ((MainOrders)activity).refreshResume();
 
@@ -130,10 +120,10 @@ public class SalesRowAdapter extends RecyclerView.Adapter<SalesRowAdapter.SalesR
         ((MainOrders)activity).refreshResume();
     }
 
-    public void deleteOrderLine(NewOrderProductModel obj){
+    public void deleteOrderLine(NewOrderProductNoMeasureModel obj){
 
-        String where = TempOrdersController.DETAIL_CODEPRODUCT+" = ? AND "+TempOrdersController.DETAIL_CODEUND+" = ? ";
-        String[]args = new String[]{obj.getCodeProduct(), obj.getMeasure()};
+        String where = TempOrdersController.DETAIL_CODEPRODUCT+" = ?  ";
+        String[]args = new String[]{obj.getCodeProduct()};
         TempOrdersController.getInstance(activity).
                 delete_Detail(where, args);
         ((MainOrders)activity).refreshResume();
@@ -141,7 +131,7 @@ public class SalesRowAdapter extends RecyclerView.Adapter<SalesRowAdapter.SalesR
 
 
 
-    public void callAddProductDialog(NewOrderProductModel obj, SalesRowHolder holder){
+    public void callAddProductDialog(NewOrderProductNoMeasureModel obj, SalesRowNoMeasureHolder holder){
         FragmentTransaction ft = ((AppCompatActivity)activity).getSupportFragmentManager().beginTransaction();
         Fragment prev = ((AppCompatActivity)activity).getSupportFragmentManager().findFragmentByTag("AddProductDialog");
         if (prev != null) {
@@ -153,7 +143,7 @@ public class SalesRowAdapter extends RecyclerView.Adapter<SalesRowAdapter.SalesR
         productDialog.show(ft, "AddProductDialog");
     }
 
-    public void EditLineFromExternal(NewOrderProductModel editedLine, SalesRowHolder holder){
+    public void EditLineFromExternal(NewOrderProductNoMeasureModel editedLine, SalesRowNoMeasureHolder holder){
         ArrayList<SalesDetails> details = TempOrdersController.getInstance(activity).getTempSaleDetailByCodeProduct(editedLine.getCodeProduct());
         SalesDetails sd =(details.size()>0)?details.get(0):null;
         if(sd == null){
@@ -179,12 +169,12 @@ public class SalesRowAdapter extends RecyclerView.Adapter<SalesRowAdapter.SalesR
 
 
 
-    public class SalesRowHolder extends RecyclerView.ViewHolder {
+    public class SalesRowNoMeasureHolder extends RecyclerView.ViewHolder {
 
         TextView tvName,tvQuantity, tvTotal;
         CardView cvDelete;
         LinearLayout llPadre;
-        public SalesRowHolder(View itemView) {
+        public SalesRowNoMeasureHolder(View itemView) {
             super(itemView);
             this.llPadre = itemView.findViewById(R.id.llParent);
             this.tvName = itemView.findViewById(R.id.tvName);
@@ -193,21 +183,10 @@ public class SalesRowAdapter extends RecyclerView.Adapter<SalesRowAdapter.SalesR
             this.cvDelete = itemView.findViewById(R.id.cvDelete);
         }
 
-        public void fillData(NewOrderProductModel obj){
+        public void fillData(NewOrderProductNoMeasureModel obj){
             this.tvName.setText(obj.getName());
             this.tvQuantity.setText(obj.getQuantity());
-
-                if(obj.getMeasures()!= null && obj.getMeasures().size()>0){
-                    double price = 0.0;
-                    try{
-                        price =Double.parseDouble(obj.getMeasures().get(0).getValue2());
-                        this.tvTotal.setText("$"+Funciones.formatMoney(price));
-                    }catch (Exception e){
-                        this.tvTotal.setText("INVALID PRICE "+obj.getMeasures().get(0).getValue2());
-                    }
-                }else{
-                    tvTotal.setText("NO MEASURE");
-                }
+            this.tvTotal.setText("$"+Funciones.formatMoney(obj.getPrice()));
 
         }
 

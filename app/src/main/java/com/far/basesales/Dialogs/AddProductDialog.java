@@ -19,16 +19,23 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.far.basesales.Adapters.Models.NewOrderProductModel;
+import com.far.basesales.Adapters.Models.NewOrderProductNoMeasureModel;
 import com.far.basesales.Adapters.Models.OrderDetailModel;
 import com.far.basesales.Adapters.NewOrderProductRowAdapter;
 import com.far.basesales.Adapters.OrderResumeAdapter;
+import com.far.basesales.Adapters.OrderResumeNoMeasureAdapter;
 import com.far.basesales.Adapters.SalesRowAdapter;
+import com.far.basesales.Adapters.SalesRowNoMeasureAdapter;
+import com.far.basesales.CloudFireStoreObjects.Products;
 import com.far.basesales.CloudFireStoreObjects.ProductsMeasure;
 import com.far.basesales.Controllers.MeasureUnitsController;
+import com.far.basesales.Controllers.ProductsController;
 import com.far.basesales.Controllers.ProductsMeasureController;
 import com.far.basesales.Controllers.TempOrdersController;
+import com.far.basesales.Controllers.UserControlController;
 import com.far.basesales.Generic.KV;
 import com.far.basesales.Generic.KV2;
+import com.far.basesales.Globales.CODES;
 import com.far.basesales.R;
 import com.far.basesales.Utils.Funciones;
 
@@ -52,6 +59,9 @@ public class AddProductDialog extends DialogFragment {
     RecyclerView.Adapter adapter;
     RecyclerView.ViewHolder holder;
 
+    boolean productMeasureControl = false;
+    boolean rangeControl = false;
+
     public  static AddProductDialog newInstance(Context context, Object pt, RecyclerView.ViewHolder holder, RecyclerView.Adapter adapter) {
         AddProductDialog f = new AddProductDialog();
         f.tempOrderModel = pt;
@@ -68,6 +78,8 @@ public class AddProductDialog extends DialogFragment {
 
         tempOrdersController = TempOrdersController.getInstance(getActivity());
         measureUnitsController = MeasureUnitsController.getInstance(getActivity());
+        productMeasureControl = UserControlController.getInstance(getActivity()).searchSimpleControl(CODES.USERSCONTROL_PRODUCTS_MEASURE)!= null;
+        rangeControl = UserControlController.getInstance(getActivity()).searchSimpleControl(CODES.USERSCONTROL_PRODUCT_PRICES_RANGE)!= null;
         // Pick a style based on the num.
         int style = DialogFragment.STYLE_NO_TITLE, theme = 0;
         setStyle(style, theme);
@@ -126,61 +138,21 @@ public class AddProductDialog extends DialogFragment {
         });
 
         if(adapter instanceof NewOrderProductRowAdapter){
-            llMeasure.setVisibility(View.VISIBLE);
-            tvMeasure.setVisibility(View.GONE);
-
-            spnUnitMeasure.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-                @Override
-                public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                    if(tempOrderModel instanceof NewOrderProductModel) {
-                        KV2 value = (KV2)spnUnitMeasure.getSelectedItem();
-                                ProductsMeasure pm = ProductsMeasureController.getInstance(context).getProductMeasureByProductAndMeasure(((NewOrderProductModel)tempOrderModel).getCodeProduct(), value.getKey());
-                                tilPrecio.setHint(Funciones.formatMoney(pm.getPRICE()));
-                                etPrice.setText(((NewOrderProductModel)tempOrderModel).getManualPrice().equals("")?pm.getPRICE()+"":((NewOrderProductModel)tempOrderModel).getManualPrice());
-                                tvRangePrice.setText(pm.getRANGE()?"Precio Minimo: $"+Funciones.formatMoney(pm.getMINPRICE())+" - Precio Maximo: $"+Funciones.formatMoney(pm.getMAXPRICE()):"");
-
-                    }
-
-                }
-
-                @Override
-                public void onNothingSelected(AdapterView<?> parent) {
-
-                }
-            });
-        }else {
-            llMeasure.setVisibility(View.GONE);
-            tvMeasure.setVisibility(View.VISIBLE);
-
-           // if(adapter instanceof SalesRowAdapter){
-                String codeMeasure="";
-                String codeProduct = "";
-                String manualPrice ="";
-                if(tempOrderModel instanceof NewOrderProductModel){
-                    codeProduct = ((NewOrderProductModel)tempOrderModel).getCodeProduct();
-                    codeMeasure = ((NewOrderProductModel)tempOrderModel).getMeasure();
-                    manualPrice = ((NewOrderProductModel)tempOrderModel).getManualPrice();
-                }else if(tempOrderModel instanceof OrderDetailModel){
-                    codeProduct = ((OrderDetailModel)tempOrderModel).getCodeProduct();
-                    codeMeasure = ((OrderDetailModel)tempOrderModel).getCodeMeasure();
-                    manualPrice = ((OrderDetailModel)tempOrderModel).getManualPrice();
-                }
-                ProductsMeasure pm = ProductsMeasureController.getInstance(context).getProductMeasureByProductAndMeasure(codeProduct, codeMeasure);
-                if(!pm.getRANGE()){
-                    tvRangePrice.setText("");
-                    etPrice.setFocusableInTouchMode(false);
-                }else{
-                    etPrice.setFocusableInTouchMode(true);
-                    tilPrecio.setHint(Funciones.formatMoney(pm.getPRICE()));
-                    tvRangePrice.setText("Precio Minimo: $"+Funciones.formatMoney(pm.getMINPRICE())+" - Precio Maximo: $"+Funciones.formatMoney(pm.getMAXPRICE()));
-                    etPrice.setText(manualPrice.equals("")?pm.getPRICE()+"":manualPrice);
-
-                }
-            //}
-
+            initDialogForNewOrderProductRowAdapter();
+            //inicializeEditOrderLine();
+        }else if(adapter instanceof SalesRowAdapter) {
+            initDialogForSalesRowAdapter((NewOrderProductModel)tempOrderModel);
+            //inicializeEditOrderLine();
+        }else if(adapter instanceof SalesRowNoMeasureAdapter){
+            initDialogForSalesRowNoMeasureAdapter((NewOrderProductNoMeasureModel)tempOrderModel);
+        }else if(adapter instanceof OrderResumeAdapter ){
+            initDialogForOrderResumeAdapter((OrderDetailModel) tempOrderModel);
+        }else if(adapter instanceof OrderResumeNoMeasureAdapter){
+            initDialogForOrderResumeNoMeasureAdapter((OrderDetailModel) tempOrderModel);
         }
 
-        inicializeEditOrderLine();
+        initMeasure();
+
     }
 
 
@@ -188,6 +160,8 @@ public class AddProductDialog extends DialogFragment {
         String codeProduct = "";
         if(tempOrderModel instanceof NewOrderProductModel){
             codeProduct = ((NewOrderProductModel)tempOrderModel).getCodeProduct();
+        }else if(tempOrderModel instanceof  NewOrderProductNoMeasureModel){
+            codeProduct = ((NewOrderProductNoMeasureModel)tempOrderModel).getCodeProduct();
         }else if(tempOrderModel instanceof OrderDetailModel){
             codeProduct = ((OrderDetailModel)tempOrderModel).getCodeProduct();
         }
@@ -210,33 +184,44 @@ public class AddProductDialog extends DialogFragment {
                 return false;
             }
             ProductsMeasure pm = ProductsMeasureController.getInstance(context).getProductMeasureByProductAndMeasure(codeProduct, ((KV2)spnUnitMeasure.getSelectedItem()).getKey());
-            if(pm.getRANGE() && manualPrice < pm.getMINPRICE()){
+            if(rangeControl && pm.getRANGE() && manualPrice < pm.getMINPRICE()){
                 Snackbar.make(getView(), "El precio no puede ser menor a $"+Funciones.formatMoney(pm.getMINPRICE()), Snackbar.LENGTH_SHORT).show();
                 etPrice.requestFocus();
                 return false;
-            }else if(pm.getRANGE() && manualPrice > pm.getMAXPRICE()){
+            }else if(rangeControl && pm.getRANGE() && manualPrice > pm.getMAXPRICE()){
                 Snackbar.make(getView(), "El precio no puede ser superior a $"+Funciones.formatMoney(pm.getMAXPRICE()), Snackbar.LENGTH_SHORT).show();
                 etPrice.requestFocus();
                 return false;
             }
         }else if(adapter instanceof  SalesRowAdapter){
             ProductsMeasure pm = ProductsMeasureController.getInstance(context).getProductMeasureByProductAndMeasure(codeProduct, ((NewOrderProductModel)tempOrderModel).getMeasure());
-            if(pm.getRANGE() && manualPrice < pm.getMINPRICE()){
+            if(rangeControl && pm.getRANGE() && manualPrice < pm.getMINPRICE()){
                 Snackbar.make(getView(), "El precio no puede ser menor a $"+Funciones.formatMoney(pm.getMINPRICE()), Snackbar.LENGTH_SHORT).show();
                 etPrice.requestFocus();
                 return false;
-            }else if(pm.getRANGE() && manualPrice > pm.getMAXPRICE()){
+            }else if(rangeControl && pm.getRANGE() && manualPrice > pm.getMAXPRICE()){
                 Snackbar.make(getView(), "El precio no puede ser superior a $"+Funciones.formatMoney(pm.getMAXPRICE()), Snackbar.LENGTH_SHORT).show();
+                etPrice.requestFocus();
+                return false;
+            }
+        }else if(adapter instanceof  SalesRowNoMeasureAdapter || adapter instanceof OrderResumeNoMeasureAdapter){
+            Products p = ProductsController.getInstance(context).getProductByCode(codeProduct);
+            if(rangeControl && p.isRANGE() && manualPrice < p.getMINPRICE()){
+                Snackbar.make(getView(), "El precio no puede ser menor a $"+Funciones.formatMoney(p.getMINPRICE()), Snackbar.LENGTH_SHORT).show();
+                etPrice.requestFocus();
+                return false;
+            }else if(rangeControl && p.isRANGE() && manualPrice > p.getMAXPRICE()){
+                Snackbar.make(getView(), "El precio no puede ser superior a $"+Funciones.formatMoney(p.getMAXPRICE()), Snackbar.LENGTH_SHORT).show();
                 etPrice.requestFocus();
                 return false;
             }
         }else if(adapter instanceof  OrderResumeAdapter){
             ProductsMeasure pm = ProductsMeasureController.getInstance(context).getProductMeasureByProductAndMeasure(codeProduct, ((OrderDetailModel)tempOrderModel).getCodeMeasure());
-            if(pm.getRANGE() && manualPrice < pm.getMINPRICE()){
+            if(rangeControl && pm.getRANGE() && manualPrice < pm.getMINPRICE()){
                 Snackbar.make(getView(), "El precio no puede ser menor a $"+Funciones.formatMoney(pm.getMINPRICE()), Snackbar.LENGTH_SHORT).show();
                 etPrice.requestFocus();
                 return false;
-            }else if(pm.getRANGE() && manualPrice > pm.getMAXPRICE()){
+            }else if(rangeControl && pm.getRANGE() && manualPrice > pm.getMAXPRICE()){
                 Snackbar.make(getView(), "El precio no puede ser superior a $"+Funciones.formatMoney(pm.getMAXPRICE()), Snackbar.LENGTH_SHORT).show();
                 etPrice.requestFocus();
                 return false;
@@ -264,16 +249,24 @@ public class AddProductDialog extends DialogFragment {
             ((OrderDetailModel)tempOrderModel).setQuantity(String.valueOf((int)quantity));
             ((OrderDetailModel)tempOrderModel).setManualPrice(etPrice.getText().toString());
             ((OrderResumeAdapter)adapter).EditLineFromExternal((OrderDetailModel)tempOrderModel, (OrderResumeAdapter.OrderResumeHolder)holder);
+        }else if(adapter instanceof OrderResumeNoMeasureAdapter){
+            ((OrderDetailModel)tempOrderModel).setQuantity(String.valueOf((int)quantity));
+            ((OrderDetailModel)tempOrderModel).setManualPrice(etPrice.getText().toString());
+            ((OrderResumeNoMeasureAdapter)adapter).EditLineFromExternal((OrderDetailModel)tempOrderModel, (OrderResumeNoMeasureAdapter.OrderResumeNoMeasureHolder)holder);
         }else if(adapter instanceof SalesRowAdapter){
             ((NewOrderProductModel)tempOrderModel).setQuantity(String.valueOf((int)quantity));
             ((NewOrderProductModel)tempOrderModel).setManualPrice(etPrice.getText().toString());
             ((SalesRowAdapter)adapter).EditLineFromExternal((NewOrderProductModel)tempOrderModel, (SalesRowAdapter.SalesRowHolder)holder);
+        }else if(adapter instanceof  SalesRowNoMeasureAdapter){
+            ((NewOrderProductNoMeasureModel)tempOrderModel).setQuantity(String.valueOf((int)quantity));
+            ((NewOrderProductNoMeasureModel)tempOrderModel).setManualPrice(etPrice.getText().toString());
+            ((SalesRowNoMeasureAdapter)adapter).EditLineFromExternal((NewOrderProductNoMeasureModel)tempOrderModel, (SalesRowNoMeasureAdapter.SalesRowNoMeasureHolder)holder);
         }
         dismiss();
     }
 
 
-    public void inicializeEditOrderLine(){
+   /* public void inicializeEditOrderLine(){
         String name="";
         String measure="";
         String quantity = "";
@@ -308,7 +301,7 @@ public class AddProductDialog extends DialogFragment {
         tvName.setText(name);
         etCantidad.setText(quantity);
         etPrice.setText(price);
-    }
+    }*/
 
 
     public void fillSpn(ArrayList<KV2> items, Spinner spn){
@@ -320,9 +313,145 @@ public class AddProductDialog extends DialogFragment {
                     spnUnitMeasure.setSelection(i);
                     break;
                 }
-
         }
+    }
+
+
+    public void initDialogForNewOrderProductRowAdapter(){
+        llMeasure.setVisibility(View.VISIBLE);
+        tvMeasure.setVisibility(View.GONE);
+
+        spnUnitMeasure.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                if(tempOrderModel instanceof NewOrderProductModel) {
+                    KV2 value = (KV2)spnUnitMeasure.getSelectedItem();
+                    ProductsMeasure pm = ProductsMeasureController.getInstance(context).getProductMeasureByProductAndMeasure(((NewOrderProductModel)tempOrderModel).getCodeProduct(), value.getKey());
+                    tilPrecio.setHint(Funciones.formatMoney(pm.getPRICE()));
+                    etPrice.setText(((NewOrderProductModel)tempOrderModel).getManualPrice().equals("")?pm.getPRICE()+"":((NewOrderProductModel)tempOrderModel).getManualPrice());
+                    tvRangePrice.setText(pm.getRANGE()?"Precio Minimo: $"+Funciones.formatMoney(pm.getMINPRICE())+" - Precio Maximo: $"+Funciones.formatMoney(pm.getMAXPRICE()):"");
+
+                }
+
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+    }
+
+    public void initDialogForSalesRowAdapter(NewOrderProductModel model){
+        llMeasure.setVisibility(View.GONE);
+        tvMeasure.setVisibility(View.VISIBLE);
+
+        String codeMeasure = model.getMeasure();
+        String codeProduct = model.getCodeProduct();
+        String manualPrice = model.getManualPrice();
+
+        ProductsMeasure pm = ProductsMeasureController.getInstance(context).getProductMeasureByProductAndMeasure(codeProduct, codeMeasure);
+        double price = pm.getPRICE();
+        double minPrice = pm.getMINPRICE();
+        double maxPrice = pm.getMAXPRICE();
+        boolean range = pm.getRANGE();
+
+        initValues(model.getName(), model.getQuantity(), price, manualPrice, range, minPrice, maxPrice);
 
     }
+
+    public void initDialogForSalesRowNoMeasureAdapter(NewOrderProductNoMeasureModel model){
+        llMeasure.setVisibility(View.GONE);
+        tvMeasure.setVisibility(View.INVISIBLE);
+        String manualPrice= model.getManualPrice();
+        double price = model.getPrice();
+        double minPrice = model.getMinPrice();
+        double maxPrice = model.getMaxPrice();
+        boolean range = model.isRange();
+
+       initValues(model.getName(), model.getQuantity(), price, manualPrice, range, minPrice, maxPrice);
+    }
+
+
+
+    public void initDialogForOrderResumeAdapter(OrderDetailModel model){
+        llMeasure.setVisibility(View.GONE);
+        tvMeasure.setVisibility(View.VISIBLE);
+
+        String codeMeasure= model.getCodeMeasure();
+        String codeProduct = model.getCodeProduct();
+        String manualPrice = model.getManualPrice();
+
+        ProductsMeasure pm = ProductsMeasureController.getInstance(context).getProductMeasureByProductAndMeasure(codeProduct, codeMeasure);
+        double price = pm.getPRICE();
+        double minPrice = pm.getMINPRICE();
+        double maxPrice = pm.getMAXPRICE();
+        boolean range = pm.getRANGE();
+
+
+       initValues(model.getProduct_name(), model.getQuantity(), price, manualPrice, range, minPrice, maxPrice);
+    }
+
+
+    public void initDialogForOrderResumeNoMeasureAdapter(OrderDetailModel model){
+
+        llMeasure.setVisibility(View.GONE);
+        tvMeasure.setVisibility(View.INVISIBLE);
+
+        Products p = ProductsController.getInstance(getActivity()).getProductByCode(model.getCodeProduct());
+        double price = p.getPRICE();
+        double minPrice = p.getMINPRICE();
+        double maxPrice = p.getMAXPRICE();
+        boolean range = p.isRANGE();
+        String manualPrice = model.getManualPrice();
+
+
+        initValues(model.getProduct_name(), model.getQuantity(), price, manualPrice, range, minPrice, maxPrice);
+    }
+
+
+    public void initValues(String name, String quantity, double price,String manualPrice, boolean range, double minPrice, double maxPrice){
+
+        if(rangeControl && range){
+            etPrice.setFocusableInTouchMode(true);
+            tilPrecio.setHint(Funciones.formatMoney(price));
+            tvRangePrice.setText("Precio Minimo: $"+Funciones.formatMoney(minPrice)+" - Precio Maximo: $"+Funciones.formatMoney(maxPrice));
+            etPrice.setText(manualPrice.equals("")?price+"":manualPrice);
+        }else{
+            tvRangePrice.setText("");
+            etPrice.setFocusableInTouchMode(false);
+            etPrice.setText(price+"");
+
+        }
+        tvName.setText(name);
+        etCantidad.setText(quantity);
+
+    }
+
+    public void initMeasure(){
+        String measure ="";
+        if(tempOrderModel instanceof NewOrderProductModel){
+            NewOrderProductModel obj = (NewOrderProductModel)tempOrderModel;
+
+            if(adapter instanceof NewOrderProductRowAdapter){
+                fillSpn(obj.getMeasures(), spnUnitMeasure);
+                setSpnUnitMeasurePosition((NewOrderProductModel)tempOrderModel);
+            }else{
+                for(KV2 k : obj.getMeasures()){
+                    if(k.getKey().equals(obj.getMeasure())){
+                        measure = k.getValue();
+                    }
+                }
+            }
+        }else if(tempOrderModel instanceof OrderDetailModel){
+            OrderDetailModel obj = (OrderDetailModel)tempOrderModel;
+            measure = obj.getMeasureDescription();
+        }
+
+        tvMeasure.setText(measure);
+    }
+
+
+
 
 }

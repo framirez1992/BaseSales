@@ -6,10 +6,12 @@ import android.database.Cursor;
 import android.support.annotation.NonNull;
 
 import com.far.basesales.Adapters.Models.NewOrderProductModel;
+import com.far.basesales.Adapters.Models.NewOrderProductNoMeasureModel;
 import com.far.basesales.Adapters.Models.ProductMeasureRowModel;
 import com.far.basesales.Adapters.Models.ProductRowModel;
 import com.far.basesales.CloudFireStoreObjects.Licenses;
 import com.far.basesales.CloudFireStoreObjects.Products;
+import com.far.basesales.CloudFireStoreObjects.ProductsControl;
 import com.far.basesales.CloudFireStoreObjects.ProductsMeasure;
 import com.far.basesales.DataBase.CloudFireStoreDB;
 import com.far.basesales.DataBase.DB;
@@ -220,18 +222,18 @@ public class ProductsController {
     }
 
 
-    public ArrayList<NewOrderProductModel> getNewProductRowModelsWithoutMeasures(String where, String[] args, String campoOrder){
-        ArrayList<NewOrderProductModel> result = new ArrayList<>();
+    public ArrayList<NewOrderProductNoMeasureModel> getNewProductRowModelsWithoutMeasures(String where, String[] args, String campoOrder){
+        ArrayList<NewOrderProductNoMeasureModel> result = new ArrayList<>();
         if(campoOrder == null){campoOrder = DESCRIPTION;}
         where=((where != null)? "AND  "+where:"");
-        String data = "";
         try {
 
             String sql = "SELECT * FROM ("+
                     "SELECT toc."+TempOrdersController.DETAIL_CODE+" AS CODEORDERDETAIL, p."+CODE+" as CODE, p."+DESCRIPTION+" AS DESCRIPTION, ifnull(toc."+TempOrdersController.DETAIL_QUANTITY+", 0) AS QUANTITY, " +
-                    "ifnull(toc."+TempOrdersController.DETAIL_CODEUND+", p."+CODE+" ) as MEASURE,ifnull(toc."+TempOrdersController.DETAIL_MANUALPRICE+", p."+PRICE+") as MANUALPRICE, " +
+                    " ifnull(p."+ProductsController.PRICE+", 0.0) as PRICE, ifnull(toc."+TempOrdersController.DETAIL_MANUALPRICE+", p."+PRICE+") as MANUALPRICE, " +
                     "ifnull(toc."+TempOrdersController.DETAIL_POSITION+", 0) as POSITION, pt."+ProductsTypesController.CODE+" as PTCODE, pt."+ProductsTypesController.DESCRIPTION+" as PTDESCRIPTION, " +
-                    "pst."+ProductsSubTypesController.CODE+" AS PSTCODE, pst."+ProductsSubTypesController.DESCRIPTION+" AS PSTDESCRIPTION, p."+MDATE+" AS MDATE, ifnull(pc."+ProductsControlController.BLOQUED+", 0) as BLOQUED " +
+                    "pst."+ProductsSubTypesController.CODE+" AS PSTCODE, pst."+ProductsSubTypesController.DESCRIPTION+" AS PSTDESCRIPTION, p."+MDATE+" AS MDATE, ifnull(pc."+ProductsControlController.BLOQUED+", 0) as BLOQUED, " +
+                    "p."+ProductsController.RANGE+" as RANGE, p."+ ProductsController.MINPRICE +" as MINPRICE, p."+ProductsController.MAXPRICE+" as MAXPRICE " +
                     "FROM "+TABLE_NAME+" p " +
                     "INNER JOIN "+ProductsTypesController.TABLE_NAME+" pt ON pt."+ProductsTypesController.CODE+" = p."+TYPE+" "+
                     "INNER JOIN "+ProductsSubTypesController.TABLE_NAME+" pst ON pst."+ProductsSubTypesController.CODE+" = "+SUBTYPE+" "+
@@ -249,20 +251,24 @@ public class ProductsController {
                 String code = c.getString(c.getColumnIndex("CODE"));
                 String desc = c.getString(c.getColumnIndex("DESCRIPTION"));
                 String qty = String.valueOf(c.getInt(c.getColumnIndex("QUANTITY")));
-                String measure = c.getString(c.getColumnIndex("MEASURE"));
+                double price = c.getDouble(c.getColumnIndex("PRICE"));
+                boolean range = c.getString(c.getColumnIndex("RANGE")).equals("1");
+                double minPrice =  c.getDouble(c.getColumnIndex("MINPRICE"));
+                double maxPrice =  c.getDouble(c.getColumnIndex("MAXPRICE"));
                 String manualPrice = c.getString(c.getColumnIndex("MANUALPRICE"));
-                String position =  c.getString(c.getColumnIndex("POSITION"));
-                String blocked = c.getString(c.getColumnIndex("BLOQUED"));
-                data+="DESC:"+desc+" MEASURE: "+measure+" ORDER:"+position+"\n";
+                boolean blocked = c.getString(c.getColumnIndex("BLOQUED")).equals("1");
 
-                result.add(new NewOrderProductModel(codeOrderdetail,
+                //String codeOrderDetail, String codeProduct, String name, String quantity,double price,boolean range, double minPrice, double maxPrice, String manualPrice, boolean bloqued
+                result.add(new NewOrderProductNoMeasureModel(codeOrderdetail,
                         code,
                         desc,
                         qty,
-                        measure,
+                        price,
+                        range,
+                        minPrice,
+                        maxPrice,
                         manualPrice,
-                        blocked,
-                        ProductsMeasureController.getInstance(context).getProductsMeasureKVByCodeProduct(c.getString(c.getColumnIndex("CODE")))));
+                        blocked));
             }
         }catch(Exception e){
             e.printStackTrace();

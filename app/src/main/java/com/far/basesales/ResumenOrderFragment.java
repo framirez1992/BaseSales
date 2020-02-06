@@ -20,9 +20,11 @@ import android.widget.TextView;
 
 import com.far.basesales.Adapters.Models.OrderDetailModel;
 import com.far.basesales.Adapters.OrderResumeAdapter;
+import com.far.basesales.Adapters.OrderResumeNoMeasureAdapter;
 import com.far.basesales.CloudFireStoreObjects.Sales;
 import com.far.basesales.Controllers.SalesController;
 import com.far.basesales.Controllers.TempOrdersController;
+import com.far.basesales.Controllers.UserControlController;
 import com.far.basesales.Globales.CODES;
 import com.far.basesales.Utils.Funciones;
 
@@ -47,6 +49,8 @@ public class ResumenOrderFragment extends Fragment {
     MainOrders parentActivity;
     boolean fragmentCreated;
 
+    boolean productMeasureControl;
+
     public ResumenOrderFragment() {
         // Required empty public constructor
     }
@@ -58,6 +62,8 @@ public class ResumenOrderFragment extends Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
+
+        productMeasureControl = UserControlController.getInstance(parentActivity).searchSimpleControl(CODES.USERSCONTROL_PRODUCTS_MEASURE)!= null;
     }
 
     @Override
@@ -134,10 +140,10 @@ public class ResumenOrderFragment extends Fragment {
 
 
     public boolean validate(){
-        if(rvList.getAdapter() == null ||((OrderResumeAdapter)rvList.getAdapter()).hasBlockedProducts()){
+        if(rvList.getAdapter() == null || existBlockedProducts()){
             Snackbar.make(getView(), "No puede realizar la orden con productos NO DISPONIBLES.", Snackbar.LENGTH_LONG).show();
             return false;
-        } else if(rvList.getAdapter() == null ||rvList.getAdapter().getItemCount() ==0){
+        } else if(rvList.getAdapter() == null || rvList.getAdapter().getItemCount() ==0){
             Snackbar.make(getView(), "Debe seleccionar al menos 1 item", Snackbar.LENGTH_LONG).show();
             return false;
         }else if(!validQuantitys()){
@@ -162,8 +168,14 @@ public class ResumenOrderFragment extends Fragment {
 
 
     public void refreshList(){
+        if(productMeasureControl){
             OrderResumeAdapter adapter = new OrderResumeAdapter(parentActivity, parentActivity, TempOrdersController.getInstance(parentActivity).getOrderDetailModels(((parentActivity).getOrderCode())));
             rvList.setAdapter(adapter);
+        }else{
+            OrderResumeNoMeasureAdapter adapter = new OrderResumeNoMeasureAdapter(parentActivity, parentActivity, TempOrdersController.getInstance(parentActivity).getOrderDetailModels(((parentActivity).getOrderCode())));
+            rvList.setAdapter(adapter);
+        }
+
             rvList.getAdapter().notifyDataSetChanged();
             rvList.invalidate();
     }
@@ -197,4 +209,13 @@ public class ResumenOrderFragment extends Fragment {
     public boolean isFragmentCreated(){
         return fragmentCreated;
     }
+
+    public boolean existBlockedProducts(){
+        if(productMeasureControl){
+            return ((OrderResumeAdapter)rvList.getAdapter()).hasBlockedProducts();
+        }else{
+            return ((OrderResumeNoMeasureAdapter)rvList.getAdapter()).hasBlockedProducts();
+        }
+    }
+
 }

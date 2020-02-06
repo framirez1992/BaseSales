@@ -1,27 +1,25 @@
 package com.far.basesales.Adapters.Models;
 
-import com.far.basesales.Generic.KV;
 import com.far.basesales.Generic.KV2;
-import com.far.basesales.Globales.CODES;
 
 import java.util.ArrayList;
 
-
-public class NewOrderProductModel {
+public class NewOrderProductNoMeasureModel {
     String codeOrderDetail;
     String codeProduct;
     String name;
     String quantity;
-    String measure;
-    boolean blocked;
-    ArrayList<KV2> measures;
+    double price, minPrice, maxPrice;
+    boolean blocked, range;
 
     String manualPrice;
-
-    public NewOrderProductModel(String codeOrderDetail, String codeProduct, String name, String quantity, String measure,String manualPrice, String bloqued, ArrayList<KV2> measures){
+    /**
+     *productos sin unidad de medida (control CODES.USERSCONTROL_PRODUCTS_MEASURE = false)
+     */
+    public NewOrderProductNoMeasureModel(String codeOrderDetail, String codeProduct, String name, String quantity,double price,boolean range, double minPrice, double maxPrice, String manualPrice, boolean bloqued){
         this.codeOrderDetail = codeOrderDetail; this.codeProduct = codeProduct;
-        this.name = name; this.quantity = quantity; this.measure = measure;
-        this.measures = measures;this.blocked = (bloqued.equals("1"));
+        this.name = name; this.quantity = quantity; this.price = price; this.range = range;
+        this.minPrice = minPrice; this.maxPrice = maxPrice; this.blocked = bloqued;
         this.manualPrice = manualPrice;
     }
 
@@ -49,22 +47,6 @@ public class NewOrderProductModel {
         this.quantity = quantity;
     }
 
-    public String getMeasure() {
-        return measure;
-    }
-
-    public void setMeasure(String measure) {
-        this.measure = measure;
-    }
-
-    public ArrayList<KV2> getMeasures() {
-        return measures;
-    }
-
-    public void setMeasures(ArrayList<KV2> measures) {
-        this.measures = measures;
-    }
-
     public String getCodeProduct() {
         return codeProduct;
     }
@@ -90,6 +72,38 @@ public class NewOrderProductModel {
 
     public void setManualPrice(String manualPrice) {
         this.manualPrice = manualPrice;
+    }
+
+    public double getPrice() {
+        return price;
+    }
+
+    public void setPrice(double price) {
+        this.price = price;
+    }
+
+    public double getMinPrice() {
+        return minPrice;
+    }
+
+    public void setMinPrice(double minPrice) {
+        this.minPrice = minPrice;
+    }
+
+    public double getMaxPrice() {
+        return maxPrice;
+    }
+
+    public void setMaxPrice(double maxPrice) {
+        this.maxPrice = maxPrice;
+    }
+
+    public boolean isRange() {
+        return range;
+    }
+
+    public void setRange(boolean range) {
+        this.range = range;
     }
 
 }
