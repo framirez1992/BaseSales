@@ -77,7 +77,7 @@
 
                   </LinearLayout>
 
-                  <LinearLayout
+                  <LinearLayout android:id="@+id/llClients"
                       android:layout_width="match_parent"
                       android:layout_height="wrap_content"
                       android:orientation="horizontal">

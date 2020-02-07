@@ -50,20 +50,24 @@ import java.util.Date;
 
 public class ProductsDialogfragment extends DialogFragment implements ListableActivity,  OnFailureListener {
 
+
+
+
+
     DialogCaller dialogCaller;
     private Products tempObj;
     private Products toInsertObject;
     private ArrayList<ProductsMeasure> toInsertProductMeasure;
 
-    LinearLayout llSave, llBack, llProgress, llRange;
-    TextInputEditText etCode, etName;
+    LinearLayout llSave,llSaveWithoutMeasure,  llBack, llProgress, llRange, llRangeWithoutMeasure, llProgressWithoutMeasure;
+    TextInputEditText etCode, etName, etPrice;
     Spinner spnFamily, spnGroup;
     RecyclerView rvMeasures;
     LinearLayout llMeasureScreen, llMainScreen, llNext;
 
     TextView tvMeasureName;
-    CheckBox cbActiveMeasure,cbActiveRange;
-    TextInputEditText etMeasurePrice, etMin, etMax;
+    CheckBox cbActiveMeasure,cbActiveRange, cbActiveRangeWithoutMeasure;
+    TextInputEditText etMeasurePrice, etMin, etMax, etMinWithoutMeasure, etMaxWithoutMeasure;
     CardView btnApply;
     ProductMeasureRowModel selectedRowModel;
 
@@ -78,6 +82,7 @@ public class ProductsDialogfragment extends DialogFragment implements ListableAc
     Dialog errorDialog;
 
     boolean rangeControl;
+    boolean productMeasureControl;
 
     public  static ProductsDialogfragment newInstance(String type, Products pt, DialogCaller dialogCaller) {
 
@@ -108,6 +113,7 @@ public class ProductsDialogfragment extends DialogFragment implements ListableAc
         userControlController = UserControlController.getInstance(getActivity());
 
         rangeControl = userControlController.searchSimpleControl(CODES.USERSCONTROL_PRODUCT_PRICES_RANGE)!=null;
+        productMeasureControl = userControlController.searchSimpleControl(CODES.USERSCONTROL_PRODUCTS_MEASURE)!= null;
 
     }
 
@@ -143,13 +149,20 @@ public class ProductsDialogfragment extends DialogFragment implements ListableAc
 
     public void init(View view){
         llProgress = view.findViewById(R.id.llProgress);
+        llProgressWithoutMeasure = view.findViewById(R.id.llProgressWithoutMeasure);
         llMainScreen = view.findViewById(R.id.llMainScreen);
         llMeasureScreen = view.findViewById(R.id.llMeasureScreen);
         llNext = view.findViewById(R.id.llNext);
         llSave = view.findViewById(R.id.llSave);
+        llSaveWithoutMeasure = view.findViewById(R.id.llSaveWithoutMeasure);
         llBack = view.findViewById(R.id.llBack);
         etCode = view.findViewById(R.id.etCode);
         etName = view.findViewById(R.id.etName);
+        etPrice = view.findViewById(R.id.etPrice);
+        llRangeWithoutMeasure = view.findViewById(R.id.llRangeWithoutMeasure);
+        cbActiveRangeWithoutMeasure = view.findViewById(R.id.cbActiveRangeWithoutMeasure);
+        etMinWithoutMeasure = view.findViewById(R.id.etMinWithoutMeasure);
+        etMaxWithoutMeasure = view.findViewById(R.id.etMaxWithoutMeasure);
         spnFamily = view.findViewById(R.id.spnFamilia);
         spnGroup = view.findViewById(R.id.spnGrupo);
         rvMeasures = view.findViewById(R.id.rvMeasures);
@@ -171,7 +184,7 @@ public class ProductsDialogfragment extends DialogFragment implements ListableAc
                 if(selectedRowModel == null){
                     return;
                 }
-                if(!validateRowModelEdition()){
+                if(!validatePriceAndRange(etMeasurePrice, cbActiveRange, etMin, etMax)){
                     return;
                 }
                 selectedRowModel.setAmount(Double.parseDouble(etMeasurePrice.getText().toString()));
@@ -210,6 +223,20 @@ public class ProductsDialogfragment extends DialogFragment implements ListableAc
             }
         });
 
+        llSaveWithoutMeasure.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                llSaveWithoutMeasure.setEnabled(false);
+                llProgressWithoutMeasure.setVisibility(View.VISIBLE);
+                selected = null;
+                if(tempObj == null){
+                    Save();
+                }else{
+                    Edit();
+                }
+            }
+        });
+
         llBack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -225,12 +252,6 @@ public class ProductsDialogfragment extends DialogFragment implements ListableAc
                 llMeasureScreen.setVisibility((llMeasureScreen.getVisibility() == View.GONE)?View.VISIBLE:View.GONE);
             }
         });
-
-        if(tempObj != null){//EDIT
-            setUpToEditUsers();
-        }
-
-        fillMeasures();
 
 
         spnFamily.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -257,13 +278,25 @@ public class ProductsDialogfragment extends DialogFragment implements ListableAc
             }
         });
 
+        if(tempObj != null){//EDIT
+            setUpToEditUsers();
+        }
+
+        if(productMeasureControl){
+            fillMeasures();
+        }
+
         setupControls();
     }
 
 
 
     public void setupControls(){
-        llRange.setVisibility(rangeControl?View.VISIBLE:View.GONE);
+        llRange.setVisibility(rangeControl && productMeasureControl?View.VISIBLE:View.GONE);
+        llRangeWithoutMeasure.setVisibility(rangeControl && !productMeasureControl?View.VISIBLE:View.GONE);
+        llNext.setVisibility(productMeasureControl?View.VISIBLE:View.GONE);
+        llSaveWithoutMeasure.setVisibility(productMeasureControl?View.GONE:View.VISIBLE);
+        etPrice.setVisibility(productMeasureControl?View.GONE:View.VISIBLE);
     }
 
     public boolean validate(){
@@ -276,8 +309,10 @@ public class ProductsDialogfragment extends DialogFragment implements ListableAc
         }else if(spnGroup.getSelectedItem()== null){
             Snackbar.make(getView(), "Seleccione un grupo.", Snackbar.LENGTH_SHORT).show();
             return false;
-        }else if(selected.size() == 0){
+        }else if(productMeasureControl && selected.size() == 0){
             Snackbar.make(getView(), "Seleccione por lo menos 1 unidad de medida", Snackbar.LENGTH_LONG).show();
+            return false;
+        }else if(!productMeasureControl && !validatePriceAndRange(etPrice, cbActiveRangeWithoutMeasure, etMinWithoutMeasure, etMaxWithoutMeasure)){
             return false;
         }
 
@@ -290,8 +325,14 @@ public class ProductsDialogfragment extends DialogFragment implements ListableAc
         if(validate()) {
             SaveProduct();
         }else{
-            llSave.setEnabled(true);
-            llProgress.setVisibility(View.INVISIBLE);
+            if(productMeasureControl){
+                llSave.setEnabled(true);
+                llProgress.setVisibility(View.INVISIBLE);
+            }else{
+                llSaveWithoutMeasure.setEnabled(true);
+                llProgressWithoutMeasure.setVisibility(View.INVISIBLE);
+            }
+
         }
     }
 
@@ -299,14 +340,19 @@ public class ProductsDialogfragment extends DialogFragment implements ListableAc
         if(validate()) {
             EditProduct();
         }else{
-            llSave.setEnabled(true);
-            llProgress.setVisibility(View.INVISIBLE);
+            if(productMeasureControl){
+                llSave.setEnabled(true);
+                llProgress.setVisibility(View.INVISIBLE);
+            }else{
+                llSaveWithoutMeasure.setEnabled(true);
+                llProgressWithoutMeasure.setVisibility(View.INVISIBLE);
+            }
         }
     }
 
     public void SaveProduct(){
         try {
-            if(userControlController.searchSimpleControl(CODES.USERSCONTROL_PRODUCTS_MEASURE) != null){
+            if(productMeasureControl){
                insertProductWithMeasure();
             }else{
                 toInsertProductMeasure = null;
@@ -396,6 +442,15 @@ public class ProductsDialogfragment extends DialogFragment implements ListableAc
         setSpinnerposition(spnFamily, p.getTYPE());
         setSpinnerposition(spnGroup, p.getSUBTYPE());
 
+        if(!productMeasureControl){
+            etPrice.setText(p.getPRICE()+"");
+            if(rangeControl){
+                cbActiveRangeWithoutMeasure.setChecked(p.isRANGE());
+                etMinWithoutMeasure.setText(p.getMINPRICE()+"");
+                etMaxWithoutMeasure.setText(p.getMAXPRICE()+"");
+            }
+        }
+
 
     }
 
@@ -412,23 +467,17 @@ public class ProductsDialogfragment extends DialogFragment implements ListableAc
 
     public void fillMeasures(){
 
-        boolean controlProductMeasure =userControlController.searchSimpleControl(CODES.USERSCONTROL_PRODUCTS_MEASURE)!= null;
         if(tempObj != null) {
             if(type.equals(CODES.ENTITY_TYPE_EXTRA_PRODUCTSFORSALE)){
-
-                if(controlProductMeasure){
                     selected.addAll(ProductsMeasureController.getInstance(getActivity()).getSSRMByCodeProduct((tempObj).getCODE()));
-                }else{
-                    selected.addAll(productsController.getDefaultProductMeasure(tempObj.getCODE()));
-                }
+
             }else if(type.equals(CODES.ENTITY_TYPE_EXTRA_INVENTORY)){
                // selectedObjs.addAll(ProductsMeasureInvController.getInstance(getActivity()).getSSRMByCodeProduct(((Products) tempObj).getCODE()));
             }
         }
         ArrayList<ProductMeasureRowModel> arr = null;
         if(type.equals(CODES.ENTITY_TYPE_EXTRA_PRODUCTSFORSALE)){
-            arr =  controlProductMeasure?MeasureUnitsController.getInstance(getActivity()).getUnitMeasuresSSRM(null, null, null)
-            :productsController.getDefaultProductMeasure(etCode.getText().toString());
+            arr =  MeasureUnitsController.getInstance(getActivity()).getUnitMeasuresSSRM(null, null, null);
         }else if(type.equals(CODES.ENTITY_TYPE_EXTRA_INVENTORY)){
             //arr = MeasureUnitsInvController.getInstance(getActivity()).getUnitMeasuresSSRM(null, null, null);
         }
@@ -524,31 +573,66 @@ public class ProductsDialogfragment extends DialogFragment implements ListableAc
     }
 
 
-    public boolean validateRowModelEdition(){
+    public boolean validatePriceAndRange(TextInputEditText etPrice, CheckBox cbRange, TextInputEditText etMinPrice, TextInputEditText etMaxPrice){
         double price = 0.0;
         double minPrice = 0.0;
         double maxPrice = 0.0;
         try{
-           price = Double.parseDouble(etMeasurePrice.getText().toString());
+           price = Double.parseDouble(etPrice.getText().toString());
         }catch (Exception e){
             Snackbar.make(getView(), "Precio invalido", Snackbar.LENGTH_LONG).show();
-            etMeasurePrice.requestFocus();
+            etPrice.requestFocus();
+            return false;
+        }
+
+
+        if(rangeControl && cbRange.isChecked()){
+            try{
+                minPrice = Double.parseDouble(etMinPrice.getText().toString());
+            }catch (Exception e){
+                Snackbar.make(getView(), "Precio minimo invalido", Snackbar.LENGTH_LONG).show();
+                etMinPrice.requestFocus();
+                return false;
+            }
+            try{
+                maxPrice = Double.parseDouble(etMaxPrice.getText().toString());
+            }catch (Exception e){
+                Snackbar.make(getView(), "Precio maximo invalido", Snackbar.LENGTH_LONG).show();
+                etMaxPrice.requestFocus();
+                return false;
+            }
+
+
+            if(minPrice > price){
+                Snackbar.make(getView(), "El precio minimo no puede exceder al precio de lista", Snackbar.LENGTH_LONG).show();
+                etMinPrice.requestFocus();
+                return false;
+            }else if(maxPrice < price){
+                Snackbar.make(getView(), "El precio maximo no puede ser menor al precio de lista", Snackbar.LENGTH_LONG).show();
+                etMaxPrice.requestFocus();
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+
+    public boolean validatePrice(){
+        double amount = 0;
+        if(etPrice.getText().toString().trim().isEmpty()){
             return false;
         }
         try{
-            minPrice = Double.parseDouble(etMin.getText().toString());
+            amount = Double.parseDouble(etPrice.getText().toString());
         }catch (Exception e){
-            Snackbar.make(getView(), "Precio minimo invalido", Snackbar.LENGTH_LONG).show();
-            etMin.requestFocus();
             return false;
         }
-        try{
-            maxPrice = Double.parseDouble(etMax.getText().toString());
-        }catch (Exception e){
-            Snackbar.make(getView(), "Precio maximo invalido", Snackbar.LENGTH_LONG).show();
-            etMax.requestFocus();
+
+        if(amount <=0){
             return false;
         }
+
         return true;
     }
 
@@ -558,8 +642,13 @@ public class ProductsDialogfragment extends DialogFragment implements ListableAc
     }
 
     public void failure(String msg){
-        llSave.setEnabled(true);
-        llProgress.setVisibility(View.INVISIBLE);
+        if(productMeasureControl){
+            llSave.setEnabled(true);
+            llProgress.setVisibility(View.INVISIBLE);
+        }else{
+            llSaveWithoutMeasure.setEnabled(true);
+            llProgressWithoutMeasure.setVisibility(View.INVISIBLE);
+        }
         Snackbar.make(getView(), msg, Snackbar.LENGTH_LONG).show();
     }
 
@@ -641,46 +730,29 @@ public class ProductsDialogfragment extends DialogFragment implements ListableAc
         String description = etName.getText().toString();
         String productType = ((KV)spnFamily.getSelectedItem()).getKey();
         String productSubType = ((KV)spnGroup.getSelectedItem()).getKey();
-        double price=0.0, minprice=0.0, maxprice=0.0;
-        boolean enabled = false;
-        boolean range = false;
+        double price=Double.parseDouble(etPrice.getText().toString());
+        boolean range = cbActiveRangeWithoutMeasure.isChecked();
+        double minprice = range?Double.parseDouble(etMinWithoutMeasure.getText().toString()):0.0;
+        double maxprice = range?Double.parseDouble(etMaxWithoutMeasure.getText().toString()):0.0;
 
-        for(ProductMeasureRowModel ssrm: selected){
-            price = ssrm.getAmount();
-            enabled = ssrm.isChecked();
-            minprice = ssrm.getMinPrice();
-            maxprice = ssrm.getMaxPrice();
-            range = ssrm.isPriceRange();
-        }
         //String code, String description, String type,String subType, double price,boolean enabled, boolean range, double minprice, double maxprice, boolean combo
-        toInsertObject = new Products(code, description, productType, productSubType,price, enabled, range, minprice, maxprice,  false);
+        toInsertObject = new Products(code, description, productType, productSubType,price, true, range, minprice, maxprice,  false);
         productsController.sendToFireBase(toInsertObject, this);
     }
 
 
     public void updateProductWithoutMeasure(){
-
-        double price=0.0, minprice=0.0, maxprice=0.0;
-        boolean enabled = false;
-        boolean range = false;
-
-        for(ProductMeasureRowModel ssrm: selected){
-            price = ssrm.getAmount();
-            minprice = ssrm.getMinPrice();
-            maxprice = ssrm.getMaxPrice();
-            enabled = ssrm.isChecked();
-            range = ssrm.isPriceRange();
-        }
+        boolean range = cbActiveRangeWithoutMeasure.isChecked();
 
         Products products = tempObj;
         products.setDESCRIPTION(etName.getText().toString());
         products.setTYPE(((KV)spnFamily.getSelectedItem()).getKey());
         products.setSUBTYPE(((KV)spnGroup.getSelectedItem()).getKey());
-        products.setPRICE(price);
-        products.setMINPRICE(minprice);
-        products.setMAXPRICE(maxprice);
-        products.setENABLED(enabled);
-        products.setRANGE(range);
+        products.setPRICE(Double.parseDouble(etPrice.getText().toString()));
+        products.setMINPRICE(range?Double.parseDouble(etMinWithoutMeasure.getText().toString()):0.0);
+        products.setMAXPRICE(range?Double.parseDouble(etMaxWithoutMeasure.getText().toString()):0.0);
+        //products.setENABLED(enabled);
+        products.setRANGE(cbActiveRangeWithoutMeasure.isChecked());
         products.setMDATE(new Date());
 
 

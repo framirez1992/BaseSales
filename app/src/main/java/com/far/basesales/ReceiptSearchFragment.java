@@ -39,6 +39,7 @@ import com.far.basesales.Adapters.ReceiptAdapter;
 import com.far.basesales.CloudFireStoreObjects.Clients;
 import com.far.basesales.CloudFireStoreObjects.Receipts;
 import com.far.basesales.Controllers.ReceiptController;
+import com.far.basesales.Controllers.UserControlController;
 import com.far.basesales.Dialogs.ClientSearchDialog;
 import com.far.basesales.Dialogs.ClientsDialogFragment;
 import com.far.basesales.Generic.KV;
@@ -74,6 +75,7 @@ public class ReceiptSearchFragment extends Fragment implements DialogCaller  {
     CheckBox cbClient, cbDate;
     TextInputEditText etClient, etDateIni, etDateEnd;
     ClientRowModel selectedClient;
+    LinearLayout llClients;
 
     int lastDatePressed;
     Date ini= null;
@@ -84,11 +86,19 @@ public class ReceiptSearchFragment extends Fragment implements DialogCaller  {
 
     boolean firstTime=true;
 
+    boolean clientControl = false;
+
 
     public ReceiptSearchFragment() {
         // Required empty public constructor
     }
 
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        clientControl = UserControlController.getInstance(parentActivity).searchSimpleControl(CODES.USERSCONTROL_CLIENTS)!= null;
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -105,12 +115,6 @@ public class ReceiptSearchFragment extends Fragment implements DialogCaller  {
         rvList = view.findViewById(R.id.rvList);
         rvList.setLayoutManager(new LinearLayoutManager(parentActivity));
         pb = view.findViewById(R.id.pb);
-        /*imgSearch = view.findViewById(R.id.imgSearch);
-        imgHideSearch = view.findViewById(R.id.imgHideSearch);
-        llSearch = view.findViewById(R.id.llSearch);
-        etSearch = view.findViewById(R.id.etSearch);
-        imgMenu = view.findViewById(R.id.imgMenu);
-        llMenu = view.findViewById(R.id.llMenu);*/
         btnSearch = view.findViewById(R.id.btnSearch);
         btnSearchClients = view.findViewById(R.id.btnSearchClients);
         etDateIni = view.findViewById(R.id.etDateIni);
@@ -118,6 +122,7 @@ public class ReceiptSearchFragment extends Fragment implements DialogCaller  {
         etClient = view.findViewById(R.id.etClient);
         cbDate = view.findViewById(R.id.cbDate);
         cbClient = view.findViewById(R.id.cbClient);
+        llClients = view.findViewById(R.id.llClients);
 
         btnSearch.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -152,51 +157,7 @@ public class ReceiptSearchFragment extends Fragment implements DialogCaller  {
 
         fillSpnStatus();
 
-       /* etSearch.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                if (actionId == EditorInfo.IME_ACTION_SEARCH) {
-                    if(etSearch.getText().toString().trim().equals("")){
-                        return false;
-                    }
-                    imgHideSearch.performClick();
-                    search(etSearch.getText().toString());
-
-                    return true;
-
-                }
-                return false;
-            }
-        });
-
-
-
-        imgSearch.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                llMenu.setVisibility(View.GONE);
-                imgSearch.setVisibility(View.GONE);
-                llSearch.setVisibility(View.VISIBLE);
-                etSearch.requestFocus();
-                etSearch.setText("");
-                Funciones.showKeyBoard(etSearch, parentActivity);
-            }
-        });
-
-        imgHideSearch.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Funciones.hideKeyBoard(etSearch, parentActivity);
-                llMenu.setVisibility(View.VISIBLE);
-                imgSearch.setVisibility(View.VISIBLE);
-                llSearch.setVisibility(View.GONE);
-            }
-        });
-
-        imgMenu.setVisibility(View.GONE);
-        imgSearch.setVisibility(View.VISIBLE);*/
-
-
+        setUpControls();
 
     }
 
@@ -217,6 +178,9 @@ public class ReceiptSearchFragment extends Fragment implements DialogCaller  {
     }
 
 
+    public void setUpControls(){
+        llClients.setVisibility(clientControl?View.VISIBLE:View.GONE);
+    }
     public void fillSpnStatus(){
         ArrayList<KV> list = new ArrayList<>();
         list.add(new KV(CODES.CODE_RECEIPT_STATUS_OPEN, "Abierto"));
@@ -239,7 +203,7 @@ public class ReceiptSearchFragment extends Fragment implements DialogCaller  {
                    data.add(lastStatus.getKey());
 
                 }
-                if(lastCheckClient && selectedClient!= null){
+                if(clientControl && lastCheckClient && selectedClient!= null){
                     where+=" AND r."+ReceiptController.CODECLIENT+" = ? ";
                     data.add(selectedClient.getCode());
                 }
@@ -311,42 +275,6 @@ public class ReceiptSearchFragment extends Fragment implements DialogCaller  {
                 Snackbar.make(getView(), "Rango de fechas invalido", Snackbar.LENGTH_LONG).show();
                 return;
             }
-
-
-            /* lastMinDate = ReceiptController.getInstance(parentActivity).getLastInitialDateSaved(status);
-             lastMaxDate = ReceiptController.getInstance(parentActivity).getLastDateSaved(status);
-
-            if(lastMinDate == null && lastMaxDate == null){//no hay data historica, buscar toda la data.
-            dateIniSearch = ini;
-            dateEndSearch = end;
-
-            }else {
-                //Si ambas fechas  (inicio - fin) sobrepasan las seleccionadas por el usuario, se buscara directamente desde la base de datos.
-                if((lastMinDate != null && Funciones.fechaMenorQue(lastMinDate, ini))
-                        && (lastMaxDate != null && Funciones.fechaMayorQue(lastMaxDate, end))){
-                    search("");
-                    //Si la fecha de Inicio(seleccionada) es menor a la ultima(mas baja) en mi base de datos pero la fecha maxima es menor a la fecha maxima de mi base de datos, solo buscara
-                    //en el server la data que este entre la digitada por el usuario hasta la fecha minima en mi base de datos.
-                }else if((lastMinDate != null && Funciones.fechaMenorQue(ini, lastMinDate))
-                        && (lastMaxDate != null && Funciones.fechaMayorQue(lastMaxDate, end))){
-                    dateIniSearch = ini;
-                    dateEndSearch = lastMinDate;
-
-                    //si la fecha de inicio(seleccionado) es mayor que la ultima (mas baja) en mi base de datos pero la fecha maxima es mayor a la ultima de mi base de datos,
-                    //solo buscara en el server la data que este entre la ultima de mi base de datos y digitada la digitada por el usuario.
-                } else if((lastMinDate != null && Funciones.fechaMenorQue(lastMinDate, ini))
-                        && (lastMaxDate != null && Funciones.fechaMayorQue(end, lastMaxDate))){
-                    dateIniSearch = lastMaxDate;
-                    dateEndSearch = end;
-                }else{
-                    //De lo contrario buscara lo que el usuario especifico.
-                    dateIniSearch = ini;
-                    dateEndSearch = end;
-                }
-
-            }*/
-
-
 
 
         }else{

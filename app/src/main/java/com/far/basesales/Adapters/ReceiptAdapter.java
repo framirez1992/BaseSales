@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.far.basesales.Adapters.Models.ReceiptRowModel;
+import com.far.basesales.Controllers.UserControlController;
 import com.far.basesales.Globales.CODES;
 import com.far.basesales.Interfases.ListableActivity;
 import com.far.basesales.R;
@@ -23,12 +24,16 @@ public class ReceiptAdapter extends RecyclerView.Adapter<ReceiptAdapter.ReceiptR
     ArrayList<ReceiptRowModel> objects;
     ListableActivity listableActivity;
     ReceiptRowModel selected;
+    boolean clientsControl;
 
     public ReceiptAdapter(Activity act, ListableActivity la, ArrayList<ReceiptRowModel> objs){
         this.activity = act;
         this.objects = objs;
         this.listableActivity = la;
+
+        clientsControl = UserControlController.getInstance(act).searchSimpleControl(CODES.USERSCONTROL_CLIENTS)!= null;
     }
+
     @NonNull
     @Override
     public ReceiptRowHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -79,10 +84,14 @@ public class ReceiptAdapter extends RecyclerView.Adapter<ReceiptAdapter.ReceiptR
             tvClientPhone = itemView.findViewById(R.id.tvPhone);
             tvTotal = itemView.findViewById(R.id.tvTotal);
             tvPaid = itemView.findViewById(R.id.tvPaid);
+
+            tvClientName.setVisibility(clientsControl?View.VISIBLE:View.GONE);
+            tvClientPhone.setVisibility(clientsControl?View.VISIBLE:View.GONE);
+            tvClientDocument.setVisibility(clientsControl?View.VISIBLE:View.GONE);
         }
 
         public void fillData(ReceiptRowModel obj){
-           tvCode.setText(obj.getCode());
+           tvCode.setText(obj.getReceiptNum());
            tvDate.setText(Funciones.getFormatedDateRepDomHour(Funciones.parseStringToDate(obj.getDate())));
            tvClientName.setText(obj.getClientName());
            tvClientDocument.setText(obj.getClientDocument());

@@ -181,7 +181,10 @@ public class MaintenanceProducts extends AppCompatActivity implements ListableAc
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
         MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.menu_edit_delete, menu);
+        inflater.inflate(R.menu.main_menu_product, menu);
+        menu.findItem(R.id.actionEnable).setVisible(!products.isENABLED());
+        menu.findItem(R.id.actionDisable).setVisible(products.isENABLED());
+
         super.onCreateContextMenu(menu, v, menuInfo);
     }
 
@@ -189,6 +192,12 @@ public class MaintenanceProducts extends AppCompatActivity implements ListableAc
     public boolean onContextItemSelected(MenuItem item) {
 
         switch (item.getItemId()) {
+            case R.id.actionEnable:
+                enableDisableConfirmation(false);
+                return true;
+            case R.id.actionDisable:
+                enableDisableConfirmation(true);
+                return true;
             case R.id.actionEdit:
                 callAddDialog(false);
                 return true;
@@ -211,6 +220,72 @@ public class MaintenanceProducts extends AppCompatActivity implements ListableAc
         DialogFragment newFragment =  ProductsDialogfragment.newInstance(type, (isNew)?null:products, this);
         // Create and show the dialog.
         newFragment.show(ft, "dialog");
+    }
+
+
+    public void enableDisableConfirmation(final boolean disable){
+         final Dialog d = Funciones.getCustomDialog2Btn(MaintenanceProducts.this, getResources().getColor(R.color.colorPrimary),
+                 "Confirmacion", "Esta seguro que desea aplicar los cambios a ["+products.getDESCRIPTION()+"]?",
+                 disable ? R.drawable.ic_visibility_off : R.drawable.ic_visibility, null, null);
+         final CardView btnAceptar = d.findViewById(R.id.btnPositive);
+         CardView btnNegative = d.findViewById(R.id.btnNegative);
+
+         btnAceptar.setOnClickListener(new View.OnClickListener() {
+             @Override
+             public void onClick(View v) {
+                 d.findViewById(R.id.llProgress).setVisibility(View.VISIBLE);
+                 btnAceptar.setEnabled(false);
+                 d.findViewById(R.id.btnNegative).setEnabled(false);
+
+                 if(products != null){
+                     products.setENABLED(!disable);
+                         productsController.sendToFireBase(products, new OnFailureListener() {
+                             @Override
+                             public void onFailure(@NonNull Exception e) {
+                                 btnAceptar.setEnabled(true);
+                                 d.findViewById(R.id.btnNegative).setEnabled(true);
+                                 d.findViewById(R.id.llProgress).setVisibility(View.INVISIBLE);
+                                 Toast.makeText(MaintenanceProducts.this, e.getMessage(), Toast.LENGTH_LONG).show();
+                             }
+                         });
+
+                         productsController.searchProductFromFireBase(products.getCODE(), new OnSuccessListener<QuerySnapshot>() {
+                             @Override
+                             public void onSuccess(QuerySnapshot querySnapshot) {
+                                 if(querySnapshot != null && querySnapshot.size()> 0){
+                                     ProductsController.getInstance(MaintenanceProducts.this).update(products);
+                                     refreshList();
+                                     d.dismiss();
+                                 }else{
+                                     btnAceptar.setEnabled(true);
+                                     d.findViewById(R.id.btnNegative).setEnabled(true);
+                                     d.findViewById(R.id.llProgress).setVisibility(View.INVISIBLE);
+                                     Toast.makeText(MaintenanceProducts.this,"Error aplicando cambios. Intente nuevamente", Toast.LENGTH_LONG).show();
+                                 }
+
+                             }
+                         }, new OnFailureListener() {
+                             @Override
+                             public void onFailure(@NonNull Exception e) {
+                                 btnAceptar.setEnabled(true);
+                                 d.findViewById(R.id.btnNegative).setEnabled(true);
+                                 d.findViewById(R.id.llProgress).setVisibility(View.INVISIBLE);
+                                 Toast.makeText(MaintenanceProducts.this, e.getMessage(), Toast.LENGTH_LONG).show();
+                             }
+                         });
+
+
+                 }
+             }
+         });
+         btnNegative.setOnClickListener(new View.OnClickListener() {
+             @Override
+             public void onClick(View v) {
+                 d.dismiss();
+             }
+         });
+
+         d.show();
     }
 
     public void callDeleteConfirmation(){

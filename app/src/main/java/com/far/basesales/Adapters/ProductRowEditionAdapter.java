@@ -41,9 +41,9 @@ public class ProductRowEditionAdapter extends RecyclerView.Adapter<ProductRowEdi
         holder.getMenuImage().setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                listableActivity.onClick(objects.get(position));
                 activity.registerForContextMenu(v);
                 v.showContextMenu();
-                listableActivity.onClick(objects.get(position));
             }
         });
 
@@ -57,8 +57,9 @@ public class ProductRowEditionAdapter extends RecyclerView.Adapter<ProductRowEdi
 
 
     public class ProductRowHolder extends RecyclerView.ViewHolder {
-        TextView tvCode, tvName, tvFamily, tvGroup;
-        ImageView imgMenu,imgTime ;
+        TextView tvCode, tvName, tvFamily, tvGroup, tvStatus;
+        ImageView imgMenu,imgTime, imgStatus ;
+
         public ProductRowHolder(View itemView) {
             super(itemView);
             tvCode = itemView.findViewById(R.id.tvCode);
@@ -67,6 +68,8 @@ public class ProductRowEditionAdapter extends RecyclerView.Adapter<ProductRowEdi
             tvGroup = itemView.findViewById(R.id.tvGroup);
             imgMenu = itemView.findViewById(R.id.imgMenu);
             imgTime = itemView.findViewById(R.id.imgTime);
+            imgStatus = itemView.findViewById(R.id.imgStatus);
+            tvStatus = itemView.findViewById(R.id.tvStatus);
         }
 
         public void fillData(ProductRowModel prm){
@@ -75,6 +78,8 @@ public class ProductRowEditionAdapter extends RecyclerView.Adapter<ProductRowEdi
             tvFamily.setText(prm.getCodeTypeDesc());
             tvGroup.setText(prm.getCodeSubTypeDesc());
             imgTime.setVisibility((prm.isInServer())?View.INVISIBLE:View.VISIBLE);
+            imgStatus.setImageResource(prm.isEnabled()?R.drawable.ic_visibility:R.drawable.ic_visibility_off);
+            tvStatus.setText(prm.isEnabled()?"(Activo)":"(Inactivo)");
         }
 
         public ImageView getMenuImage(){

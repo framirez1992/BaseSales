@@ -28,6 +28,7 @@ public class ProductMeasureSelectionAdapter extends RecyclerView.Adapter<Product
     ArrayList<ProductMeasureRowModel> objects;
     ArrayList<ProductMeasureRowModel> previousSaved;
     boolean rangeControl;
+    boolean productMeasureControl;
 
     public ProductMeasureSelectionAdapter(Activity act, ListableActivity la,  ArrayList<ProductMeasureRowModel> objs, ArrayList<ProductMeasureRowModel> previousSaved) {
         this.activity = act;
@@ -36,7 +37,7 @@ public class ProductMeasureSelectionAdapter extends RecyclerView.Adapter<Product
         this.previousSaved = previousSaved;
 
         this.rangeControl = UserControlController.getInstance(act).searchSimpleControl(CODES.USERSCONTROL_PRODUCT_PRICES_RANGE)!= null;
-
+        this.productMeasureControl = UserControlController.getInstance(act).searchSimpleControl(CODES.USERSCONTROL_PRODUCTS_MEASURE)!= null;
 
         for(ProductMeasureRowModel pm: objects){
             if (isSaved(pm)) {
@@ -156,6 +157,7 @@ public class ProductMeasureSelectionAdapter extends RecyclerView.Adapter<Product
             llRange = itemView.findViewById(R.id.llRange);
 
             llRange.setVisibility(rangeControl?View.VISIBLE:View.GONE);
+            cbCheck.setVisibility(productMeasureControl?View.VISIBLE:View.GONE);
         }
 
         public void fillData(ProductMeasureRowModel obj) {

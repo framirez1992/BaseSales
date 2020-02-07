@@ -928,16 +928,31 @@ public class SalesController {
 
     public ArrayList<SalesDetailModel> getSaleDetailModels(String codeReceipt){
         ArrayList<SalesDetailModel> result = new ArrayList<>();
-        String sql = "SELECT sd."+SalesController.DETAIL_CODEPRODUCT+" AS CODEPRODUCT, p."+ProductsController.DESCRIPTION+" AS  PRODUCTDESCRIPTION, " +
-                "sd."+SalesController.DETAIL_CODEUND+" AS CODEMEASURE, mu."+MeasureUnitsController.DESCRIPTION+" AS MEASUREDESCRIPTION, "+
-                "SUM(sd."+SalesController.DETAIL_QUANTITY+") AS QUANTITY, SUM(ifnull(sd."+SalesController.DETAIL_MANUALPRICE+", sd."+SalesController.DETAIL_PRICE+") * "+SalesController.DETAIL_QUANTITY+" ) AS SALESTOTAL "+
-                "FROM "+SalesController.TABLE_NAME+" s " +
-                "INNER JOIN "+SalesController.TABLE_NAME_DETAIL+" sd on s."+SalesController.CODE+" = sd."+SalesController.DETAIL_CODESALES+" "+
-                "INNER JOIN "+ProductsController.TABLE_NAME+" p on p."+ProductsController.CODE+" = sd."+SalesController.DETAIL_CODEPRODUCT+" "+
-                "LEFT JOIN "+MeasureUnitsController.TABLE_NAME+" mu on mu."+MeasureUnitsController.CODE+" = sd."+SalesController.DETAIL_CODEUND+" "+
-                "WHERE s."+CODERECEIPT+" = ? " +
-                "GROUP BY sd."+SalesController.DETAIL_CODEPRODUCT+",sd."+SalesController.DETAIL_CODEUND+" " +
-                "ORDER BY p."+ProductsController.DESCRIPTION+",  mu."+MeasureUnitsController.DESCRIPTION;
+
+        String sql;
+        if(UserControlController.getInstance(context).searchSimpleControl(CODES.USERSCONTROL_PRODUCTS_MEASURE)!= null){
+             sql = "SELECT sd."+SalesController.DETAIL_CODEPRODUCT+" AS CODEPRODUCT, p."+ProductsController.DESCRIPTION+" AS  PRODUCTDESCRIPTION, " +
+                    "sd."+SalesController.DETAIL_CODEUND+" AS CODEMEASURE, mu."+MeasureUnitsController.DESCRIPTION+" AS MEASUREDESCRIPTION, "+
+                    "SUM(sd."+SalesController.DETAIL_QUANTITY+") AS QUANTITY, SUM(ifnull(sd."+SalesController.DETAIL_MANUALPRICE+", sd."+SalesController.DETAIL_PRICE+") * "+SalesController.DETAIL_QUANTITY+" ) AS SALESTOTAL "+
+                    "FROM "+SalesController.TABLE_NAME+" s " +
+                    "INNER JOIN "+SalesController.TABLE_NAME_DETAIL+" sd on s."+SalesController.CODE+" = sd."+SalesController.DETAIL_CODESALES+" "+
+                    "INNER JOIN "+ProductsController.TABLE_NAME+" p on p."+ProductsController.CODE+" = sd."+SalesController.DETAIL_CODEPRODUCT+" "+
+                    "LEFT JOIN "+MeasureUnitsController.TABLE_NAME+" mu on mu."+MeasureUnitsController.CODE+" = sd."+SalesController.DETAIL_CODEUND+" "+
+                    "WHERE s."+CODERECEIPT+" = ? " +
+                    "GROUP BY sd."+SalesController.DETAIL_CODEPRODUCT+",sd."+SalesController.DETAIL_CODEUND+" " +
+                    "ORDER BY p."+ProductsController.DESCRIPTION+",  mu."+MeasureUnitsController.DESCRIPTION;
+
+        }else{
+             sql = "SELECT sd."+SalesController.DETAIL_CODEPRODUCT+" AS CODEPRODUCT, p."+ProductsController.DESCRIPTION+" AS  PRODUCTDESCRIPTION, " +
+                    "sd."+SalesController.DETAIL_CODEUND+" AS CODEMEASURE, '' AS MEASUREDESCRIPTION, "+
+                    "SUM(sd."+SalesController.DETAIL_QUANTITY+") AS QUANTITY, SUM(ifnull(sd."+SalesController.DETAIL_MANUALPRICE+", sd."+SalesController.DETAIL_PRICE+") * "+SalesController.DETAIL_QUANTITY+" ) AS SALESTOTAL "+
+                    "FROM "+SalesController.TABLE_NAME+" s " +
+                    "INNER JOIN "+SalesController.TABLE_NAME_DETAIL+" sd on s."+SalesController.CODE+" = sd."+SalesController.DETAIL_CODESALES+" "+
+                    "INNER JOIN "+ProductsController.TABLE_NAME+" p on p."+ProductsController.CODE+" = sd."+SalesController.DETAIL_CODEPRODUCT+" "+
+                    "WHERE s."+CODERECEIPT+" = ? " +
+                    "GROUP BY sd."+SalesController.DETAIL_CODEPRODUCT+",sd."+SalesController.DETAIL_CODEUND+" " +
+                    "ORDER BY p."+ProductsController.DESCRIPTION;
+        }
 
         Cursor c = DB.getInstance(context).getReadableDatabase().rawQuery(sql, new String[]{codeReceipt});
         while (c.moveToNext()){

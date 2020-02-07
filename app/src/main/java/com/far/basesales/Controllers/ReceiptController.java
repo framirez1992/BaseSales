@@ -245,17 +245,29 @@ public class ReceiptController {
     public ArrayList<ReceiptRowModel> getReceiptsRM(String where, String[]args){
         ArrayList<ReceiptRowModel> result = new ArrayList<>();
         try {
-            String sql = "SELECT r." + CODE + " as CODE,r."+STATUS+" as STATUS, r." + DATE + " as DATE, c." + ClientsController.CODE + " as CODECLIENT, c." + ClientsController.NAME + " as CLIENTNAME, " +
-                    "c." + ClientsController.DOCUMENT + " as DOCUMENT, c." + ClientsController.PHONE + " as PHONE,"+
-                    "r."+SUBTOTAL+" as SUBTOTAL, r."+TAXES+" as TAXES,  r."+DISCOUNT+" as DISCOUNT,  r." + TOTAL + " as TOTAL, r."+PAIDAMOUNT+" as PAID " +
-                    "FROM " + TABLE_NAME + " r " +
-                    "INNER JOIN " + ClientsController.TABLE_NAME + " c ON r." + CODECLIENT + " = c." + ClientsController.CODE + " " +
-                    "WHERE "+where+" "+
-                    "ORDER BY r." + DATE + " DESC";
+            String sql;
+            if(UserControlController.getInstance(context).searchSimpleControl(CODES.USERSCONTROL_CLIENTS)!= null){
+                sql = "SELECT r." + CODE + " as CODE,r."+RECEIPTNUMBER+" as RECEIPTNUM,  r."+STATUS+" as STATUS, r." + DATE + " as DATE, c." + ClientsController.CODE + " as CODECLIENT, c." + ClientsController.NAME + " as CLIENTNAME, " +
+                        "c." + ClientsController.DOCUMENT + " as DOCUMENT, c." + ClientsController.PHONE + " as PHONE,"+
+                        "r."+SUBTOTAL+" as SUBTOTAL, r."+TAXES+" as TAXES,  r."+DISCOUNT+" as DISCOUNT,  r." + TOTAL + " as TOTAL, r."+PAIDAMOUNT+" as PAID " +
+                        "FROM " + TABLE_NAME + " r " +
+                        "INNER JOIN " + ClientsController.TABLE_NAME + " c ON r." + CODECLIENT + " = c." + ClientsController.CODE + " " +
+                        "WHERE "+where+" "+
+                        "ORDER BY r." + DATE + " DESC";
+            }else{
+                sql = "SELECT r." + CODE + " as CODE,r."+RECEIPTNUMBER+" as RECEIPTNUM,  r."+STATUS+" as STATUS, r." + DATE + " as DATE, "+ReceiptController.CODECLIENT+" as CODECLIENT, '' as CLIENTNAME, " +
+                        "'' as DOCUMENT, '' as PHONE,"+
+                        "r."+SUBTOTAL+" as SUBTOTAL, r."+TAXES+" as TAXES,  r."+DISCOUNT+" as DISCOUNT,  r." + TOTAL + " as TOTAL, r."+PAIDAMOUNT+" as PAID " +
+                        "FROM " + TABLE_NAME + " r " +
+                        "WHERE "+where+" "+
+                        "ORDER BY r." + DATE + " DESC";
+            }
+
 
             Cursor c = DB.getInstance(context).getReadableDatabase().rawQuery(sql, args);
             while (c.moveToNext()) {
                 String code = c.getString(c.getColumnIndex("CODE"));
+                String receiptNum = c.getString(c.getColumnIndex("RECEIPTNUM"));
                 String status = c.getString(c.getColumnIndex("STATUS"));
                 String date = c.getString(c.getColumnIndex("DATE"));
                 String codeClient = c.getString(c.getColumnIndex("CODECLIENT"));
@@ -269,7 +281,7 @@ public class ReceiptController {
                 double paid = c.getDouble(c.getColumnIndex("PAID"));
 
                //String code, String status, String codeClient, String clientName, String clientDocument, String clientPhone, String date, double total
-                result.add(new ReceiptRowModel(code,status,codeClient,clientName,document,phone,date,subTotal, discount, taxes, total, paid));
+                result.add(new ReceiptRowModel(code,receiptNum, status,codeClient,clientName,document,phone,date,subTotal, discount, taxes, total, paid));
             }
             c.close();
         }catch (Exception e){

@@ -67,15 +67,22 @@ public class ReceiptResumeFragment extends Fragment implements ListableActivity 
     ReceiptRowModel model;
     RecyclerView rvList, rvListPayment;
     ProgressBar pb;
-    LinearLayout llGoReceipts, llMenu;
+    LinearLayout llGoReceipts, llMenu, llClients;
     CardView cvDetails, cvPayments;
     LinearLayout llTotal, llTotalPayment;
     Dialog printPaymentDialog;
+
+    boolean clientControl;
 
     public ReceiptResumeFragment() {
         // Required empty public constructor
     }
 
+    @Override
+    public void onCreate(@android.support.annotation.Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        clientControl = UserControlController.getInstance(getActivity()).searchSimpleControl(CODES.USERSCONTROL_CLIENTS)!= null;
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -108,6 +115,7 @@ public class ReceiptResumeFragment extends Fragment implements ListableActivity 
         cvPayments = view.findViewById(R.id.cvPayments);
         llTotal = view.findViewById(R.id.llTotal);
         llTotalPayment = view.findViewById(R.id.llTotalPayment);
+        llClients = view.findViewById(R.id.llClients);
 
         cvDetails.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -141,6 +149,8 @@ public class ReceiptResumeFragment extends Fragment implements ListableActivity 
             }
         });
 
+        setupControls();
+
     }
 
     @Override
@@ -156,6 +166,9 @@ public class ReceiptResumeFragment extends Fragment implements ListableActivity 
         this.model = model;
     }
 
+    public void setupControls(){
+        llClients.setVisibility(clientControl?View.VISIBLE:View.GONE);
+    }
 
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
@@ -187,7 +200,7 @@ public class ReceiptResumeFragment extends Fragment implements ListableActivity 
     }
 
     public void refreshReceiptData(){
-        tvCode.setText(model.getCode());
+        tvCode.setText(model.getReceiptNum());
         tvDate.setText(Funciones.getFormatedDateRepDomHour(Funciones.parseStringToDate(model.getDate())));
         tvClientName.setText(model.getClientName());
         tvDocument.setText(model.getClientDocument());

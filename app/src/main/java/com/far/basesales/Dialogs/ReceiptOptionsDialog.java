@@ -63,6 +63,8 @@ public class ReceiptOptionsDialog extends DialogFragment  {
     TextInputEditText etPaymentAmount;
     CardView cvPay;
 
+    boolean multiPayment = false;
+
 
     /**
      * Create a new instance of MyDialogFragment, providing "num"
@@ -87,6 +89,8 @@ public class ReceiptOptionsDialog extends DialogFragment  {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        multiPayment = UserControlController.getInstance(getActivity()).searchSimpleControl(CODES.USERSCONTROL_MULTIPAYMENT)!= null;
+
         // Pick a style based on the num.
         int style = DialogFragment.STYLE_NO_TITLE, theme = 0;
         setStyle(style, theme);
@@ -109,9 +113,9 @@ public class ReceiptOptionsDialog extends DialogFragment  {
         btnClose = view.findViewById(R.id.btnClose);
         tvErrorMessage = view.findViewById(R.id.tvErrorMsg);
 
-        if(receipts.getStatus().equals(CODES.CODE_RECEIPT_STATUS_CLOSED) || activity instanceof MainOrders){
+        if(!multiPayment || receipts.getStatus().equals(CODES.CODE_RECEIPT_STATUS_CLOSED) || activity instanceof MainOrders){
             llPayment.setVisibility(View.GONE);
-        }else{
+        }else if(multiPayment && activity instanceof MainReceipt){
             llPayment.setVisibility(View.VISIBLE);
         }
 
