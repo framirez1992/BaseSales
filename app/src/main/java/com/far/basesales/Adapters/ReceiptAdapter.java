@@ -103,6 +103,8 @@ public class ReceiptAdapter extends RecyclerView.Adapter<ReceiptAdapter.ReceiptR
               status = "Pagado";
            }else if(obj.getStatus().equals(CODES.CODE_RECEIPT_STATUS_OPEN)){
                status = "Abierto";
+           }else if(obj.getStatus().equals(CODES.CODE_RECEIPT_STATUS_ANULATED)){
+               status = "Anulado";
            }
            tvStatus.setText(status);
 

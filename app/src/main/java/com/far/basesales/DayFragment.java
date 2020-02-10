@@ -268,7 +268,9 @@ public class DayFragment extends Fragment implements  OnSuccessListener<QuerySna
         }
 
         Day day = new Day(Funciones.generateCode(), Funciones.getCodeuserLogged(parentActivity), dateStart, null, CODES.CODE_DAY_STATUS_OPEN,
-                0, 0.0, 0, 0.0, 0, 0.0, 0.0,0, 0.0,0, 0.0);
+                0, 0.0, 0, 0.0, 0, 0.0, 0.0,
+                0, 0.0,0, 0.0, 0.0, 0.0,
+                0.0, 0.0, 0.0, 0.0, "");
 
         DayController.getInstance(parentActivity).sendToFireBase(day,  new OnFailureListener() {
             @Override

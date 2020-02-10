@@ -27,9 +27,11 @@ import com.example.bluetoothlibrary.BluetoothScan;
 import com.far.basesales.CloudFireStoreObjects.Day;
 import com.far.basesales.CloudFireStoreObjects.Payment;
 import com.far.basesales.CloudFireStoreObjects.Receipts;
+import com.far.basesales.CloudFireStoreObjects.Sales;
 import com.far.basesales.Controllers.DayController;
 import com.far.basesales.Controllers.PaymentController;
 import com.far.basesales.Controllers.ReceiptController;
+import com.far.basesales.Controllers.SalesController;
 import com.far.basesales.Controllers.Transaction;
 import com.far.basesales.Controllers.UserControlController;
 import com.far.basesales.Generic.KV;
@@ -42,9 +44,11 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Date;
 
 public class ReceiptOptionsDialog extends DialogFragment  {
@@ -52,10 +56,10 @@ public class ReceiptOptionsDialog extends DialogFragment  {
     Activity activity;
     public Receipts receipts;
     Payment lastPayment;
-    LinearLayout llProgress, llPrint, llShare, llPayment;
+    LinearLayout llProgress, llPrint, llShare, llPayment, llAnulate;
     CardView btnClose;
     TextView tvErrorMessage;
-    Dialog paymentDialog ;
+    Dialog paymentDialog, anulateConfirmation ;
     int lastAction=-1;
 
     LinearLayout llProgressPayment;
@@ -111,13 +115,22 @@ public class ReceiptOptionsDialog extends DialogFragment  {
         llPrint = view.findViewById(R.id.llPrint);
         llShare = view.findViewById(R.id.llShare);
         btnClose = view.findViewById(R.id.btnClose);
+        llAnulate = view.findViewById(R.id.llAnulate);
         tvErrorMessage = view.findViewById(R.id.tvErrorMsg);
 
-        if(!multiPayment || receipts.getStatus().equals(CODES.CODE_RECEIPT_STATUS_CLOSED) || activity instanceof MainOrders){
+        if(!multiPayment || receipts.getStatus().equals(CODES.CODE_RECEIPT_STATUS_CLOSED) || receipts.getStatus().equals(CODES.CODE_RECEIPT_STATUS_ANULATED) || activity instanceof MainOrders){
             llPayment.setVisibility(View.GONE);
         }else if(multiPayment && activity instanceof MainReceipt){
             llPayment.setVisibility(View.VISIBLE);
         }
+
+        if(!receipts.getStatus().equals(CODES.CODE_RECEIPT_STATUS_ANULATED) &&
+                DayController.getInstance(activity).getCurrentOpenDay() != null && receipts.getReceiptnumber().equals(DayController.getInstance(activity).getCurrentOpenDay().getLastreceiptnumber())){
+            llAnulate.setVisibility(View.VISIBLE);
+        }else{
+            llAnulate.setVisibility(View.GONE);
+        }
+
 
         llPayment.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -154,6 +167,13 @@ public class ReceiptOptionsDialog extends DialogFragment  {
 
                 }
                 dismiss();
+            }
+        });
+
+        llAnulate.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showAnulateConfirmation();
             }
         });
 
@@ -539,6 +559,150 @@ public class ReceiptOptionsDialog extends DialogFragment  {
         }
         return true;
     }
+
+
+
+    public void showAnulateConfirmation(){
+        anulateConfirmation = null;
+        anulateConfirmation = Funciones.getCustomDialog2Btn(activity,getResources().getColor(R.color.red_700),"Anular Factura", "Esta seguro que desea eliminar la factura '"+receipts.getReceiptnumber()+"'? ",R.drawable.ic_cancel, null, null);
+        CardView btnPositive= anulateConfirmation.findViewById(R.id.btnPositive);
+        btnPositive.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                anulateConfirmation.findViewById(R.id.llProgress).setVisibility(View.VISIBLE);
+                anulateReceipt();
+
+            }
+        });
+        CardView btnNegative = anulateConfirmation.findViewById(R.id.btnNegative);
+        btnNegative.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                anulateConfirmation.dismiss();
+            }
+        });
+
+        anulateConfirmation.show();
+        Window window = anulateConfirmation.getWindow();
+        window.setLayout(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        window.setBackgroundDrawableResource(android.R.color.transparent);
+
+
+    }
+
+
+
+    public void anulateReceipt(){
+        PaymentController.getInstance(activity).searchPaymentFromFireBaseByCodeReceipt(receipts.getCode(), new OnSuccessListener<QuerySnapshot>() {
+            @Override
+            public void onSuccess(QuerySnapshot querySnapshot) {
+                double anulatedSalesCount = 0;
+                double anulatedSalesAmount = 0;
+                double anulatedCashPaymentCount = 0;
+                double anulatedCashPaymentAmount = 0;
+                double anulatedCreditPaymentCount=0;
+                double anulatedCreditPaymentAmount=0;
+
+                receipts.setStatus(CODES.CODE_RECEIPT_STATUS_ANULATED);
+
+                for(DocumentSnapshot ds: querySnapshot){
+                    Payment s = ds.toObject(Payment.class);
+                    if(s.getTYPE().equals(CODES.PAYMENTTYPE_CASH)){
+                        anulatedCashPaymentCount++;
+                        anulatedCashPaymentAmount+=s.getTOTAL();
+                    }else if(s.getTYPE().equals(CODES.PAYMENTTYPE_CREDIT)){
+                        anulatedCreditPaymentCount++;
+                        anulatedCreditPaymentAmount+=s.getTOTAL();
+                    }
+
+                    if(PaymentController.getInstance(activity).update(s) <= 0){
+                        PaymentController.getInstance(activity).insert(s);
+                    }
+                }
+
+                ArrayList<Sales> anulatedSales = new ArrayList<>();
+                for(Sales s: SalesController.getInstance(activity).getSales(SalesController.CODERECEIPT+" = ?", new String[]{receipts.getCode()})){
+                    s.setSTATUS(CODES.CODE_ORDER_STATUS_ANULATED);
+                    anulatedSales.add(s);
+                    anulatedSalesCount++;
+                    anulatedSalesAmount = s.getTOTAL();
+                }
+
+                final Day d = DayController.getInstance(activity).getCurrentOpenDay();
+                d.setAnulatedsalescount(anulatedSalesCount);
+                d.setAnulatedsalesamount(anulatedSalesAmount);
+                d.setAnulatedcashpaymentcount(anulatedCashPaymentCount);
+                d.setAnulatedcashpaymentamount(anulatedCashPaymentAmount);
+                d.setAnulatedcreditpaymentcount(anulatedCreditPaymentCount);
+                d.setAnulatedcreditpaymentamount(anulatedCreditPaymentAmount);
+
+
+                Transaction.getInstance(activity).sendToFireBase(receipts, null, anulatedSales, d, new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+
+                    }
+                });
+
+                ReceiptController.getInstance(activity).searchReceiptByCodeFromFireBase(receipts.getCode(), new OnSuccessListener<QuerySnapshot>() {
+                    @Override
+                    public void onSuccess(QuerySnapshot querySnapshot) {
+                        if(querySnapshot!= null && !querySnapshot.isEmpty()){
+                            Receipts r = querySnapshot.getDocuments().get(0).toObject(Receipts.class);
+                            if(r.getStatus().equals(CODES.CODE_RECEIPT_STATUS_ANULATED)){
+                                ReceiptController.getInstance(activity).update(r);
+                                for(Sales s: SalesController.getInstance(activity).getSales(SalesController.CODERECEIPT+" = ?", new String[]{r.getCode()})){
+                                    s.setSTATUS(CODES.CODE_ORDER_STATUS_ANULATED);
+                                    SalesController.getInstance(activity).update(s);
+                                }
+                                DayController.getInstance(activity).update(d);
+                            }
+                            anulateConfirmation.dismiss();
+                            refreshData();
+                        }else{
+                            anulateConfirmation.findViewById(R.id.llProgress).setVisibility(View.VISIBLE);
+                            Toast.makeText(activity, "No se pudo anular la factura. Intente nuevamente", Toast.LENGTH_LONG).show();
+                        }
+
+                    }
+                }, new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if(task.getException() != null){
+                            anulateConfirmation.findViewById(R.id.llProgress).setVisibility(View.VISIBLE);
+                            Toast.makeText(activity, task.getException().getMessage(), Toast.LENGTH_LONG).show();
+                        }
+
+                    }
+                }, new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        anulateConfirmation.findViewById(R.id.llProgress).setVisibility(View.VISIBLE);
+                        Toast.makeText(activity, e.getMessage(), Toast.LENGTH_LONG).show();
+                    }
+                });
+
+
+
+            }
+        }, new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if(task.getException()!= null){
+                    anulateConfirmation.findViewById(R.id.llProgress).setVisibility(View.VISIBLE);
+                    Toast.makeText(activity, task.getException().getMessage(), Toast.LENGTH_LONG).show();
+                }
+            }
+        }, new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                anulateConfirmation.findViewById(R.id.llProgress).setVisibility(View.VISIBLE);
+                Toast.makeText(activity, e.getMessage(), Toast.LENGTH_LONG).show();
+            }
+        });
+    }
+
+
 
 
 }

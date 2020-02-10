@@ -11,18 +11,21 @@ import java.util.Date;
 import java.util.HashMap;
 
 public class Day {
-    String code,codeuser, status;
+    String code,codeuser, status, lastreceiptnumber;
     int cashsalescount, creditsalescount, salescount,  cashpaidcount, creditpaidcount;
-    double cashsalesamount, creditsalesamount, discountamount, salesamount, cashpaidamount, creditpaidamount;
+    double cashsalesamount, creditsalesamount, discountamount, salesamount, cashpaidamount, creditpaidamount,
+    anulatedsalescount, anulatedsalesamount, anulatedcashpaymentcount, anulatedcashpaymentamount,
+            anulatedcreditpaymentcount, anulatedcreditpaymentamount;
     private @ServerTimestamp
     Date datestart, dateend,  date, mdate;
-
     public Day(){
 
     }
     public Day(String code, String codeUser,Date datestart,Date dateend,  String status,
                int cashsalescount, double cashsalesamount, int creditsalescount, double creditsalesamount,int salescount, double salesamount,  double discountamount,
-               int cashpaidcount, double cashpaidamount, int creditpaidcount,  double creditpaidamount){
+               int cashpaidcount, double cashpaidamount, int creditpaidcount,  double creditpaidamount,
+               double anulatedsalescount, double anulatedsalesamount, double anulatedcashpaymentcount,
+               double anulatedcashpaymentamount, double anulatedcreditpaymentcount, double anulatedcreditpaymentamount, String lastreceiptnumber){
         this.code = code;
         this.codeuser = codeUser;
         this.datestart = datestart;
@@ -39,6 +42,13 @@ public class Day {
         this.cashpaidamount = cashpaidamount;
         this.creditpaidcount = creditpaidcount;
         this.creditpaidamount = creditpaidamount;
+        this.anulatedsalescount = anulatedsalescount;
+        this.anulatedsalesamount = anulatedsalesamount;
+        this.anulatedcashpaymentcount = anulatedcashpaymentcount;
+        this.anulatedcashpaymentamount = anulatedcashpaymentamount;
+        this.anulatedcreditpaymentcount = anulatedcreditpaymentcount;
+        this.anulatedcreditpaymentamount = anulatedcreditpaymentamount;
+        this.lastreceiptnumber = lastreceiptnumber;
     }
 
     public Day(Cursor c){
@@ -58,6 +68,13 @@ public class Day {
         this.cashpaidamount = c.getDouble(c.getColumnIndex(DayController.CASHPAIDAMOUNT));
         this.creditpaidcount = c.getInt(c.getColumnIndex(DayController.CREDITPAIDCOUNT));
         this.creditpaidamount = c.getDouble(c.getColumnIndex(DayController.CREDITPAIDAMOUNT));
+        this.anulatedsalescount = c.getDouble(c.getColumnIndex(DayController.ANULATEDSALESCOUNT));
+        this.anulatedsalesamount = c.getDouble(c.getColumnIndex(DayController.ANULATEDSALESAMOUNT));
+        this.anulatedcashpaymentcount = c.getDouble(c.getColumnIndex(DayController.ANULATEDCASHPAYMENTCOUNT));
+        this.anulatedcashpaymentamount = c.getDouble(c.getColumnIndex(DayController.ANULATEDCASHPAYMENTAMOUNT));
+        this.anulatedcreditpaymentcount = c.getDouble(c.getColumnIndex(DayController.ANULATEDCREDITPAYMENTCOUNT));
+        this.anulatedcreditpaymentamount = c.getDouble(c.getColumnIndex(DayController.ANULATEDCREDITPAYMENTAMOUNT));
+        this.lastreceiptnumber = c.getString(c.getColumnIndex(DayController.LASTRECEIPTNUMBER));
         this.date = Funciones.parseStringToDate(c.getString(c.getColumnIndex(DayController.DATE)));
         this.mdate = Funciones.parseStringToDate(c.getString(c.getColumnIndex(DayController.MDATE)));
     }
@@ -82,6 +99,13 @@ public class Day {
         data.put(DayController.CASHPAIDAMOUNT, cashpaidamount);
         data.put(DayController.CREDITPAIDCOUNT, creditpaidcount);
         data.put(DayController.CREDITPAIDAMOUNT, creditpaidamount);
+        data.put(DayController.ANULATEDSALESCOUNT,anulatedsalescount);
+        data.put(DayController.ANULATEDSALESAMOUNT,anulatedsalesamount);
+        data.put(DayController.ANULATEDCASHPAYMENTCOUNT,anulatedcashpaymentcount);
+        data.put(DayController.ANULATEDCASHPAYMENTAMOUNT,anulatedcashpaymentamount);
+        data.put(DayController.ANULATEDCREDITPAYMENTCOUNT,anulatedcreditpaymentcount);
+        data.put(DayController.ANULATEDCREDITPAYMENTAMOUNT,anulatedcreditpaymentamount);
+        data.put(DayController.LASTRECEIPTNUMBER,lastreceiptnumber);
         data.put(DayController.DATE, (date == null)? FieldValue.serverTimestamp(): date);
         data.put(DayController.MDATE, (mdate == null)? FieldValue.serverTimestamp():mdate);
 
@@ -232,5 +256,61 @@ public class Day {
 
     public void setMdate(Date mdate) {
         this.mdate = mdate;
+    }
+
+    public double getAnulatedsalescount() {
+        return anulatedsalescount;
+    }
+
+    public void setAnulatedsalescount(double anulatedsalescount) {
+        this.anulatedsalescount = anulatedsalescount;
+    }
+
+    public double getAnulatedsalesamount() {
+        return anulatedsalesamount;
+    }
+
+    public void setAnulatedsalesamount(double anulatedsalesamount) {
+        this.anulatedsalesamount = anulatedsalesamount;
+    }
+
+    public double getAnulatedcashpaymentcount() {
+        return anulatedcashpaymentcount;
+    }
+
+    public void setAnulatedcashpaymentcount(double anulatedcashpaymentcount) {
+        this.anulatedcashpaymentcount = anulatedcashpaymentcount;
+    }
+
+    public double getAnulatedcashpaymentamount() {
+        return anulatedcashpaymentamount;
+    }
+
+    public void setAnulatedcashpaymentamount(double anulatedcashpaymentamount) {
+        this.anulatedcashpaymentamount = anulatedcashpaymentamount;
+    }
+
+    public double getAnulatedcreditpaymentcount() {
+        return anulatedcreditpaymentcount;
+    }
+
+    public void setAnulatedcreditpaymentcount(double anulatedcreditpaymentcount) {
+        this.anulatedcreditpaymentcount = anulatedcreditpaymentcount;
+    }
+
+    public double getAnulatedcreditpaymentamount() {
+        return anulatedcreditpaymentamount;
+    }
+
+    public void setAnulatedcreditpaymentamount(double anulatedcreditpaymentamount) {
+        this.anulatedcreditpaymentamount = anulatedcreditpaymentamount;
+    }
+
+    public String getLastreceiptnumber() {
+        return lastreceiptnumber;
+    }
+
+    public void setLastreceiptnumber(String lastreceiptnumber) {
+        this.lastreceiptnumber = lastreceiptnumber;
     }
 }

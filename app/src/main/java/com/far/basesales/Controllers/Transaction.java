@@ -111,6 +111,40 @@ public class Transaction {
 
     }
 
+
+
+    //ANULAR FACTURA
+    public void sendToFireBase(Receipts receipt, ArrayList<Payment> payments, ArrayList<Sales> sales, Day day,  OnFailureListener failureListener){
+        try {
+            WriteBatch lote = db.batch();
+
+            lote.set(ReceiptController.getInstance(context).getReferenceFireStore().document(receipt.getCode()), receipt.toMap());
+
+            if(payments != null){
+                for(Payment payment: payments){
+                    lote.set(PaymentController.getInstance(context).getReferenceFireStore().document(payment.getCODE()), payment.toMap());
+                }
+            }
+
+           if(sales != null){
+               for(Sales s : sales){
+                   lote.set(SalesController.getInstance(context).getReferenceFireStore().document(s.getCODE()), s.toMap());
+               }
+
+           }
+
+
+            lote.set(DayController.getInstance(context).getReferenceFireStore().document(day.getCode()), day.toMap());
+
+            lote.commit()
+                    .addOnFailureListener(failureListener);
+
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+
+    }
+
     //elimina todos los sales, receipts y payments cuyos recibos ya hayan sido saldados.
     public void deleteDataFromFireBase( OnFailureListener failureListener){
         WriteBatch lote = db.batch();

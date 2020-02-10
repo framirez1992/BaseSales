@@ -215,6 +215,8 @@ public class ReceiptResumeFragment extends Fragment implements ListableActivity 
             status = "Pagado";
         }else if(model.getStatus().equals(CODES.CODE_RECEIPT_STATUS_OPEN)){
             status = "Abierto";
+        }else if(model.getStatus().equals(CODES.CODE_RECEIPT_STATUS_ANULATED)){
+            status = "Anulado";
         }
         tvStatus.setText(status);
     }

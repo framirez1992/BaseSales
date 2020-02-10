@@ -65,6 +65,7 @@ public class ReceiptController {
     Context context;
     FirebaseFirestore db;
     private static ReceiptController instance;
+
     private ReceiptController(Context c){
         this.context = c;
         db = FirebaseFirestore.getInstance();
@@ -111,7 +112,7 @@ public class ReceiptController {
     public long update(Receipts r){
         ContentValues cv = new ContentValues();
         cv.put(CODE,r.getCode() );
-        cv.put(RECEIPTNUMBER,r.getReceiptnumber() );
+        cv.put(RECEIPTNUMBER,r.getReceiptnumber());
         cv.put(CODEUSER, r.getCodeuser());
         cv.put(CODESALE, r.getCodesale());
         cv.put(CODECLIENT, r.getCodeclient());
@@ -424,10 +425,15 @@ public class ReceiptController {
 
     public  String printReceipt(String codeReceipt)throws Exception{
 
+        boolean clientsControl = UserControlController.getInstance(context).searchSimpleControl(CODES.USERSCONTROL_CLIENTS)!= null;
+
         Print p = new Print(context,Print.PULGADAS.PULGADAS_2);
         CompanyController.getInstance(context).addCompanyToPrint(p);
         Receipts receipt = getReceiptByCode(codeReceipt);
-        Clients c = ClientsController.getInstance(context).getClientByCode(receipt.getCodeclient());
+        Clients c = null;
+        if(clientsControl){
+            c = ClientsController.getInstance(context).getClientByCode(receipt.getCodeclient());
+        }
         Users u = UsersController.getInstance(context).getUserByCode(receipt.getCodeuser());
 
         p.drawText(" ");
@@ -435,7 +441,11 @@ public class ReceiptController {
         p.drawText("No: "+receipt.getReceiptnumber());
         p.drawText(" ");
         p.drawText("Vendedor: "+u.getUSERNAME());
-        p.drawText("Cliente:  "+c.getNAME());
+
+        if(clientsControl){
+            p.drawText("Cliente:  "+c.getNAME());
+        }
+
         p.drawText(" ");
         p.addAlign(Print.PRINTER_ALIGN.ALIGN_CENTER);
         p.drawText("FACTURA COMERCIAL");
@@ -485,6 +495,7 @@ public class ReceiptController {
     }
 
     public Invoice format2(String codeReceipt) throws Exception{
+        boolean clientsControl = UserControlController.getInstance(context).searchSimpleControl(CODES.USERSCONTROL_CLIENTS)!= null;
 
         Receipts receipts = getReceiptByCode(codeReceipt);
         Company company = CompanyController.getInstance(context).getCompany();
@@ -498,8 +509,14 @@ public class ReceiptController {
             header = new Header("NONE", "NONE", "NONE", "NONE", i);
         }
 
-        Clients clients = ClientsController.getInstance(context).getClientByCode(receipts.getCodeclient());
-        Client c = new Client(clients.getNAME(), clients.getDOCUMENT(), clients.getPHONE(), "address");
+        Clients clients = null;
+        if(clientsControl){
+         clients = ClientsController.getInstance(context).getClientByCode(receipts.getCodeclient());
+        }
+        Client c = null;
+        if(clients != null){
+            c = new Client(clients.getNAME(), clients.getDOCUMENT(), clients.getPHONE(), "address");
+        }
 
         ArrayList<OrderDetail> detail = new ArrayList<>();
         for(SalesDetailModel sd : SalesController.getInstance(context).getSaleDetailModels(receipts.getCode())){
@@ -520,6 +537,8 @@ public class ReceiptController {
     }
 
     public ArrayList<Object> format1(String codeReceipt) throws Exception{
+        boolean clientsControl = UserControlController.getInstance(context).searchSimpleControl(CODES.USERSCONTROL_CLIENTS)!= null;
+
         ArrayList<Object> obj = new ArrayList<>();
 
         Receipts receipts = getReceiptByCode(codeReceipt);
@@ -534,8 +553,14 @@ public class ReceiptController {
             header = new Header("NONE", "NONE", "NONE", "NONE", i);
         }
 
-        Clients clients = ClientsController.getInstance(context).getClientByCode(receipts.getCodeclient());
-        Client c = new Client(clients.getNAME(), clients.getDOCUMENT(), clients.getPHONE(), "address");
+        Clients clients = null;
+        if(clientsControl){
+            clients = ClientsController.getInstance(context).getClientByCode(receipts.getCodeclient());
+        }
+        Client c = null;
+        if(clients != null){
+         c =  new Client(clients.getNAME(), clients.getDOCUMENT(), clients.getPHONE(), "address");
+        }
 
         Users u = UsersController.getInstance(context).getUserByCode(receipts.getCodeuser());
 
@@ -548,7 +573,11 @@ public class ReceiptController {
         obj.add(new LineItem("No: "+receipts.getReceiptnumber()));
         obj.add(new LineItem(" "));
         obj.add(new LineItem("Vendedor: "+u.getUSERNAME()));
-        obj.add(new LineItem("Cliente:  "+c.getName()));
+
+        if(c != null){
+            obj.add(new LineItem("Cliente:  "+c.getName()));
+        }
+
         obj.add(new LineItem(" "));
         obj.add(new LineItem("FACTURA COMERCIAL").size(25).bold().center());
         obj.add(new LineItem(" "));

@@ -34,13 +34,12 @@ public class CODES {
    // Estatus Ordenes
     public static final int CODE_ORDER_STATUS_CLOSED = 0;//CERRADA
     public static final int CODE_ORDER_STATUS_OPEN = 1;//ABIERTA
-    public static final int CODE_ORDER_STATUS_CANCELED = 2;//ANULADA
-   // public static final int CODE_ORDER_STATUS_READY = 4;//LISTA
-    //public static final int CODE_ORDER_STATUS_DELIVERED = 5;//ENTREGADA
+    public static final int CODE_ORDER_STATUS_ANULATED = 2;//ANULADA
 
     // Estatus Receipts
     public static final String CODE_RECEIPT_STATUS_CLOSED = "0";//CERRADA
     public static final String CODE_RECEIPT_STATUS_OPEN = "1";//ABIERTA
+    public static final String CODE_RECEIPT_STATUS_ANULATED = "2";//ANULADA
 /*
     //TIPOS DE OPERACIONES
     public static final int CODE_TYPE_OPERATION_SALES = 1;

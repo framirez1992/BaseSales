@@ -274,11 +274,17 @@ public class PaymentController {
 
     public String printPayment(String codePayment)throws Exception{
 
+        boolean clientsControl = UserControlController.getInstance(context).searchSimpleControl(CODES.USERSCONTROL_CLIENTS)!= null;
+
         Print p = new Print(context,Print.PULGADAS.PULGADAS_2);
         CompanyController.getInstance(context).addCompanyToPrint(p);
         Payment payment = getPaymentByCode(codePayment);
         Receipts receipt = ReceiptController.getInstance(context).getReceiptByCode(payment.getCODERECEIPT());
-        Clients c = ClientsController.getInstance(context).getClientByCode(receipt.getCodeclient());
+        Clients c = null;
+        if(clientsControl){
+            c = ClientsController.getInstance(context).getClientByCode(receipt.getCodeclient());
+        }
+
         Users u = UsersController.getInstance(context).getUserByCode(receipt.getCodeuser());
 
         p.drawText(" ");
@@ -286,7 +292,9 @@ public class PaymentController {
         p.drawText("Codigo: "+payment.getCODE());
         p.drawText(" ");
         p.drawText("Vendedor: "+u.getUSERNAME());
-        p.drawText("Cliente:  "+c.getNAME());
+        if(clientsControl){
+            p.drawText("Cliente:  "+c.getNAME());
+        }
         p.drawText(" ");
         p.addAlign(Print.PRINTER_ALIGN.ALIGN_CENTER);
         p.drawText("RECIBO DE PAGO");

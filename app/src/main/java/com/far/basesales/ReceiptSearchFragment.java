@@ -124,6 +124,28 @@ public class ReceiptSearchFragment extends Fragment implements DialogCaller  {
         cbClient = view.findViewById(R.id.cbClient);
         llClients = view.findViewById(R.id.llClients);
 
+        spnStatus.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                KV obj= (KV)parent.getItemAtPosition(position);
+                if(!clientControl){
+                    if(obj.getKey().equals(CODES.CODE_RECEIPT_STATUS_CLOSED)){
+                        cbDate.setChecked(true);
+                        cbDate.setEnabled(false);
+                    }else{
+                        cbDate.setChecked(false);
+                        cbDate.setEnabled(true);
+                    }
+
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+
         btnSearch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -185,7 +207,7 @@ public class ReceiptSearchFragment extends Fragment implements DialogCaller  {
         ArrayList<KV> list = new ArrayList<>();
         list.add(new KV(CODES.CODE_RECEIPT_STATUS_OPEN, "Abierto"));
         list.add(new KV(CODES.CODE_RECEIPT_STATUS_CLOSED, "Cerrado"));
-        //list.add(new KV("-1", "TODOS"));
+        list.add(new KV(CODES.CODE_RECEIPT_STATUS_ANULATED, "Anulado"));
         spnStatus.setAdapter(new ArrayAdapter<KV>(parentActivity, android.R.layout.simple_list_item_1, list));
     }
 
@@ -251,9 +273,6 @@ public class ReceiptSearchFragment extends Fragment implements DialogCaller  {
 
         Date dateIniSearch = null;
         Date dateEndSearch = null;
-
-        Date lastMinDate=null;
-        Date lastMaxDate = null;
 
         if(lastCheckDate){
             Calendar dateIni = Calendar.getInstance();
@@ -401,6 +420,18 @@ public class ReceiptSearchFragment extends Fragment implements DialogCaller  {
         etDateEnd.setEnabled(true);
         btnSearch.setEnabled(true);
         btnSearchClients.setEnabled(true);
+
+
+        if(!clientControl){
+            if(((KV)spnStatus.getSelectedItem()).getKey().equals(CODES.CODE_RECEIPT_STATUS_CLOSED)){
+                cbDate.setChecked(true);
+                cbDate.setEnabled(false);
+            }else{
+                cbDate.setChecked(false);
+                cbDate.setEnabled(true);
+            }
+
+        }
     }
 
     public void refreshUI(){
