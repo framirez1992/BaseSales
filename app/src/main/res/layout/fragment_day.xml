@@ -201,7 +201,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:gravity="center_vertical"
-                    android:text="Ventas Brutas:"
+                    android:text="Total Ventas:"
                     android:paddingLeft="10dp"/>
 
                 <EditText android:id="@+id/etSalesAmount"
@@ -212,6 +212,43 @@
 
 
             </TableRow>
+
+
+
+            <TableRow android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:paddingTop="10dp">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:gravity="center_vertical"
+                    android:text="Ventas Anuladas"/>
+
+                <EditText android:id="@+id/etAnulatedReceiptsCount"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:focusableInTouchMode="false"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:gravity="center_vertical"
+                    android:text="Total Anulado:"
+                    android:paddingLeft="10dp"/>
+
+                <EditText android:id="@+id/etAnulatedReceiptsAmount"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="2"
+                    android:focusableInTouchMode="false"/>
+
+
+            </TableRow>
+
+
+
 
             <TableRow android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -247,6 +284,37 @@
 
 
 
+            <TableRow android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:paddingTop="30dp">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:gravity="center_vertical"
+                    android:text="Pagos:"/>
+
+                <EditText android:id="@+id/etPaymentCount"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:focusableInTouchMode="false"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:gravity="center_vertical"
+                    android:text="Total Pagos:"
+                    android:paddingLeft="10dp"/>
+
+                <EditText android:id="@+id/etTotalPayments"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="2"
+                    android:focusableInTouchMode="false"/>
+
+
+            </TableRow>
 
             <TableRow android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -314,6 +382,8 @@
             </TableRow>
 
 
+
+
             <TableRow android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
@@ -322,22 +392,58 @@
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:gravity="center_vertical"
-                    android:text="Total Pagos:"/>
+                    android:text="Devoluciones:"/>
 
-                <EditText android:id="@+id/etTotalPayments"
+                <EditText android:id="@+id/etTotalDevs"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_weight="3"
+                    android:layout_weight="1"
                     android:focusableInTouchMode="false"/>
 
-                <View android:layout_width="2dp"
-                    android:layout_height="2dp"
-                    android:visibility="invisible"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:gravity="center_vertical"
+                    android:text="Ganancias Netas:"
+                    android:paddingLeft="5dp"/>
+
+                <EditText android:id="@+id/etTotalGains"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:focusableInTouchMode="false"/>
+
+            </TableRow>
+
+
+
+            <TableRow android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:paddingTop="30dp"
+                android:visibility="gone">
+
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:gravity="center_vertical"
+                    android:text="Total Pendiente:"/>
+
+                <EditText android:id="@+id/etReceiptsPendingAmount"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="2"
+                    android:focusableInTouchMode="false"/>
 
                 <View android:layout_width="0dp"
-                    android:layout_height="2dp"
-                    android:layout_weight="2"
-                    android:visibility="invisible"/>
+                    android:layout_height="1dp"
+                    android:layout_weight="2"/>
+                <View android:layout_width="0dp"
+                    android:layout_height="1dp"
+                    android:layout_weight="2"/>
+
             </TableRow>
 
 

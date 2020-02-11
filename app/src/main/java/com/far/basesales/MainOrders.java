@@ -421,6 +421,8 @@ public class MainOrders extends AppCompatActivity implements ListableActivity, N
         day.setSalesamount(day.getSalesamount()+sales.getTOTAL());
         day.setDiscountamount(day.getDiscountamount()+receipt.getDiscount());
         day.setLastreceiptnumber(receipt.getReceiptnumber());
+
+
         if(payment.getTYPE().equals(CODES.PAYMENTTYPE_CASH)){
             day.setCashpaidamount(day.getCashpaidamount()+payment.getTOTAL());
             day.setCashpaidcount(day.getCashpaidcount()+1);

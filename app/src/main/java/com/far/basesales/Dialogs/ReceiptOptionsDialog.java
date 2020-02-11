@@ -596,14 +596,16 @@ public class ReceiptOptionsDialog extends DialogFragment  {
         PaymentController.getInstance(activity).searchPaymentFromFireBaseByCodeReceipt(receipts.getCode(), new OnSuccessListener<QuerySnapshot>() {
             @Override
             public void onSuccess(QuerySnapshot querySnapshot) {
-                double anulatedSalesCount = 0;
-                double anulatedSalesAmount = 0;
-                double anulatedCashPaymentCount = 0;
+                int anulatedReceiptsCount = 0;
+                double anulatedReceiptsAmount = 0;
+                int anulatedCashPaymentCount = 0;
                 double anulatedCashPaymentAmount = 0;
-                double anulatedCreditPaymentCount=0;
+                int anulatedCreditPaymentCount=0;
                 double anulatedCreditPaymentAmount=0;
 
                 receipts.setStatus(CODES.CODE_RECEIPT_STATUS_ANULATED);
+                anulatedReceiptsCount++;
+                anulatedReceiptsAmount = receipts.getTotal();
 
                 for(DocumentSnapshot ds: querySnapshot){
                     Payment s = ds.toObject(Payment.class);
@@ -624,13 +626,11 @@ public class ReceiptOptionsDialog extends DialogFragment  {
                 for(Sales s: SalesController.getInstance(activity).getSales(SalesController.CODERECEIPT+" = ?", new String[]{receipts.getCode()})){
                     s.setSTATUS(CODES.CODE_ORDER_STATUS_ANULATED);
                     anulatedSales.add(s);
-                    anulatedSalesCount++;
-                    anulatedSalesAmount = s.getTOTAL();
                 }
 
                 final Day d = DayController.getInstance(activity).getCurrentOpenDay();
-                d.setAnulatedsalescount(anulatedSalesCount);
-                d.setAnulatedsalesamount(anulatedSalesAmount);
+                d.setAnulatedreceiptscount(anulatedReceiptsCount);
+                d.setAnulatedreceiptsamount(anulatedReceiptsAmount);
                 d.setAnulatedcashpaymentcount(anulatedCashPaymentCount);
                 d.setAnulatedcashpaymentamount(anulatedCashPaymentAmount);
                 d.setAnulatedcreditpaymentcount(anulatedCreditPaymentCount);

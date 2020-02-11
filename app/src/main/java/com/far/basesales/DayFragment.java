@@ -46,7 +46,8 @@ public class DayFragment extends Fragment implements  OnSuccessListener<QuerySna
     LinearLayout llLoading, llDayStart, llDayEnd, llLoadingCloseDay;
     TextInputEditText etInitialDateStart, etStart, etEnd;
     TextView btnStartDay, btnEndDay, tvErrorMsg;
-    EditText etSalesCount, etSalesAmount,etNetSalesAmount, etCashCount, etCashAmount, etCreditCount,etCreditAmount, etDiscount, etTotalPayments;
+    EditText etSalesCount, etSalesAmount,etNetSalesAmount, etCashCount, etCashAmount, etCreditCount,etCreditAmount, etDiscount,etPaymentCount, etTotalPayments,
+            etAnulatedReceiptsCount, etAnulatedReceiptsAmount,etTotalDevs, etTotalGains, etReceiptsPendingAmount;
 
     int lastDatePressed;
     int lastFireBaseaction = 0;
@@ -87,7 +88,13 @@ public class DayFragment extends Fragment implements  OnSuccessListener<QuerySna
         etCreditCount = view.findViewById(R.id.etCreditCount);
         etCreditAmount = view.findViewById(R.id.etCreditAmount);
         etDiscount = view.findViewById(R.id.etDiscount);
+        etPaymentCount = view.findViewById(R.id.etPaymentCount);
         etTotalPayments = view.findViewById(R.id.etTotalPayments);
+        etAnulatedReceiptsCount = view.findViewById(R.id.etAnulatedReceiptsCount);
+        etAnulatedReceiptsAmount = view.findViewById(R.id.etAnulatedReceiptsAmount);
+        etTotalDevs = view.findViewById(R.id.etTotalDevs);
+        etTotalGains = view.findViewById(R.id.etTotalGains);
+        //etReceiptsPendingAmount = view.findViewById(R.id.etReceiptsPendingAmount);
 
         btnStartDay.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -216,13 +223,24 @@ public class DayFragment extends Fragment implements  OnSuccessListener<QuerySna
         etEnd.setText(Funciones.getFormatedDateRepDom(new Date()));
         etSalesCount.setText(day.getSalescount()+"");
         etSalesAmount.setText("$"+Funciones.formatMoney(day.getSalesamount()));
-        etNetSalesAmount.setText("$"+Funciones.formatMoney(day.getSalesamount() - day.getDiscountamount()));
+        double netSales = day.getSalesamount() - day.getDiscountamount() - day.getAnulatedreceiptsamount();
+        etNetSalesAmount.setText("$"+Funciones.formatMoney(netSales));
         etCashCount.setText((int)day.getCashpaidcount()+"");
         etCashAmount.setText("$"+Funciones.formatMoney(day.getCashpaidamount()));
         etCreditCount.setText((int)day.getCreditpaidcount()+"");
         etCreditAmount.setText("$"+Funciones.formatMoney(day.getCreditpaidamount()));
         etDiscount.setText("$"+Funciones.formatMoney(day.getDiscountamount()));
+        etPaymentCount.setText((day.getCashpaidcount()+day.getCreditpaidcount())+"");
         etTotalPayments.setText("$"+Funciones.formatMoney(day.getCreditpaidamount()+ day.getCashpaidamount()));
+        etAnulatedReceiptsCount.setText(day.getAnulatedreceiptscount()+"");
+        etAnulatedReceiptsAmount.setText("$"+Funciones.formatMoney(day.getAnulatedreceiptsamount()));
+        etTotalDevs.setText("$"+Funciones.formatMoney(day.getAnulatedcashpaymentamount() + day.getAnulatedcreditpaymentamount()));
+        double totalGains = (day.getCreditpaidamount()+ day.getCashpaidamount()) - (day.getAnulatedcashpaymentamount() + day.getAnulatedcreditpaymentamount());
+        etTotalGains.setText("$"+Funciones.formatMoney(totalGains));
+
+        //etReceiptsPendingAmount.setText("$"+Funciones.formatMoney(netSales - totalGains));
+
+
     }
 
 
@@ -269,8 +287,8 @@ public class DayFragment extends Fragment implements  OnSuccessListener<QuerySna
 
         Day day = new Day(Funciones.generateCode(), Funciones.getCodeuserLogged(parentActivity), dateStart, null, CODES.CODE_DAY_STATUS_OPEN,
                 0, 0.0, 0, 0.0, 0, 0.0, 0.0,
-                0, 0.0,0, 0.0, 0.0, 0.0,
-                0.0, 0.0, 0.0, 0.0, "");
+                0, 0.0,0, 0.0, 0, 0,
+                0, 0.0, 0, 0.0, "");
 
         DayController.getInstance(parentActivity).sendToFireBase(day,  new OnFailureListener() {
             @Override

@@ -31,18 +31,18 @@ public class DayController{
     public static  String CODE = "code",CODEUSER = "codeuser", DATESTART = "datestart",DATEEND="dateend", STATUS = "status",  CASHSALESCOUNT = "cashsalescount",CASHSALESAMOUNT = "cashsalesamount",
             CREDITSALESCOUNT = "creditsalescount", CREDITSALESAMOUNT="creditsalesamount", SALESCOUNT = "salescount", SALESAMOUNT = "salesamount",  DISCOUNTAMOUNT = "discountamount",
             CASHPAIDCOUNT = "cashpaidcount", CASHPAIDAMOUNT = "cashpaidamount",CREDITPAIDCOUNT = "creditpaidcount", CREDITPAIDAMOUNT = "creditpaidamount",
-            ANULATEDSALESCOUNT = "anulatedsalescount", ANULATEDSALESAMOUNT = "anulatedsalesamount", ANULATEDCASHPAYMENTCOUNT = "anulatedcashpaymentcount",ANULATEDCASHPAYMENTAMOUNT = "anulatedcashpaymentamount",
+            ANULATEDRECEIPTSCOUNT = "anulatedreceiptscount", ANULATEDRECEIPTSAMOUNT = "anulatedreceiptsamount", ANULATEDCASHPAYMENTCOUNT = "anulatedcashpaymentcount",ANULATEDCASHPAYMENTAMOUNT = "anulatedcashpaymentamount",
             ANULATEDCREDITPAYMENTCOUNT = "anulatedcreditpaymentcount",ANULATEDCREDITPAYMENTAMOUNT="anulatedcreditpaymentamount",LASTRECEIPTNUMBER = "lastreceiptnumber", DATE = "date", MDATE = "mdate";
     public static String QUERY_CREATE = "CREATE TABLE "+TABLE_NAME+"("
             +CODE+" TEXT,"+CODEUSER+" TEXT,"+DATESTART+" TEXT, "+DATEEND+" TEXT,  "+STATUS+" TEXT, "+CASHSALESCOUNT+" NUMERIC,"+CASHSALESAMOUNT+" NUMERIC,"+CREDITSALESCOUNT+" NUMERIC,"+
             CREDITSALESAMOUNT+" NUMERIC, "+CASHPAIDCOUNT+" NUMERIC,  "+CASHPAIDAMOUNT+" NUMERIC, "+CREDITPAIDCOUNT+" NUMERIC,  "+CREDITPAIDAMOUNT+" NUMERIC, " +
-            DISCOUNTAMOUNT+", NUMERIC, "+SALESCOUNT+" NUMERIC, "+SALESAMOUNT+" NUMERIC, "+ANULATEDSALESCOUNT+" NUMERIC, "+ANULATEDSALESAMOUNT+" NUMERIC, "+ANULATEDCASHPAYMENTCOUNT+" NUMERIC, " +
+            DISCOUNTAMOUNT+", NUMERIC, "+SALESCOUNT+" NUMERIC, "+SALESAMOUNT+" NUMERIC, "+ANULATEDRECEIPTSCOUNT+" NUMERIC, "+ANULATEDRECEIPTSAMOUNT+" NUMERIC, "+ANULATEDCASHPAYMENTCOUNT+" NUMERIC, " +
             ANULATEDCASHPAYMENTAMOUNT+" NUMERIC, "+ANULATEDCREDITPAYMENTCOUNT+" NUMERIC, "+ANULATEDCREDITPAYMENTAMOUNT+" NUMERIC," +
             LASTRECEIPTNUMBER+" TEXT, "+DATE+" TEXT, "+MDATE+" TEXT)";
 
     public static String[] columns = new String[]{CODE,CODEUSER,DATESTART, DATEEND, STATUS, CASHSALESCOUNT,CASHSALESAMOUNT,CREDITSALESCOUNT,CREDITSALESAMOUNT,
             CASHPAIDCOUNT, CASHPAIDAMOUNT,CREDITPAIDCOUNT, CREDITPAIDAMOUNT,DISCOUNTAMOUNT, SALESCOUNT, SALESAMOUNT,
-            ANULATEDSALESCOUNT, ANULATEDSALESAMOUNT, ANULATEDCASHPAYMENTCOUNT,ANULATEDCASHPAYMENTAMOUNT, ANULATEDCREDITPAYMENTCOUNT,ANULATEDCREDITPAYMENTAMOUNT,
+            ANULATEDRECEIPTSCOUNT, ANULATEDRECEIPTSAMOUNT, ANULATEDCASHPAYMENTCOUNT,ANULATEDCASHPAYMENTAMOUNT, ANULATEDCREDITPAYMENTCOUNT,ANULATEDCREDITPAYMENTAMOUNT,
             LASTRECEIPTNUMBER, DATE, MDATE};
     Context context;
     FirebaseFirestore db;
@@ -86,8 +86,8 @@ public class DayController{
         cv.put(CASHPAIDAMOUNT, r.getCashpaidamount());
         cv.put(CREDITPAIDCOUNT, r.getCreditpaidcount());
         cv.put(CREDITPAIDAMOUNT, r.getCreditpaidamount());
-        cv.put(ANULATEDSALESCOUNT,r.getAnulatedsalescount());
-        cv.put(ANULATEDSALESAMOUNT,r.getAnulatedsalesamount());
+        cv.put(ANULATEDRECEIPTSCOUNT,r.getAnulatedreceiptscount());
+        cv.put(ANULATEDRECEIPTSAMOUNT,r.getAnulatedreceiptsamount());
         cv.put(ANULATEDCASHPAYMENTCOUNT,r.getAnulatedcashpaymentcount());
         cv.put(ANULATEDCASHPAYMENTAMOUNT,r.getAnulatedcashpaymentamount());
         cv.put(ANULATEDCREDITPAYMENTCOUNT,r.getAnulatedcreditpaymentcount());
@@ -118,8 +118,8 @@ public class DayController{
         cv.put(CASHPAIDAMOUNT, r.getCashpaidamount());
         cv.put(CREDITPAIDCOUNT, r.getCreditpaidcount());
         cv.put(CREDITPAIDAMOUNT, r.getCreditpaidamount());
-        cv.put(ANULATEDSALESCOUNT,r.getAnulatedsalescount());
-        cv.put(ANULATEDSALESAMOUNT,r.getAnulatedsalesamount());
+        cv.put(ANULATEDRECEIPTSCOUNT,r.getAnulatedreceiptscount());
+        cv.put(ANULATEDRECEIPTSAMOUNT,r.getAnulatedreceiptsamount());
         cv.put(ANULATEDCASHPAYMENTCOUNT,r.getAnulatedcashpaymentcount());
         cv.put(ANULATEDCASHPAYMENTAMOUNT,r.getAnulatedcashpaymentamount());
         cv.put(ANULATEDCREDITPAYMENTCOUNT,r.getAnulatedcreditpaymentcount());
