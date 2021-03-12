@@ -438,7 +438,15 @@ public class ReceiptController {
 
         p.drawText(" ");
         p.drawText("Fecha: "+Funciones.getFormatedDateRepDomHour(receipt.getDate()));
+        p.drawText("Fecha de impresion: "+Funciones.getFormatedDateRepDomHour(new Date()));
         p.drawText("No: "+receipt.getReceiptnumber());
+        if(receipt.getStatus().equals(CODES.CODE_RECEIPT_STATUS_CLOSED)){
+            p.drawText("Status: Saldada");
+        }else if(receipt.getStatus().equals(CODES.CODE_RECEIPT_STATUS_OPEN)){
+            p.drawText("Status: Pendiente");
+        }else if(receipt.getStatus().equals(CODES.CODE_RECEIPT_STATUS_ANULATED)){
+            p.drawText("Status: Anulada");
+        }
         p.drawText(" ");
         p.drawText("Vendedor: "+u.getUSERNAME());
 
@@ -570,7 +578,17 @@ public class ReceiptController {
         obj.add(new LineItem(header.getPhone()).bold().center());
         obj.add(new LineItem(" "));
         obj.add(new LineItem("Fecha: "+new SimpleDateFormat("dd-MM-yyyy HH:mm:ss a").format(receipts.getDate())));
+        obj.add(new LineItem("Fecha de impresion: "+new SimpleDateFormat("dd-MM-yyyy HH:mm:ss a").format(new Date())));
         obj.add(new LineItem("No: "+receipts.getReceiptnumber()));
+
+        if(receipts.getStatus().equals(CODES.CODE_RECEIPT_STATUS_CLOSED)){
+            obj.add(new LineItem("Status: Saldada"));
+        }else if(receipts.getStatus().equals(CODES.CODE_RECEIPT_STATUS_OPEN)){
+            obj.add(new LineItem("Status: Pendiente"));
+        }else if(receipts.getStatus().equals(CODES.CODE_RECEIPT_STATUS_ANULATED)){
+            obj.add(new LineItem("Status: Anulada"));
+        }
+
         obj.add(new LineItem(" "));
         obj.add(new LineItem("Vendedor: "+u.getUSERNAME()));
 

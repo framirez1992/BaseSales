@@ -237,7 +237,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             Licenses lic = null;
             if (querySnapshot != null && querySnapshot.getDocuments()!= null && querySnapshot.getDocuments().size() > 0) {
                 licenseController.delete(null, null);
-
                 for(DocumentSnapshot ds: querySnapshot){
                     lic = ds.toObject(Licenses.class);
                     if(lic.getCODE().equals(Funciones.getCodeLicense(MainActivity.this))){

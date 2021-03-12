@@ -64,7 +64,6 @@ public class MainActualizationCenter extends AppCompatActivity implements OnSucc
         usersController = UsersController.getInstance(MainActualizationCenter.this);
 
 
-
         pb = findViewById(R.id.pb);
         tvMessage = findViewById(R.id.tvMessage);
         btnExit = findViewById(R.id.btnExit);

@@ -596,16 +596,16 @@ public class ReceiptOptionsDialog extends DialogFragment  {
         PaymentController.getInstance(activity).searchPaymentFromFireBaseByCodeReceipt(receipts.getCode(), new OnSuccessListener<QuerySnapshot>() {
             @Override
             public void onSuccess(QuerySnapshot querySnapshot) {
-                int anulatedReceiptsCount = 0;
-                double anulatedReceiptsAmount = 0;
-                int anulatedCashPaymentCount = 0;
-                double anulatedCashPaymentAmount = 0;
-                int anulatedCreditPaymentCount=0;
-                double anulatedCreditPaymentAmount=0;
+                Day day = DayController.getInstance(activity).getCurrentOpenDay();
+                int anulatedReceiptsCount = day.getAnulatedreceiptscount();
+                double anulatedReceiptsAmount = day.getAnulatedreceiptsamount() + receipts.getTotal();
+                int anulatedCashPaymentCount = day.getAnulatedcashpaymentcount();
+                double anulatedCashPaymentAmount = day.getAnulatedcashpaymentamount();
+                int anulatedCreditPaymentCount= day.getAnulatedcreditpaymentcount();
+                double anulatedCreditPaymentAmount=day.getAnulatedcreditpaymentamount();
 
                 receipts.setStatus(CODES.CODE_RECEIPT_STATUS_ANULATED);
                 anulatedReceiptsCount++;
-                anulatedReceiptsAmount = receipts.getTotal();
 
                 for(DocumentSnapshot ds: querySnapshot){
                     Payment s = ds.toObject(Payment.class);

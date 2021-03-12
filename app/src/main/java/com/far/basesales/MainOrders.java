@@ -113,8 +113,6 @@ public class MainOrders extends AppCompatActivity implements ListableActivity, N
         productsMeasure = productsMeasureController.getReferenceFireStore();
 
 
-
-
         newOrderFragment = new NewOrderFragment();
         newOrderFragment.setParent(this);
         resumenOrderFragment = new ResumenOrderFragment();

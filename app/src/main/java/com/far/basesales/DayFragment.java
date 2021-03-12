@@ -96,6 +96,7 @@ public class DayFragment extends Fragment implements  OnSuccessListener<QuerySna
         etTotalGains = view.findViewById(R.id.etTotalGains);
         //etReceiptsPendingAmount = view.findViewById(R.id.etReceiptsPendingAmount);
 
+
         btnStartDay.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -222,7 +223,7 @@ public class DayFragment extends Fragment implements  OnSuccessListener<QuerySna
         etStart.setText(Funciones.getFormatedDateRepDom(day.getDatestart()));
         etEnd.setText(Funciones.getFormatedDateRepDom(new Date()));
         etSalesCount.setText(day.getSalescount()+"");
-        etSalesAmount.setText("$"+Funciones.formatMoney(day.getSalesamount()));
+        etSalesAmount.setText("$"+Funciones.formatMoney(day.getSalesamount() - day.getDiscountamount()));
         double netSales = day.getSalesamount() - day.getDiscountamount() - day.getAnulatedreceiptsamount();
         etNetSalesAmount.setText("$"+Funciones.formatMoney(netSales));
         etCashCount.setText((int)day.getCashpaidcount()+"");
@@ -230,11 +231,16 @@ public class DayFragment extends Fragment implements  OnSuccessListener<QuerySna
         etCreditCount.setText((int)day.getCreditpaidcount()+"");
         etCreditAmount.setText("$"+Funciones.formatMoney(day.getCreditpaidamount()));
         etDiscount.setText("$"+Funciones.formatMoney(day.getDiscountamount()));
+
         etPaymentCount.setText((day.getCashpaidcount()+day.getCreditpaidcount())+"");
+        //etPaymentCount.setText( (day.getCashpaidcount() - day.getAnulatedcashpaymentcount()) + (day.getCreditpaidcount() - day.getAnulatedcreditpaymentcount())+"");
+
         etTotalPayments.setText("$"+Funciones.formatMoney(day.getCreditpaidamount()+ day.getCashpaidamount()));
+        //etTotalPayments.setText("$"+Funciones.formatMoney((day.getCashpaidamount() - day.getAnulatedcashpaymentamount()) + (day.getCreditpaidamount() - day.getAnulatedcreditpaymentamount())));
+
         etAnulatedReceiptsCount.setText(day.getAnulatedreceiptscount()+"");
         etAnulatedReceiptsAmount.setText("$"+Funciones.formatMoney(day.getAnulatedreceiptsamount()));
-        etTotalDevs.setText("$"+Funciones.formatMoney(day.getAnulatedcashpaymentamount() + day.getAnulatedcreditpaymentamount()));
+        etTotalDevs.setText("$-"+Funciones.formatMoney(day.getAnulatedcashpaymentamount() + day.getAnulatedcreditpaymentamount()));
         double totalGains = (day.getCreditpaidamount()+ day.getCashpaidamount()) - (day.getAnulatedcashpaymentamount() + day.getAnulatedcreditpaymentamount());
         etTotalGains.setText("$"+Funciones.formatMoney(totalGains));
 
